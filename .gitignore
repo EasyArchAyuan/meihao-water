@@ -47,6 +47,9 @@ next-env.d.ts
 !.workbuddy/memory/
 !.workbuddy/skills/
 
+# WorkBuddy Sites 部署追踪文件（每个 app 一个，重新部署会重新生成）
+.wbapp_*.genie
+
 # OS
 Thumbs.db
 ehthumbs.db

@@ -7,6 +7,45 @@
 
 ---
 
+## [1.0.5] — 2026-09-11
+
+**静态导出 + 部署上线**。本会话 preview server 在受限环境下启动后被 SIGTERM（bash 后台 runner 行为，多种 detach 方式均无效），改用 Next.js 静态导出 + Sites 部署给出在线预览链接。
+
+### 修改
+
+| 文件 | 改动 |
+|---|---|
+| `next.config.ts` | 新增 `output: "export"`、`trailingSlash: true`、`images: { unoptimized: true }` |
+| `package.json` | `start` → `serve`（`npx -y serve out -l $PORT`，静态文件预览） |
+| `src/app/opengraph-image.tsx` | 加 `export const dynamic = "force-static"`、`runtime = "nodejs"`（静态导出要求） |
+| `src/app/sitemap.ts` | 加 `export const dynamic = "force-static"` |
+| `src/app/robots.ts` | 加 `export const dynamic = "force-static"` |
+| `.wbapp_5loe01ZmoSrdAChTnaUjva.genie` | 部署工具写入的应用追踪标记文件（不入 git，保留在工作目录） |
+
+### 部署
+
+- **线上预览**：https://meihao-shuiye.app.workbuddy.link/
+- 部署类型：web-page（纯静态）
+- 部署方式：`out/` 目录直接上传（65 个静态文件）
+- 验证：✅ HTTP 可达，新公司名 122 处命中 / 旧公司名 0 处
+
+### 为什么转静态
+
+- **0 服务器成本**：不需要 Node 运行时，任意 CDN 可托管
+- **更快首屏**：HTML 已是渲染产物，浏览器拿到即可显示
+- **更简单部署**：`out/` 目录就是最终交付物
+- **本项目特性决定**：7 页都是纯展示 + SSG，无登录/数据库/个性化 → 静态导出无功能损失
+- **附加收益**：`next start` 不再需要 → 本地预览只需 `npx serve out` 即可，无 Node 进程依赖
+
+### 验证
+
+- `npm run build`：14 路由静态导出成功
+- `out/` 校验：新公司名 122 处 / 旧公司名 0 处
+- `npm run lint`：0 error 0 warning
+- 部署后链接验证：✅ verified
+
+---
+
 ## [1.0.4] — 2026-09-11
 
 **公司法定名称变更**：`廊坊美好水业有限公司` → `廊坊市美好商贸有限公司`。

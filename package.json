@@ -1,11 +1,11 @@
 {
   "name": "meihao-shuiye-web",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "serve": "npx -y serve out -l ${PORT:-3000}",
     "lint": "eslint"
   },
   "dependencies": {

@@ -4,6 +4,8 @@ import { site } from "@/data/site";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 export const alt = `${site.name}｜廊坊本地饮水服务品牌`;
+export const dynamic = "force-static";
+export const runtime = "nodejs";
 
 export default async function OpengraphImage() {
   return new ImageResponse(
