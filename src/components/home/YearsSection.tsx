@@ -41,7 +41,7 @@ export function YearsSection() {
 
             <RevealItem>
               <p className="body-lg max-w-xl text-[var(--on-dark-soft)]">
-                二十余年，一桶桶水送进廊坊的家庭、办公室与街巷。我们熟悉这座城，也被这座城熟悉。
+                二十余年，一桶桶水送进廊坊的家庭、办公室和街巷。
               </p>
             </RevealItem>
           </Reveal>

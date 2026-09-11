@@ -6,6 +6,13 @@
    ============================================================= */
 
 :root {
+  /* —— 字体栈（纯系统字，不加载 web font）
+     目标用户在中国大陆，系统字栈覆盖 macOS / iOS / Windows / Android 的中英文，
+     且零网络请求、无 CLS、构建期不依赖外网。 */
+  --font-stack: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "PingFang SC", "Noto Sans SC", "Microsoft YaHei", "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+
   /* —— Brand 美好水业 深海蓝（取自 logo.jpg 下半） */
   --brand: #0d47a1;
   --brand-bright: #1e88e5; /* 取自 logo.jpg 上半，仅用于 logo / favicon / 极小装饰 */
@@ -82,8 +89,8 @@
   --color-hairline: var(--hairline);
   --color-hairline-strong: var(--hairline-strong);
 
-  --font-sans: var(--font-sans), -apple-system, BlinkMacSystemFont, "SF Pro Display",
-    "SF Pro Text", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  /* 由 :root 的 --font-stack 提供，避免自引用与重复书写 */
+  --font-sans: var(--font-stack);
 
   --container-site: var(--container);
   --container-wide: var(--container-wide);
@@ -100,8 +107,7 @@ html,
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
-    "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+  font-family: var(--font-stack);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;

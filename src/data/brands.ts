@@ -18,10 +18,10 @@ export const agencyBrands = [
   { name: "水邻居天然矿泉水", category: ["桶装水"] },
   { name: "水立方",     category: ["桶装水", "瓶装水"] },
   { name: "冰露",       category: ["瓶装水"] },
-  { name: "百事可乐",   category: ["全系列瓶装"] },
+  { name: "百事可乐",   category: ["饮料"] },
 ] as const;
 
 export type AgencyBrand = (typeof agencyBrands)[number];
 
-/** 一句话简述（用于 /products 页底 strip） */
-export const brandsIntro = "同时为廊坊家庭提供以下品牌的桶装与瓶装水。";
+/** 一句话简述（用于 /products 页底 strip 与首页提及） */
+export const brandsIntro = "以下品牌的桶装水与瓶装水，我们都在送。";

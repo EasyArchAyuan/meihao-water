@@ -17,7 +17,7 @@ export const products = [
     volume: "TODO: REAL_SPEC",
     category: "home" as ProductCategory,
     desc: "日常的一桶水，准时到家。",
-    longDesc: "从厨房到客厅，从清晨的第一杯到深夜的一杯温水。",
+    longDesc: "家里常喝的那一桶，按时送到。",
   },
   {
     id: "office-bucket",
@@ -25,23 +25,23 @@ export const products = [
     volume: "TODO: REAL_SPEC",
     category: "office" as ProductCategory,
     desc: "办公室里的水，不该成为要操心的事。",
-    longDesc: "面向企业、办公室、商务空间、门店与社区，定期配送，稳定补给。",
+    longDesc: "办公室、门店、社区都合用。定期配送，不用惦记。",
   },
   {
     id: "business-water",
     name: "商务用水",
     volume: "TODO: REAL_SPEC",
     category: "business" as ProductCategory,
-    desc: "会议、接待、门店，体面地准备好。",
-    longDesc: "面向会议、接待与商务场景，提供稳定、体面的饮水补给。",
+    desc: "会议、接待、门店的常备水。",
+    longDesc: "会议、接待、门店。有客人在，水要先备好。",
   },
   {
     id: "disposable",
     name: "一次性桶装水",
     volume: "18L / 19L",
     category: "disposable" as ProductCategory,
-    desc: "更轻，更现代的一次性解决方案。",
-    longDesc: "面向企业、会议、商务及现代办公场景的一次性桶装水解决方案。",
+    desc: "更轻，更现代。",
+    longDesc: "不用回收，也不用清洗。会议和活动里最省事的一种。",
   },
   {
     id: "bottled",
@@ -49,7 +49,7 @@ export const products = [
     volume: "TODO: REAL_SPEC",
     category: "bottled" as ProductCategory,
     desc: "随身携带，方便即饮。",
-    longDesc: "便携包装，会议、差旅、户外皆宜。",
+    longDesc: "随身带走。会议、差旅、户外都合用。",
   },
 ] as const;
 

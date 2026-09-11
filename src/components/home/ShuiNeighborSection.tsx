@@ -38,7 +38,7 @@ export function ShuiNeighborSection() {
             </RevealItem>
             <RevealItem>
               <p className="body-lg max-w-md text-[var(--ink-soft)]">
-                让订水更简单，让喝水这件小事，变得更轻松。
+                订水更简单，喝水这件小事也更轻松。
               </p>
             </RevealItem>
             <RevealItem>

@@ -9,14 +9,14 @@ import { company, isTodo } from "@/data/company";
 export const metadata: Metadata = buildMetadata({
   title: "水邻居",
   description:
-    "水邻居，美好水业旗下新一代饮水生活品牌。让订水更简单，让喝水这件小事，变得更轻松。",
+    "水邻居，美好水业旗下新一代饮水生活品牌。订水更简单，喝水这件小事也更轻松。",
   path: "/shuineighbor",
 });
 
 const features = [
-  { title: "更轻", desc: "一次性的便捷，丢掉繁琐的归还与清洗。" },
-  { title: "更简单", desc: "下单、支付、追踪，几步搞定。" },
-  { title: "更年轻", desc: "清新的视觉，温柔的节奏。" },
+  { title: "更轻", desc: "一次性的便捷，不用归还，也不用清洗。" },
+  { title: "更简单", desc: "下单、付款、看配送，几步就完。" },
+  { title: "更年轻", desc: "清爽的样子，慢一点的节奏。" },
 ];
 
 export default function ShuineighborPage() {
@@ -52,7 +52,7 @@ export default function ShuineighborPage() {
             </RevealItem>
             <RevealItem>
               <p className="body-lg mt-6 max-w-xl text-[var(--ink-soft)]">
-                让订水更简单，让喝水这件小事，变得更轻松。
+                订水更简单，喝水这件小事也更轻松。
               </p>
             </RevealItem>
             <RevealItem>

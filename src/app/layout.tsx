@@ -1,15 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { site } from "@/data/site";
 import { localBusinessJsonLd, organizationJsonLd } from "@/lib/jsonld";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-  variable: "--font-sans",
-});
+/*
+ * 字体：只使用系统字栈（见 globals.css 的 --font-sans），不引入 web font。
+ * 原因：
+ *  1. 目标用户在中国大陆，Google Fonts 访问慢且不稳定；
+ *  2. 避免构建期依赖外网请求（next/font/google 会在 build 时拉取字体）；
+ *  3. 系统字栈已覆盖 macOS/iOS/Windows/Android 的中英文渲染，且零网络开销。
+ */
 
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
@@ -53,7 +54,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-CN" className={inter.variable}>
+    <html lang="zh-CN">
       <body className="min-h-dvh bg-[var(--bg)] text-[var(--ink)]">
         <a
           href="#main"

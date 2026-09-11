@@ -31,13 +31,13 @@ export default function ProductsPage() {
               as="h1"
               className="display-hero mt-6 text-[var(--ink)]"
             >
-              该到的水，
+              要的水，
               <br />
-              总到。
+              都在这里。
             </RevealItem>
             <RevealItem>
               <p className="body-lg mt-8 max-w-2xl text-[var(--ink-soft)]">
-                自营五类产品，覆盖家庭、企业、商务的不同场景。同时为廊坊家庭提供多家品牌的桶装与瓶装水。
+                家庭、办公室、会议、门店——需要什么水，都能备好。
               </p>
             </RevealItem>
           </Reveal>
@@ -66,9 +66,6 @@ export default function ProductsPage() {
                     <p className="text-[15px] leading-relaxed text-[var(--ink-soft)]">
                       {p.longDesc}
                     </p>
-                    <div className="mt-auto pt-3 text-[13px] text-[var(--ink-muted)] sm:pt-4">
-                      {isTodo(p.volume) ? "规格 · 暂未公示" : null}
-                    </div>
                   </article>
                 </RevealItem>
               ))}
@@ -81,16 +78,16 @@ export default function ProductsPage() {
           <div className="container-wide section-y">
             <Reveal className="flex flex-col gap-10">
               <RevealItem>
-                <span className="eyebrow">我们同时为廊坊家庭提供</span>
+                <span className="eyebrow">代理品牌</span>
               </RevealItem>
               <RevealItem>
                 <h2 className="display-section text-[var(--ink)]">
-                  多个品牌的桶装与瓶装水。
+                  换个牌子，也能送。
                 </h2>
               </RevealItem>
               <RevealItem>
                 <p className="body-lg max-w-2xl text-[var(--ink-soft)]">
-                  {brandsIntro}（仅展示品牌名称，不使用品牌 logo 图，规避版权）
+                  {brandsIntro}
                 </p>
               </RevealItem>
               <RevealItem>

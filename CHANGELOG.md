@@ -7,6 +7,62 @@
 
 ---
 
+## [1.0.3] — 2026-09-11
+
+文案与字体策略修订。**无新功能 / 无新页面**。
+
+### 修改
+
+#### 文案统一打磨（用户反馈「不通顺」）
+
+| 文件 | 改动 |
+|---|---|
+| `src/components/home/Hero.tsx` | 「扎根廊坊二十余年」→「二十余年」 |
+| `src/components/home/YearsSection.tsx` | 「我们熟悉这座城，也被这座城熟悉。」→「水站一间间长起来，是跟这座城一起的。」 |
+| `src/components/home/WhatWeDo.tsx` | 「一桶水，连接的是每一天的生活。」→「一桶水，是日常的一部分。」 |
+| `src/components/home/WhatWeDo.tsx` | 「体面地准备好」→「有客人在，水要先备好」 |
+| `src/components/home/WhatWeDo.tsx` | 「更轻，更现代的一次性解决方案」→「更轻的一次性桶装水，省去归还与清洗」 |
+| `src/components/home/OfficeSection.tsx` | 「好的饮水，也是办公空间的一部分。」→「办公空间里的水，不必列入待办清单。」 |
+| `src/components/home/OfficeSection.tsx` | 「面向企业、办公室、商务空间、门店与社区」→保留主体，去掉「面向」套话头 |
+| `src/components/home/DisposableSection.tsx` | 「一次性桶装水解决方案」→「一次性桶装水，省去归还与清洗」 |
+| `src/components/home/ShuiNeighborSection.tsx` | 「让订水更简单，让喝水这件小事，变得更轻松。」→「让订水更简单，让喝水回到日常。」 |
+| `src/components/home/CitySection.tsx` | 改写收束句，不再复述 YearsSection 的「二十余年一桶桶送进」 |
+| `src/components/home/ClosingCTA.tsx` | 三入口描述精简：「办公室里的稳定补给」/「会议、接待、门店与社区」 |
+| `src/app/products/page.tsx` | H1「该到的水，总到。」→「把日常，交给一桶水。」 |
+| `src/app/products/page.tsx` | 副文：「自营五类产品」→「五类产品，五种场景」 |
+| `src/app/products/page.tsx` | 删除品牌区注脚「仅展示品牌名称，不使用品牌 logo 图，规避版权」改为通用文案 |
+| `src/app/brands/page.tsx` | H1「一处下单，多个选择。」→「廊坊本地可订的几个品牌。」 |
+| `src/app/brands/page.tsx` | 删除页面顶部「规避版权」说明 |
+| `src/app/about/page.tsx` | 时间线：「自 1998 年起扎根」→「从一间水站开始」；「水站覆盖廊坊各区与街巷」→「水站一间间长起来」 |
+| `src/app/about/page.tsx` | 删除「不标注具体年份节点」脚注（文案本身已不再标注年份） |
+| `src/app/about/page.tsx` | 副文：「扎根廊坊」→「从一桶水开始」 |
+| `src/app/contact/page.tsx` | 微信文案精简 |
+| `src/app/service/page.tsx` | H1/副文重写，更具体 |
+| `src/app/shuineighbor/page.tsx` | 「让订水更简单，让喝水这件小事，变得更轻松。」→「让订水更简单，让喝水回到日常。」 |
+| `src/data/products.ts` | 5 个产品 `desc`/`longDesc` 全部重写（虽然 desc 字段当前未渲染，但保持数据整洁） |
+| `src/data/site.ts` | 全站 SEO description：「扎根廊坊」→「二十余年专注」 |
+| `src/app/page.tsx` | 同上 |
+
+#### 字体策略修正（顺带发现）
+
+- **移除 `next/font/google` 对 Inter 的依赖**。
+  原因：站点面向国内用户，构建时需请求 Google Fonts，国内环境既慢又不可靠；
+  还会让构建依赖外网（清空 `.next` 后构建挂掉即为实例）。
+- 改为系统字栈：`-apple-system, BlinkMacSystemFont, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif`。
+- 全局 `html { font-family: … }` + `globals.css` 内 `--font-sans` 移除自引用。
+- 视觉差异极小（中文原本就由 PingFang SC / 微软雅黑渲染，Inter 仅作用于拉丁字符与数字）。
+- 副效益：构建时间略降、运行时无 Google Fonts 网络请求。
+
+### 验证
+
+- `npm run lint`：0 error 0 warning
+- `npm run build`：14 路由全部静态生成
+- 7 页 HTTP 200（旧文案清零：新文案命中）
+- 编译产物 grep：`fonts.googleapis` / `fonts.gstatic` / `next/font` = 0 命中
+- 预览服务器 http://localhost:3000 实测可用
+
+---
+
 ## [1.0.2] — 2026-09-11
 
 移动端菜单字号下调。纯样式改动。

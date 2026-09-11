@@ -34,7 +34,7 @@ export default function ContactPage() {
             </RevealItem>
             <RevealItem>
               <p className="body-lg mt-8 max-w-2xl text-[var(--ink-soft)]">
-                廊坊本地订水，请直接拨打下方电话。也可通过微信服务号下单或咨询。
+                廊坊本地订水，一个电话就够。也可以扫码加微信。
               </p>
             </RevealItem>
           </Reveal>
@@ -74,7 +74,7 @@ export default function ContactPage() {
                     {company.wechatPublicName}
                   </p>
                   <p className="mt-2 text-[14px] text-[var(--ink-soft)]">
-                    关注公众号，接收订水、配送与品牌更新。
+                    关注公众号，订水、配送、新消息都在里面。
                   </p>
                 </div>
               </div>

@@ -29,13 +29,13 @@ export default function ServicePage() {
               as="h1"
               className="display-section text-[var(--ink)]"
             >
-              配送服务页面
+              配送服务页，
               <br />
-              即将上线。
+              正在路上。
             </RevealItem>
             <RevealItem>
               <p className="body-lg text-[var(--ink-soft)]">
-                现阶段订水请直接拨打热线，或关注公众号与水邻居服务号。
+                现在订水，直接打热线，或者扫码加微信。
               </p>
             </RevealItem>
             <RevealItem>

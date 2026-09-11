@@ -27,7 +27,7 @@ export function CitySection() {
             </RevealItem>
             <RevealItem>
               <p className="body-lg max-w-xl text-[var(--ink-soft)]">
-                二十余年，我们把一桶桶水送进廊坊的家庭、办公室和街巷。
+                从小区到写字楼，从门店到街角，路我们熟。
               </p>
             </RevealItem>
             <RevealItem>

@@ -5,9 +5,9 @@ import { TelLink } from "@/components/ui/TelLink";
 import { primaryPhone, company } from "@/data/company";
 
 const entries = [
-  { title: "家庭订水", desc: "日常一桶水，准时到家。" },
-  { title: "企业用水", desc: "办公室里的稳定补给。" },
-  { title: "商务合作", desc: "会议、接待、门店与社区。" },
+  { title: "家庭订水", desc: "家里常喝的，按时送到。" },
+  { title: "企业用水", desc: "办公室、门店的定期补给。" },
+  { title: "商务合作", desc: "会议、接待与活动用水。" },
 ];
 
 export function ClosingCTA() {

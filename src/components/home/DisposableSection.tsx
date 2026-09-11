@@ -27,7 +27,7 @@ export function DisposableSection() {
           </RevealItem>
           <RevealItem>
             <p className="body-lg max-w-xl text-[var(--on-dark-soft)]">
-              面向企业、会议、商务及现代办公场景的一次性桶装水解决方案。
+              面向会议、活动与现代办公场景。用完即走，不用回收。
             </p>
           </RevealItem>
         </Reveal>

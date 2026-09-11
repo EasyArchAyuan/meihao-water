@@ -28,7 +28,7 @@ export function Hero() {
 
           <RevealItem>
             <p className="body-lg max-w-xl text-[var(--ink-soft)]">
-              廊坊本地饮水服务品牌。扎根廊坊二十余年，从一桶水开始，为家庭、企业与城市生活提供持续、可靠的饮水服务。
+              廊坊本地饮水服务品牌。二十余年，从一桶水开始，把水送进家庭、办公室和街巷。
             </p>
           </RevealItem>
 

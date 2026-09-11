@@ -24,12 +24,12 @@ const items: Item[] = [
   },
   {
     title: "商务用水",
-    desc: "会议、接待、门店，体面地准备好。",
+    desc: "会议、接待、门店。有客人在，水要先备好。",
     image: "whatwedo-03",
   },
   {
     title: "一次性桶装水",
-    desc: "更轻，更现代的一次性解决方案。",
+    desc: "不用回收，也不用清洗。",
     image: "whatwedo-04",
   },
 ];
@@ -49,7 +49,7 @@ export function WhatWeDo() {
               id="wwd-title"
               className="display-section mt-5 text-[var(--ink)] sm:mt-6"
             >
-              一桶水，连接的是每一天的生活。
+              一桶水，连着每一天的生活。
             </h2>
           </header>
 

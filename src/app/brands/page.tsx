@@ -3,7 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
-import { agencyBrands, brandsIntro } from "@/data/brands";
+import { agencyBrands } from "@/data/brands";
 import { primaryPhone } from "@/data/company";
 import { Hairline } from "@/components/ui/Hairline";
 
@@ -38,13 +38,13 @@ export default function BrandsPage() {
               as="h1"
               className="display-hero mt-6 text-[var(--ink)]"
             >
-              一处下单，
+              哪个牌子，
               <br />
-              多个选择。
+              都能送。
             </RevealItem>
             <RevealItem>
               <p className="body-lg mt-8 max-w-2xl text-[var(--ink-soft)]">
-                {brandsIntro}本页仅展示品牌名称，不使用任何品牌商标图，规避版权。
+                这些品牌的桶装水与瓶装水，廊坊本地都能送到。
               </p>
             </RevealItem>
           </Reveal>
@@ -96,7 +96,7 @@ export default function BrandsPage() {
               >
                 不知道选哪个？
                 <br />
-                打给我们的客服。
+                打个电话问我们。
               </RevealItem>
               <RevealItem>
                 <a

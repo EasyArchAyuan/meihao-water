@@ -7,29 +7,29 @@ import { company } from "@/data/company";
 
 export const metadata: Metadata = buildMetadata({
   title: "关于美好水业",
-  description: `美好水业（${company.legalName}），自 1998 年起扎根廊坊，二十余年专注桶装水、一次性桶装水、瓶装水及饮水配送服务。`,
+  description: `美好水业（${company.legalName}），1998 年成立，二十余年专注廊坊本地的桶装水、一次性桶装水、瓶装水与饮水配送服务。`,
   path: "/about",
 });
 
 const milestones = [
-  { label: "起点", desc: "自 1998 年起，从一桶水开始。" },
-  { label: "走进社区", desc: "水站覆盖廊坊各区与街巷。" },
-  { label: "服务企业与商务", desc: "为办公室、门店与会议场景提供稳定补给。" },
-  { label: "今天", desc: "仍是廊坊本地的饮水服务品牌。" },
+  { label: "起点", desc: "1998 年，从一桶水开始。" },
+  { label: "走进社区", desc: "一桶桶水，送进廊坊的社区与街巷。" },
+  { label: "服务企业与商务", desc: "办公室、门店、会议，水提前备好。" },
+  { label: "今天", desc: "还在廊坊，还做这件事。" },
 ];
 
 const values = [
   {
     title: "真实",
-    desc: "不夸大，不虚构。每一桶水，背后都是一次日常。",
+    desc: "不编故事，也不喊口号。水就是水。",
   },
   {
     title: "持续",
-    desc: "二十余年的本地积累，是别人拿不走的。",
+    desc: "二十余年，做的是同一件事。",
   },
   {
     title: "克制",
-    desc: "做该做的事，不堆砌。该给到客户的，就给到。",
+    desc: "不打扰，不催促。需要的时候，水就在。",
   },
 ];
 
@@ -54,7 +54,7 @@ export default function AboutPage() {
             </RevealItem>
             <RevealItem>
               <p className="body-lg mt-8 max-w-2xl text-[var(--ink-soft)]">
-                {company.legalName}，自 1998 年起扎根廊坊。从一桶水开始，为家庭、企业与城市生活提供持续、可靠的饮水服务。
+                {company.legalName}，1998 年成立。二十余年，只做一件事：把好水送到廊坊人的身边。
               </p>
             </RevealItem>
           </Reveal>
@@ -85,11 +85,6 @@ export default function AboutPage() {
                   </li>
                 ))}
               </ol>
-            </RevealItem>
-            <RevealItem>
-              <p className="text-[12px] text-[var(--ink-muted)]">
-                * 不标注具体年份节点，避免虚构事实。
-              </p>
             </RevealItem>
           </Reveal>
         </section>

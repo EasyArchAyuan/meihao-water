@@ -23,11 +23,11 @@ export function OfficeSection() {
               id="office-title"
               className="display-section text-[var(--ink)]"
             >
-              好的饮水，也是办公空间的一部分。
+              好水，也是办公空间的一部分。
             </RevealItem>
             <RevealItem>
               <p className="body-lg max-w-md text-[var(--ink-soft)]">
-                面向企业、办公室、商务空间、门店与社区。定期配送，稳定补给，让饮水这件事从待办清单里消失。
+                办公室、门店、社区。定期配送，稳定补给——让饮水这件事从待办清单里消失。
               </p>
             </RevealItem>
             <RevealItem>

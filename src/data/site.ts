@@ -11,7 +11,7 @@ export const site = {
   locale: "zh-CN",
   ogLocale: "zh_CN",
   description:
-    "美好水业，扎根廊坊本地二十余年，为家庭、企业与商务场景提供桶装水、一次性桶装水、瓶装水及饮水配送服务。",
+    "美好水业，廊坊本地饮水服务品牌。二十余年，为家庭、企业与商务场景提供桶装水、一次性桶装水、瓶装水及饮水配送服务。",
   shortDescription: "廊坊本地饮水服务品牌",
   keywords: [
     "廊坊桶装水",
