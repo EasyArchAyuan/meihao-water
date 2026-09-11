@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, Phone, X } from "lucide-react";
 import { primaryNav } from "@/data/navigation";
 import { primaryPhone } from "@/data/company";
 import { cn } from "@/lib/cn";
@@ -34,25 +34,22 @@ export function Navbar() {
       <header
         className={cn(
           "fixed inset-x-0 top-0 z-40 transition-[background-color,backdrop-filter,border-color] duration-500",
-          scrolled
-            ? "bg-[var(--bg)]/72 backdrop-blur-xl border-b border-[var(--hairline)]"
-            : "bg-transparent border-b border-transparent",
+          scrolled || open
+            ? "border-b border-[var(--hairline)] bg-[var(--bg)]/85 backdrop-blur-xl"
+            : "border-b border-transparent bg-transparent",
         )}
       >
         <div className="container-wide flex h-16 items-center justify-between sm:h-[72px]">
           <Link
             href="/"
             aria-label="返回首页"
-            className="flex items-center"
+            className="flex min-h-11 items-center"
           >
-            <Logo variant={scrolled ? "color" : "color"} />
+            <Logo variant="color" />
           </Link>
 
           {/* 桌面导航 */}
-          <nav
-            aria-label="主导航"
-            className="hidden md:flex items-center gap-10"
-          >
+          <nav aria-label="主导航" className="hidden items-center gap-10 md:flex">
             {primaryNav.map((item) => {
               const active = pathname === item.href;
               return (
@@ -61,7 +58,7 @@ export function Navbar() {
                   href={item.href}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "relative text-[15px] font-medium transition-colors duration-300",
+                    "relative inline-flex min-h-11 items-center text-[15px] font-medium transition-colors duration-300",
                     active
                       ? "text-[var(--ink)]"
                       : "text-[var(--ink-soft)] hover:text-[var(--ink)]",
@@ -80,22 +77,32 @@ export function Navbar() {
             })}
           </nav>
 
-          {/* 右侧 CTA：桌面立即订水，移动端汉堡 */}
-          <div className="flex items-center gap-3">
+          {/* 右侧：桌面「立即订水」/ 移动端「一键拨号 + 汉堡」 */}
+          <div className="flex items-center gap-2 sm:gap-3">
             <a
               href={primaryPhone.tel}
-              className="hidden md:inline-flex h-10 items-center rounded-full bg-[var(--ink)] px-5 text-[14px] font-medium text-[var(--bg)] transition-colors duration-300 hover:bg-[var(--brand)]"
+              className="hidden h-11 items-center rounded-full bg-[var(--ink)] px-5 text-[14px] font-medium text-[var(--bg)] transition-colors duration-300 hover:bg-[var(--brand)] md:inline-flex"
             >
               立即订水
             </a>
+
+            {/* 移动端主行动：直接拨号，无需展开菜单 */}
+            <a
+              href={primaryPhone.tel}
+              aria-label={`拨打订水电话 ${primaryPhone.display}`}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[var(--ink)] text-[var(--bg)] transition-colors duration-300 hover:bg-[var(--brand)] md:hidden"
+            >
+              <Phone size={17} aria-hidden />
+            </a>
+
             <button
               type="button"
               aria-label={open ? "关闭菜单" : "打开菜单"}
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
-              className="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-full text-[var(--ink)] transition-colors hover:bg-[var(--bg-alt)]"
+              className="inline-flex h-11 w-11 items-center justify-center rounded-full text-[var(--ink)] transition-colors hover:bg-[var(--bg-alt)] md:hidden"
             >
-              {open ? <X size={20} /> : <Menu size={20} />}
+              {open ? <X size={20} aria-hidden /> : <Menu size={20} aria-hidden />}
             </button>
           </div>
         </div>

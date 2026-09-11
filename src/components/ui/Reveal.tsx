@@ -56,17 +56,20 @@ export function Reveal({
 type RevealItemProps = {
   children: ReactNode;
   className?: string;
+  /** 透传到根元素（用于 aria-labelledby 锚点） */
+  id?: string;
   as?: "div" | "li" | "p" | "h1" | "h2" | "h3" | "h4" | "span" | "article" | "figure";
 };
 
 export function RevealItem({
   children,
   className,
+  id,
   as = "div",
 }: RevealItemProps) {
   const MotionTag = motion[as] as typeof motion.div;
   return (
-    <MotionTag className={cn(className)} variants={fadeUp}>
+    <MotionTag id={id} className={cn(className)} variants={fadeUp}>
       {children}
     </MotionTag>
   );

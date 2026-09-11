@@ -34,12 +34,13 @@ export default function BrandsPage() {
             <RevealItem>
               <span className="eyebrow">代理品牌</span>
             </RevealItem>
-            <RevealItem as="h1">
-              <h1 className="display-hero mt-6 text-[var(--ink)]">
-                一处下单，
-                <br />
-                多个选择。
-              </h1>
+            <RevealItem
+              as="h1"
+              className="display-hero mt-6 text-[var(--ink)]"
+            >
+              一处下单，
+              <br />
+              多个选择。
             </RevealItem>
             <RevealItem>
               <p className="body-lg mt-8 max-w-2xl text-[var(--ink-soft)]">
@@ -50,14 +51,14 @@ export default function BrandsPage() {
         </section>
 
         {/* 分组列表 */}
-        <section className="container-wide pb-24">
+        <section className="container-wide pb-16 sm:pb-24">
           <Reveal>
-            <div className="flex flex-col gap-16">
+            <div className="flex flex-col gap-10 sm:gap-14">
               {Object.entries(groups).map(([category, names], gi) => (
                 <RevealItem as="div" key={category}>
-                  <div className="flex flex-col gap-6">
+                  <div className="flex flex-col gap-5 sm:gap-6">
                     <div className="flex items-baseline justify-between">
-                      <h2 className="text-[20px] font-medium tracking-tight text-[var(--ink)]">
+                      <h2 className="text-[18px] font-medium tracking-tight text-[var(--ink)] sm:text-[20px]">
                         {category}
                       </h2>
                       <span className="tabular-nums text-[12px] tracking-[0.24em] text-[var(--ink-muted)]">
@@ -65,11 +66,11 @@ export default function BrandsPage() {
                       </span>
                     </div>
                     <Hairline />
-                    <ul className="flex flex-wrap items-baseline gap-x-8 gap-y-4 sm:gap-x-12">
+                    <ul className="flex flex-wrap items-baseline gap-x-6 gap-y-3 sm:gap-x-12 sm:gap-y-4">
                       {names.map((n) => (
                         <li
                           key={n}
-                          className="text-[clamp(20px,2.2vw,28px)] tracking-tight text-[var(--ink)]"
+                          className="text-[clamp(18px,2.2vw,28px)] tracking-tight text-[var(--ink)]"
                         >
                           {n}
                         </li>
@@ -89,17 +90,18 @@ export default function BrandsPage() {
               <RevealItem>
                 <span className="eyebrow">需要帮助？</span>
               </RevealItem>
-              <RevealItem as="h2">
-                <h2 className="display-section text-[var(--ink)]">
-                  不知道选哪个？
-                  <br />
-                  打给我们的客服。
-                </h2>
+              <RevealItem
+                as="h2"
+                className="display-section text-[var(--ink)]"
+              >
+                不知道选哪个？
+                <br />
+                打给我们的客服。
               </RevealItem>
               <RevealItem>
                 <a
                   href={primaryPhone.tel}
-                  className="text-[clamp(28px,4vw,44px)] font-medium tabular-nums text-[var(--ink)] transition-colors hover:text-[var(--brand)]"
+                  className="inline-flex min-h-11 items-center text-[clamp(30px,4.4vw,44px)] font-medium tabular-nums text-[var(--ink)] transition-colors hover:text-[var(--brand)]"
                 >
                   {primaryPhone.display}
                 </a>

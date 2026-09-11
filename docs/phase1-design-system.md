@@ -248,8 +248,7 @@ components/
     MobileMenu.tsx           # client：全屏菜单 + 焦点锁定
     Footer.tsx               # server
   ui/
-    Reveal.tsx               # client：统一入场动效
-    SectionHeading.tsx       # 眉标 + 标题 + 可选副文
+    Reveal.tsx               # 统一入场动效（含 id 透传，用于 aria-labelledby）
     ButtonLink.tsx           # 主/次/文字型三种，统一 focus ring
     Figure.tsx               # 唯一图片出口：真实图 or 占位（带 TODO 标记）
     Hairline.tsx             # 发丝线（可选）
@@ -360,7 +359,8 @@ shuineighbor:     { name: "水邻居", domain: "TODO: REAL_DOMAIN" }
 ### D. Logo 渐变豁免
 
 `logo.jpg` 本身（亮蓝 → 深蓝渐变 + 书法"美好水业" + 白底"水"字符）作为品牌资产保留原貌。
-深色 Section / Footer 使用自制的 `public/brand/logo-white.svg`（抽象"水"字符 + 字标文字，白色 / currentColor 适配）。
+深色 Section / Footer 使用自制的 `public/brand/logo-white.svg`（抽象"水"字符 + 字标文字）。
+**注意**：该 SVG 经 `<img>` 引用，内部 `currentColor` 无法继承父元素颜色（会解析为黑色），因此颜色**硬编码为白色**，不要改回 `currentColor`。
 全站 CSS 仍**严格禁止**渐变（唯一例外是图片保护蒙层）。
 
 ### E. 决策记录
@@ -372,4 +372,53 @@ shuineighbor:     { name: "水邻居", domain: "TODO: REAL_DOMAIN" }
 - **代理品牌** 严格仅出现品牌中文名，**不使用任何品牌商标 / logo 图**。
 - **真实 1998 年** ⇒ 02 Section 改用「二十余年 / 自 1998 年起」，不标注具体年份节点，避免与实际 28 年产生不一致。
 - **Phase 2 实现** 详见 `docs/phase2-implementation.md`。
+
+---
+
+## 附录 2（v1.0.1 修订，2026-09-11）
+
+移动端专项对本文档中若干设计规定的落地方式做了调整，**设计原则未变**，此处记录偏差以便后续维护。
+
+### A. 02 二十年的巨字下限
+
+| | 值 |
+|---|---|
+| 原设计（Phase 1 / v1.0.0） | `clamp(120px, 18vw, 260px)` |
+| 现设计（v1.0.1） | `clamp(60px, 15.5vw, 220px)` |
+
+原因：原下限 120px 在 375px 屏上使 4 字标题宽 480px，超出可用 335px，触发横向滚动。
+现下限 60px 在 375px 屏下 4 字约 232px，保留视觉冲击力的同时不溢出。
+
+### B. 移动端图片比例（原为单一 16:9）
+
+Phase 1 约定"移动端 4:5 / 1:1"但未在 `Figure` 层实现，v1.0.1 补上 `ratioSm` 机制：
+
+| 用途 | 移动端 | ≥640px |
+|---|---|---|
+| Hero 大图 | `4/5` | `16/9` |
+| 一次性桶装水 / 水邻居页主图 / 地图 | `4/3` | `16/9` |
+| 家庭饮水 / 水邻居 Section | `4/5` | `4/5` |
+| 二十年三图 | `3/4` × 3 列 | `3/4` × 3 列 |
+
+### C. 移动端装饰策略（新增原则）
+
+窄屏下若装饰元素（如 09 廊坊城市的抽象线条）会穿过正文、或因 `preserveAspectRatio="slice"` 放大而变粗，则**移动端隐藏**，仅 ≥640px 显示。优先保证文字可读性，不为了"有视觉"而牺牲阅读。
+
+### D. 移动端信息优先级（新增原则）
+
+手机端把最高频动作前置并放大：
+
+- `Navbar` 增加一键拨号按钮（无需展开菜单）。
+- `Footer` 把「订水电话」提到品牌区之后，用 `clamp(22px,6.4vw,28px)` 大字号呈现。
+- `/contact` 电话列表改为带分隔线的纵向排列，非 prominent 字号提到 19px。
+
+### E. 组件增删
+
+- **新增能力**：`RevealItem` 支持 `id` 透传（用于 `<section aria-labelledby>` 指向真实标题）；`Figure` 支持 `ratioSm` + 容器查询占位；`Figure` 的 `note` 不再直接显示（移入 `title` / `data-note`）。
+- **移除**：`ui/SectionHeading.tsx`（全站零引用）。
+- **约定**：`Figure` 的 `className` **不要用于控制宽度** —— 基类含 `w-full` 且 `cn()` 不做冲突消解，宽度须由外层容器约束。若未来确需允许覆盖，应引入 tailwind-merge。
+
+### F. 触控目标基线（新增原则）
+
+移动端可点击元素统一 `min-h-11`（44px）。`sr-only` 的 skip-link 豁免。
 

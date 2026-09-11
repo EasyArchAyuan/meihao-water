@@ -40,9 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# WorkBuddy
-.workbuddy/
-# 保留 .workbuddy/memory/ 提交（项目记忆）
+# WorkBuddy —— 忽略工具运行态，仅保留项目记忆与项目级技能
+# 注意：必须先忽略目录内容（.workbuddy/*）才能用 ! 重新包含子目录；
+# 写成 `.workbuddy/` 会整目录忽略，后续的 ! 规则不会生效。
+.workbuddy/*
 !.workbuddy/memory/
 !.workbuddy/skills/
 

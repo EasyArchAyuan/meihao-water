@@ -39,24 +39,17 @@ export function WhatWeDo() {
   const reduced = useReducedMotion();
 
   return (
-    <section
-      aria-labelledby="wwd-title"
-      className="bg-[var(--bg)]"
-    >
+    <section aria-labelledby="wwd-title" className="bg-[var(--bg)]">
       <div className="container-wide section-y">
-        <div className="grid gap-16 lg:grid-cols-12 lg:gap-20">
+        <div className="grid gap-10 sm:gap-16 lg:grid-cols-12 lg:gap-20">
           {/* 左：标题 */}
           <header className="lg:col-span-5">
             <span className="eyebrow">我们做什么</span>
             <h2
               id="wwd-title"
-              className="display-section mt-6 text-[var(--ink)]"
+              className="display-section mt-5 text-[var(--ink)] sm:mt-6"
             >
-              一桶水，
-              <br />
-              连接的是
-              <br />
-              每一天的生活。
+              一桶水，连接的是每一天的生活。
             </h2>
           </header>
 
@@ -66,53 +59,39 @@ export function WhatWeDo() {
               {items.map((item, i) => (
                 <li
                   key={item.title}
-                  className="border-b border-[var(--hairline)]"
+                  className="group border-b border-[var(--hairline)]"
                   onMouseEnter={() => setActive(i)}
-                  onFocus={() => setActive(i)}
                 >
-                  <button
-                    type="button"
-                    className="group flex w-full items-baseline justify-between gap-6 py-7 text-left transition-colors duration-300 hover:text-[var(--ink)] sm:py-8"
-                    aria-label={`查看 ${item.title} 详情`}
-                  >
-                    <span className="flex items-baseline gap-4 sm:gap-6">
+                  {/*
+                    移动端：编号 + 标题一行，描述紧随其下（始终可见，不依赖 hover）。
+                    桌面：标题在左、描述在右对齐，hover 时描述加深并联动下方大图。
+                  */}
+                  <div className="flex flex-col gap-2 py-6 sm:flex-row sm:items-baseline sm:justify-between sm:gap-6 sm:py-8">
+                    <div className="flex items-baseline gap-4 sm:gap-6">
                       <span className="tabular-nums text-[12px] text-[var(--ink-muted)]">
                         0{i + 1}
                       </span>
                       <span
                         className={cn(
-                          "title transition-colors",
+                          "title transition-colors duration-300",
                           active === i
                             ? "text-[var(--ink)]"
-                            : "text-[var(--ink-soft)] group-hover:text-[var(--ink)]",
+                            : "text-[var(--ink-soft)]",
                         )}
                       >
                         {item.title}
                       </span>
-                    </span>
-                    <span
-                      className={cn(
-                        "hidden flex-1 pl-8 text-[14px] text-[var(--ink-muted)] sm:block",
-                        active === i ? "text-[var(--ink-soft)]" : "",
-                      )}
-                    >
+                    </div>
+                    <p className="pl-7 text-[14px] leading-relaxed text-[var(--ink-soft)] transition-colors duration-300 sm:pl-8 sm:text-right lg:text-[var(--ink-muted)] lg:group-hover:text-[var(--ink-soft)]">
                       {item.desc}
-                    </span>
-                  </button>
+                    </p>
+                  </div>
                 </li>
               ))}
             </ul>
 
-            {/* 移动端：直接显示当前项的描述（不可 hover） */}
-            <p className="mt-6 text-[15px] text-[var(--ink-soft)] sm:hidden">
-              {items[active].desc}
-            </p>
-
-            {/* hover 大图预览（仅桌面） */}
-            <div
-              className="mt-10 hidden lg:block"
-              aria-hidden
-            >
+            {/* hover 大图预览（仅桌面，装饰性） */}
+            <div className="mt-10 hidden lg:block" aria-hidden>
               <AnimatePresence mode="wait">
                 <motion.div
                   key={items[active].image}

@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  logo-white.svg — 深色 Section / Footer 使用的白色字标。
-  字体走系统栈，不嵌入 glyph；color 由 currentColor 控制。
+  logo-white.svg — 深色 Section / Footer 专用白色字标。
+  注意：本文件通过 <img> 引用，SVG 内的 currentColor 无法继承父元素颜色
+  （会解析为黑色），因此这里硬编码白色，不要改回 currentColor。
   与 /brand/logo.jpg（彩版）成对使用。
 -->
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 64" fill="currentColor" role="img" aria-label="美好水业">
-  <!-- 一个抽象"水"字符：圆角矩形 + 中心竖线 + 两条波纹 -->
-  <g transform="translate(0,4)">
-    <rect x="0" y="0" width="56" height="56" rx="14" fill="currentColor" opacity="0.12"/>
-    <path d="M28 14 L28 42" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-    <path d="M14 24 Q22 20 28 24 T42 24" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
-    <path d="M14 32 Q22 28 28 32 T42 32" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
-    <path d="M14 40 Q22 36 28 40 T42 40" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 64" fill="#F2F5F4" role="img" aria-label="美好水业">
+  <!-- 抽象"水"字符：描边圆角方块 + 中心竖线 + 三条波纹 -->
+  <g transform="translate(0,4)" fill="none" stroke="#F2F5F4" stroke-linecap="round">
+    <rect x="1" y="1" width="54" height="54" rx="14" stroke-width="1.6" stroke-opacity="0.45"/>
+    <path d="M28 14 L28 42" stroke-width="2.6"/>
+    <path d="M14 24 Q22 19.5 28 24 T42 24" stroke-width="2" stroke-opacity="0.9"/>
+    <path d="M14 32 Q22 27.5 28 32 T42 32" stroke-width="2" stroke-opacity="0.9"/>
+    <path d="M14 40 Q22 35.5 28 40 T42 40" stroke-width="2" stroke-opacity="0.9"/>
   </g>
-  <text x="68" y="44" font-family="-apple-system, 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif" font-size="28" font-weight="500" letter-spacing="4">美好水业</text>
+  <text x="68" y="44" font-family="-apple-system, 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', sans-serif" font-size="28" font-weight="500" letter-spacing="4" fill="#F2F5F4">美好水业</text>
 </svg>

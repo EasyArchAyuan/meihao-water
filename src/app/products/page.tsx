@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
 import { Navbar } from "@/components/layout/Navbar";
@@ -26,12 +27,13 @@ export default function ProductsPage() {
             <RevealItem>
               <span className="eyebrow">产品与服务</span>
             </RevealItem>
-            <RevealItem as="h1">
-              <h1 className="display-hero mt-6 text-[var(--ink)]">
-                该到的水，
-                <br />
-                总到。
-              </h1>
+            <RevealItem
+              as="h1"
+              className="display-hero mt-6 text-[var(--ink)]"
+            >
+              该到的水，
+              <br />
+              总到。
             </RevealItem>
             <RevealItem>
               <p className="body-lg mt-8 max-w-2xl text-[var(--ink-soft)]">
@@ -42,12 +44,12 @@ export default function ProductsPage() {
         </section>
 
         {/* 自营 5 类（极简） */}
-        <section className="container-wide pb-24">
+        <section className="container-wide pb-16 sm:pb-24">
           <Reveal>
             <ul className="grid gap-6 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
               {products.map((p, i) => (
                 <RevealItem as="li" key={p.id}>
-                  <article className="flex h-full flex-col gap-5 border-t border-[var(--hairline-strong)] pt-6">
+                  <article className="flex h-full flex-col gap-4 border-t border-[var(--hairline-strong)] pt-5 sm:gap-5 sm:pt-6">
                     <div className="flex items-baseline justify-between">
                       <span className="tabular-nums text-[12px] tracking-[0.24em] text-[var(--ink-muted)]">
                         0{i + 1}
@@ -58,13 +60,13 @@ export default function ProductsPage() {
                         </span>
                       ) : null}
                     </div>
-                    <h2 className="text-[24px] font-medium tracking-tight text-[var(--ink)]">
+                    <h3 className="text-[22px] font-medium tracking-tight text-[var(--ink)] sm:text-[24px]">
                       {p.name}
-                    </h2>
+                    </h3>
                     <p className="text-[15px] leading-relaxed text-[var(--ink-soft)]">
                       {p.longDesc}
                     </p>
-                    <div className="mt-auto pt-4 text-[13px] text-[var(--ink-muted)]">
+                    <div className="mt-auto pt-3 text-[13px] text-[var(--ink-muted)] sm:pt-4">
                       {isTodo(p.volume) ? "规格 · 暂未公示" : null}
                     </div>
                   </article>
@@ -107,13 +109,13 @@ export default function ProductsPage() {
                 </ul>
               </RevealItem>
               <RevealItem>
-                <a
+                <Link
                   href="/brands"
-                  className="mt-2 inline-flex items-center gap-2 text-[14px] font-medium text-[var(--brand)] underline-offset-4 transition-colors hover:underline"
+                  className="mt-2 inline-flex min-h-11 items-center gap-2 text-[14px] font-medium text-[var(--brand)] underline-offset-4 transition-colors hover:underline"
                 >
                   查看全部品牌
                   <span aria-hidden>→</span>
-                </a>
+                </Link>
               </RevealItem>
             </Reveal>
           </div>

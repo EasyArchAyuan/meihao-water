@@ -27,7 +27,10 @@ export function TelLink({ phone, className, prominent = false }: TelLinkProps) {
       <span
         className={cn(
           "tabular-nums font-medium tracking-tight",
-          prominent ? "text-[clamp(28px,4vw,44px)]" : "text-[16px]",
+          // 移动端略放大，方便一眼看清并点击
+          prominent
+            ? "text-[clamp(30px,4.4vw,44px)]"
+            : "text-[19px] sm:text-[16px]",
           "group-hover:text-[var(--brand)]",
         )}
       >

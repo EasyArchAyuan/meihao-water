@@ -25,12 +25,13 @@ export default function ServicePage() {
             <RevealItem>
               <span className="eyebrow">配送服务</span>
             </RevealItem>
-            <RevealItem as="h1">
-              <h1 className="display-section text-[var(--ink)]">
-                配送服务页面
-                <br />
-                即将上线。
-              </h1>
+            <RevealItem
+              as="h1"
+              className="display-section text-[var(--ink)]"
+            >
+              配送服务页面
+              <br />
+              即将上线。
             </RevealItem>
             <RevealItem>
               <p className="body-lg text-[var(--ink-soft)]">
@@ -40,7 +41,7 @@ export default function ServicePage() {
             <RevealItem>
               <a
                 href={primaryPhone.tel}
-                className="text-[clamp(28px,4vw,44px)] font-medium tabular-nums text-[var(--ink)] transition-colors hover:text-[var(--brand)]"
+                className="inline-flex min-h-11 items-center text-[clamp(30px,4.4vw,44px)] font-medium tabular-nums text-[var(--ink)] transition-colors hover:text-[var(--brand)]"
               >
                 {primaryPhone.display}
               </a>

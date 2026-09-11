@@ -5,28 +5,25 @@ import { primaryPhone } from "@/data/company";
 
 export function HomeWaterSection() {
   return (
-    <section
-      aria-labelledby="home-water-title"
-      className="bg-[var(--bg-alt)]"
-    >
+    <section aria-labelledby="home-water-title" className="bg-[var(--bg-alt)]">
       <div className="container-wide section-y">
-        <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-20">
-          {/* 文左 */}
-          <Reveal className="lg:col-span-5 flex flex-col gap-8">
+        <div className="grid items-center gap-10 sm:gap-12 lg:grid-cols-12 lg:gap-20">
+          {/* 图片：移动端排在文字上方（DOM 顺序即视觉顺序） */}
+          <RevealItem as="div" className="lg:col-span-7 lg:order-2">
+            <Figure id="home-life" ratio="4/5" rounded />
+          </RevealItem>
+
+          {/* 文字 */}
+          <Reveal className="lg:col-span-5 lg:order-1 flex flex-col gap-6 sm:gap-8">
             <RevealItem>
               <span className="eyebrow">家庭饮水</span>
             </RevealItem>
-            <RevealItem as="h2">
-              <h2
-                id="home-water-title"
-                className="display-section text-[var(--ink)]"
-              >
-                每个家，
-                <br />
-                都应该有一桶
-                <br />
-                放心的水。
-              </h2>
+            <RevealItem
+              as="h2"
+              id="home-water-title"
+              className="display-section text-[var(--ink)]"
+            >
+              每个家，都应该有一桶放心的水。
             </RevealItem>
             <RevealItem>
               <p className="body-lg max-w-md text-[var(--ink-soft)]">
@@ -39,11 +36,6 @@ export function HomeWaterSection() {
               </ButtonLink>
             </RevealItem>
           </Reveal>
-
-          {/* 图右 */}
-          <RevealItem as="div" className="lg:col-span-7">
-            <Figure id="home-life" ratio="4/5" rounded />
-          </RevealItem>
         </div>
       </div>
     </section>

@@ -44,8 +44,8 @@ export const media: Record<string, MediaItem> = {
     id: "hero-city-water",
     src: null,
     alt: "城市与水的生活场景（待替换）",
-    ratio: "16/9",
-    note: "Hero 大图：水的通透感 + 城市生活感，安静干净。",
+    ratio: "4/5",
+    note: "Hero 大图：水的通透感 + 城市生活感，安静干净。移动端 4/5，>=640px 由调用方传 ratioSm=16/9。",
     todo: true,
   },
   "years-01": {

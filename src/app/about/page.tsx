@@ -44,12 +44,13 @@ export default function AboutPage() {
             <RevealItem>
               <span className="eyebrow">关于美好水业</span>
             </RevealItem>
-            <RevealItem as="h1">
-              <h1 className="display-hero mt-6 text-[var(--ink)]">
-                我们在廊坊，
-                <br />
-                做了二十余年。
-              </h1>
+            <RevealItem
+              as="h1"
+              className="display-hero mt-6 text-[var(--ink)]"
+            >
+              我们在廊坊，
+              <br />
+              做了二十余年。
             </RevealItem>
             <RevealItem>
               <p className="body-lg mt-8 max-w-2xl text-[var(--ink-soft)]">
@@ -60,8 +61,8 @@ export default function AboutPage() {
         </section>
 
         {/* 时间线 */}
-        <section className="container-wide pb-24">
-          <Reveal className="grid gap-12 sm:gap-16">
+        <section className="container-wide pb-16 sm:pb-24">
+          <Reveal className="grid gap-10 sm:gap-14">
             <RevealItem>
               <h2 className="display-sub text-[var(--ink)]">关键节点</h2>
             </RevealItem>
@@ -70,12 +71,12 @@ export default function AboutPage() {
                 {milestones.map((m, i) => (
                   <li
                     key={m.label}
-                    className="flex flex-col gap-3 border-t border-[var(--hairline-strong)] pt-6"
+                    className="flex flex-col gap-2.5 border-t border-[var(--hairline-strong)] pt-5 sm:gap-3 sm:pt-6"
                   >
                     <span className="tabular-nums text-[12px] tracking-[0.24em] text-[var(--ink-muted)]">
                       0{i + 1}
                     </span>
-                    <span className="text-[20px] font-medium tracking-tight text-[var(--ink)]">
+                    <span className="text-[18px] font-medium tracking-tight text-[var(--ink)] sm:text-[20px]">
                       {m.label}
                     </span>
                     <span className="text-[14px] leading-relaxed text-[var(--ink-soft)]">

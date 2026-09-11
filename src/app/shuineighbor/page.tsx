@@ -39,10 +39,11 @@ export default function ShuineighborPage() {
                 旗下品牌
               </span>
             </RevealItem>
-            <RevealItem as="h1">
-              <h1 className="display-hero mt-6 text-[var(--accent-text)]">
-                {shuineighbor.name}
-              </h1>
+            <RevealItem
+              as="h1"
+              className="display-hero mt-6 text-[var(--accent-text)]"
+            >
+              {shuineighbor.name}
             </RevealItem>
             <RevealItem>
               <p className="display-sub mt-8 text-[var(--ink)]">
@@ -57,7 +58,7 @@ export default function ShuineighborPage() {
             <RevealItem>
               <a
                 {...linkProps}
-                className="mt-8 inline-flex items-center gap-2 text-[16px] font-medium text-[var(--accent-text)] underline-offset-4 transition-colors hover:underline"
+                className="mt-8 inline-flex min-h-11 items-center gap-2 text-[16px] font-medium text-[var(--accent-text)] underline-offset-4 transition-colors hover:underline"
               >
                 {isDomainKnown ? "访问水邻居官网" : "官网即将上线"}
                 <span aria-hidden>→</span>
@@ -76,7 +77,7 @@ export default function ShuineighborPage() {
                     <span className="tabular-nums text-[12px] tracking-[0.24em] text-[var(--accent-text)]/70">
                       0{i + 1}
                     </span>
-                    <h2 className="text-[24px] font-medium tracking-tight text-[var(--ink)]">
+                    <h2 className="text-[22px] font-medium tracking-tight text-[var(--ink)] sm:text-[24px]">
                       {f.title}
                     </h2>
                     <p className="text-[15px] leading-relaxed text-[var(--ink-soft)]">
@@ -90,9 +91,9 @@ export default function ShuineighborPage() {
         </section>
 
         {/* 主图 */}
-        <section className="container-wide pb-24">
+        <section className="container-wide pb-16 sm:pb-24">
           <Reveal>
-            <Figure id="shuineighbor" ratio="16/9" rounded />
+            <Figure id="shuineighbor" ratio="4/3" ratioSm="16/9" rounded />
           </Reveal>
         </section>
       </main>

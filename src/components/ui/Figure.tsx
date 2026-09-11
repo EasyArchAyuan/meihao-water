@@ -8,8 +8,12 @@
  *
  * 占位 DOM 标记：
  *   data-placeholder="TODO: REPLACE_WITH_REAL_IMAGE"
- *   className 含 `figure-placeholder`
+ *   data-note="该图的用途说明"
  * 设计师 / 替换者只需把 src 填上即可，无需改组件。
+ *
+ * 占位文案按**容器宽度**自适应（container query）：
+ *   ≥ 200px：完整（figure-placeholder + 图片占位 + 比例·id）
+ *   < 200px：仅一行「图片占位」，避免在二维码等小容器中溢出
  */
 
 import Image from "next/image";
@@ -22,13 +26,16 @@ type FigureProps = {
   /** 直接指定，覆盖 id */
   src?: string | null;
   alt?: string;
+  /** 移动端（<640px）比例 */
   ratio?: `${number}/${number}`;
+  /** ≥640px 时的比例；不传则沿用 ratio */
+  ratioSm?: `${number}/${number}`;
   /** next/image 优化提示：true = priority（Hero 大图） */
   priority?: boolean;
   /** 覆盖默认 object-fit（默认 cover） */
   fit?: "cover" | "contain";
   className?: string;
-  /** 给设计师标注的备注（仅占位时显示） */
+  /** 该图用途备注（不再直接显示，写入 data-note / title 供查看） */
   note?: string;
   /** 显式指定 sizes（响应式优化） */
   sizes?: string;
@@ -36,11 +43,34 @@ type FigureProps = {
   rounded?: boolean;
 };
 
+/**
+ * 比例 → 静态 Tailwind 类名映射。
+ * 必须写成字面量，Tailwind 才能扫描到（不可用模板字符串动态拼接）。
+ */
+const ASPECT_BASE: Record<string, string> = {
+  "1/1": "aspect-square",
+  "3/2": "aspect-[3/2]",
+  "4/3": "aspect-[4/3]",
+  "3/4": "aspect-[3/4]",
+  "4/5": "aspect-[4/5]",
+  "16/9": "aspect-[16/9]",
+};
+
+const ASPECT_SM: Record<string, string> = {
+  "1/1": "sm:aspect-square",
+  "3/2": "sm:aspect-[3/2]",
+  "4/3": "sm:aspect-[4/3]",
+  "3/4": "sm:aspect-[3/4]",
+  "4/5": "sm:aspect-[4/5]",
+  "16/9": "sm:aspect-[16/9]",
+};
+
 export function Figure({
   id,
   src: srcProp,
   alt: altProp,
   ratio: ratioProp,
+  ratioSm,
   priority,
   fit = "cover",
   className,
@@ -54,25 +84,36 @@ export function Figure({
   const ratio = ratioProp ?? mediaItem?.ratio ?? "16/9";
   const isPlaceholder = src === null;
   const isTodoSrc = mediaItem?.todo === true;
+  const noteText = note ?? mediaItem?.note;
 
-  const wrapperStyle: React.CSSProperties = {
-    aspectRatio: ratio.replace("/", " / "),
-  };
+  // 比例未命中预设映射时，用 inline style 兜底。
+  // 注意：该分支下 `ratioSm` 不生效（inline style 无法响应断点），属边缘场景；
+  // 新增比例时请优先补进 ASPECT_BASE / ASPECT_SM 映射。
+  const useInlineRatio = !(ratio in ASPECT_BASE);
+  const baseAspect: string | undefined = ASPECT_BASE[ratio];
+  const smAspect: string | undefined = ratioSm ? ASPECT_SM[ratioSm] : undefined;
 
   return (
     <figure
       className={cn(
-        "relative w-full overflow-hidden bg-[var(--bg-alt)]",
+        "@container relative w-full overflow-hidden bg-[var(--bg-alt)]",
+        !useInlineRatio && baseAspect,
+        !useInlineRatio && smAspect,
         rounded && "rounded-2xl",
         className,
       )}
-      style={wrapperStyle}
-      data-placeholder={isTodoSrc || isPlaceholder ? "TODO: REPLACE_WITH_REAL_IMAGE" : undefined}
+      style={
+        useInlineRatio ? { aspectRatio: ratio.replace("/", " / ") } : undefined
+      }
+      title={noteText}
+      data-placeholder={
+        isTodoSrc || isPlaceholder ? "TODO: REPLACE_WITH_REAL_IMAGE" : undefined
+      }
+      data-note={noteText}
     >
       {isPlaceholder ? (
         <PlaceholderContent
-          ratio={ratio}
-          note={note ?? mediaItem?.note}
+          ratio={smAspect ? `${ratio} → ${ratioSm}` : ratio}
           id={id ?? mediaItem?.id}
         />
       ) : (
@@ -89,37 +130,26 @@ export function Figure({
   );
 }
 
-function PlaceholderContent({
-  ratio,
-  note,
-  id,
-}: {
-  ratio: string;
-  note?: string;
-  id?: string;
-}) {
+function PlaceholderContent({ ratio, id }: { ratio: string; id?: string }) {
   return (
     <div
-      className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-6 text-center"
+      className="absolute inset-0 flex flex-col items-center justify-center gap-2 p-4 text-center @max-[200px]:gap-1 @max-[200px]:p-2"
       style={{
         backgroundImage:
           "linear-gradient(135deg, var(--bg-alt) 0%, var(--accent-tint) 100%)",
       }}
     >
-      <span className="text-[11px] uppercase tracking-[0.24em] text-[var(--ink-muted)]">
+      <span className="text-[11px] uppercase tracking-[0.24em] text-[var(--ink-muted)] @max-[200px]:hidden">
         figure-placeholder
       </span>
-      <span className="text-[13px] text-[var(--ink-soft)]">
-        图片占位 · 待替换真实摄影
+      <span className="text-[13px] text-[var(--ink-soft)] @max-[200px]:text-[10px]">
+        图片占位
+        <span className="hidden @min-[200px]:inline"> · 待替换真实摄影</span>
       </span>
-      <span className="text-[11px] tabular-nums text-[var(--ink-muted)]">
-        {ratio} {id ? `· ${id}` : ""}
+      <span className="text-[11px] tabular-nums text-[var(--ink-muted)] @max-[200px]:hidden">
+        {ratio}
+        {id ? ` · ${id}` : ""}
       </span>
-      {note ? (
-        <span className="mt-1 max-w-[28ch] text-[11px] leading-relaxed text-[var(--ink-muted)]">
-          {note}
-        </span>
-      ) : null}
     </div>
   );
 }

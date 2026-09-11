@@ -24,12 +24,13 @@ export default function ContactPage() {
             <RevealItem>
               <span className="eyebrow">联系我们</span>
             </RevealItem>
-            <RevealItem as="h1">
-              <h1 className="display-hero mt-6 text-[var(--ink)]">
-                一通电话，
-                <br />
-                水到门口。
-              </h1>
+            <RevealItem
+              as="h1"
+              className="display-hero mt-6 text-[var(--ink)]"
+            >
+              一通电话，
+              <br />
+              水到门口。
             </RevealItem>
             <RevealItem>
               <p className="body-lg mt-8 max-w-2xl text-[var(--ink-soft)]">
@@ -40,16 +41,19 @@ export default function ContactPage() {
         </section>
 
         {/* 联系信息 + 二维码 */}
-        <section className="container-wide pb-24">
+        <section className="container-wide pb-16 sm:pb-24">
           <Reveal>
-            <div className="grid gap-16 lg:grid-cols-12 lg:gap-20">
+            <div className="grid gap-12 sm:gap-16 lg:grid-cols-12 lg:gap-20">
               {/* 左：电话 + 地址 */}
-              <div className="lg:col-span-7 flex flex-col gap-12">
+              <div className="lg:col-span-7 flex flex-col gap-10 sm:gap-12">
                 <div>
                   <span className="eyebrow">订水热线</span>
-                  <ul className="mt-6 flex flex-col gap-8 sm:flex-row sm:gap-12">
+                  <ul className="mt-5 flex flex-col divide-y divide-[var(--hairline)] sm:mt-6 sm:flex-row sm:gap-12 sm:divide-y-0">
                     {company.phones.map((p) => (
-                      <li key={p.number}>
+                      <li
+                        key={p.number}
+                        className="py-4 first:pt-0 last:pb-0 sm:py-0"
+                      >
                         <TelLink phone={p} />
                       </li>
                     ))}
@@ -57,7 +61,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <span className="eyebrow">公司地址</span>
-                  <p className="mt-4 text-[20px] font-medium tracking-tight text-[var(--ink)]">
+                  <p className="mt-4 text-[18px] font-medium leading-relaxed tracking-tight text-[var(--ink)] sm:text-[20px]">
                     {company.address}
                   </p>
                   <p className="mt-2 text-[15px] text-[var(--ink-soft)]">
@@ -76,9 +80,9 @@ export default function ContactPage() {
               </div>
 
               {/* 右：二维码 */}
-              <div className="lg:col-span-5 flex flex-col items-start gap-6">
+              <div className="lg:col-span-5 flex flex-col items-start gap-5 sm:gap-6">
                 <span className="eyebrow">微信服务号</span>
-                <div className="w-44 sm:w-52">
+                <div className="w-40 sm:w-52">
                   <Figure id="wechat-qr" ratio="1/1" rounded />
                 </div>
                 <p className="text-[13px] text-[var(--ink-muted)]">
@@ -90,9 +94,9 @@ export default function ContactPage() {
         </section>
 
         {/* 地图占位 */}
-        <section className="container-wide pb-24">
+        <section className="container-wide pb-16 sm:pb-24">
           <Reveal>
-            <Figure id="map-placeholder" ratio="16/9" rounded />
+            <Figure id="map-placeholder" ratio="4/3" ratioSm="16/9" rounded />
           </Reveal>
           <p className="mt-4 text-center text-[12px] text-[var(--ink-muted)]">
             地图位置示意 · 真实地图待接入
