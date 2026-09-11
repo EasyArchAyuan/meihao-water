@@ -42,10 +42,10 @@ export function MobileMenu({
           exit={{ opacity: 0 }}
           transition={{ duration: reduced ? 0 : 0.3, ease: easeOut }}
         >
-          <div className="container-site flex h-full flex-col pt-24 pb-10">
+          <div className="container-site flex h-full flex-col pt-20 pb-8">
             <nav
               aria-label="移动端主导航"
-              className="flex flex-col gap-2"
+              className="flex flex-col gap-1"
             >
               {primaryNav.map((item, i) => {
                 const active = pathname === item.href;
@@ -61,7 +61,7 @@ export function MobileMenu({
                       onClick={onClose}
                       aria-current={active ? "page" : undefined}
                       className={cn(
-                        "block py-5 text-[clamp(36px,9vw,56px)] font-medium tracking-tight",
+                        "block py-3.5 text-[clamp(26px,7vw,38px)] font-medium tracking-tight",
                         active
                           ? "text-[var(--ink)]"
                           : "text-[var(--ink-soft)]",
@@ -74,11 +74,11 @@ export function MobileMenu({
               })}
             </nav>
 
-            <div className="mt-auto pt-10 border-t border-[var(--hairline)]">
+            <div className="mt-auto border-t border-[var(--hairline)] pt-8">
               <span className="eyebrow">立即订水</span>
               <a
                 href={primaryPhone.tel}
-                className="mt-3 block text-[clamp(32px,8vw,44px)] font-medium tracking-tight tabular-nums text-[var(--ink)]"
+                className="mt-2 block text-[clamp(24px,6.2vw,32px)] font-medium tracking-tight tabular-nums text-[var(--ink)]"
               >
                 {primaryPhone.display}
               </a>
