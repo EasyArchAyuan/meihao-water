@@ -7,7 +7,10 @@ name: Backfill releases
 
 on:
   workflow_dispatch:
-  # 推送 v1.0.x tag 时自动触发（幂等）。用于:先本地推 tag，再由本 workflow 建 Release。
+  # ⚠️ GitHub 对 tag push 事件用的是「该 tag 所指 commit 里」的 workflow 定义。
+  #    历史 tag（v1.0.6–v1.0.11）指向引入本文件之前的 commit，因此**不会**触发本 workflow
+  #    —— 回填请用 workflow_dispatch（Actions → Backfill releases → Run workflow）。
+  #    下面这个触发器只对「在已包含本文件的 commit 上新打的 v1.0.x tag」有效。
   push:
     tags:
       - "v1.0.*"

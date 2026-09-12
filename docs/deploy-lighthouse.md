@@ -93,8 +93,14 @@ git tag -a v1.0.11 f403a28 -m "v1.0.11 — 微信站长认证校验文件"
 git push origin v1.0.6 v1.0.7 v1.0.8 v1.0.9 v1.0.10 v1.0.11
 ```
 
-推送 `v1.0.*` tag 会自动触发 `backfill.yml`，用 `CHANGELOG.md` 对应小节建 Release（幂等，可重复跑）。
+推送这 6 个 tag 后，**在 GitHub 上点一次 Backfill**（Actions → **Backfill releases** → **Run workflow**）即可创建
+对应 Release —— 正文取 `CHANGELOG.md` 里该版本的小节。该 workflow 幂等，可重复跑。
+
+> ⚠️ 为什么不能靠 tag push 自动触发：GitHub 对 tag push 事件使用**该 tag 所指 commit 里**的 workflow 定义，
+> 而这 6 个历史 tag 指向的是引入本 pipeline 之前的 commit，那里根本没有 `backfill.yml`。
+
 **必须在启用 release job 之前完成**，否则 semantic-release 会以 `v1.0.5` 为基线算错版本。
+（本次已在推 pipeline 之前先把 tag 推到远端，基线已是 `v1.0.11`。）
 
 ## 日常发布流程
 
