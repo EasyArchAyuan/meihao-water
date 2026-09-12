@@ -148,6 +148,18 @@ jobs:
           name: site-out
           path: out
 
+      # 临时排障：确认 GitHub Runner 能否连通服务器 22 端口（跨境网络有时不通）
+      - name: Probe connectivity
+        env:
+          SSH_HOST: ${{ vars.SSH_HOST }}
+          SSH_PORT: ${{ vars.SSH_PORT || '22' }}
+        run: |
+          if timeout 20 bash -c "</dev/tcp/${SSH_HOST}/${SSH_PORT}" 2>/dev/null; then
+            echo "::notice title=TCP_PROBE::OPEN ${SSH_HOST}:${SSH_PORT}"
+          else
+            echo "::notice title=TCP_PROBE::UNREACHABLE ${SSH_HOST}:${SSH_PORT} —— Runner 连不上服务器 22 端口"
+          fi
+
       - name: Configure SSH
         uses: ./.github/actions/ssh-setup
         with:
@@ -224,11 +236,11 @@ jobs:
           SSH_PORT: ${{ vars.SSH_PORT || '22' }}
         run: |
           set -euo pipefail
-          SSH_OPTS="-i $HOME/.ssh/id_ed25519 -p ${SSH_PORT} -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
+          SSH_OPTS="-i $HOME/.ssh/id_ed25519 -p ${SSH_PORT} -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
           TARGET="${SSH_USER}@${SSH_HOST}"
 
           scp -i "$HOME/.ssh/id_ed25519" -P "${SSH_PORT}" \
-              -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+              -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
               infra/Caddyfile "$TARGET:/tmp/Caddyfile.new"
 
           ssh $SSH_OPTS "$TARGET" 'bash -s' <<'REMOTE'

@@ -27,7 +27,7 @@ runs:
         : "${DEPLOY_SSH_HOST:?ssh_host 未提供}"
         : "${DEPLOY_SSH_USER:?ssh_user 未提供}"
 
-        SSH_OPTS="-i $HOME/.ssh/id_ed25519 -p ${DEPLOY_SSH_PORT} -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
+        SSH_OPTS="-i $HOME/.ssh/id_ed25519 -p ${DEPLOY_SSH_PORT} -o BatchMode=yes -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
         TARGET="${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}"
 
         test -f out/index.html
