@@ -43,12 +43,18 @@ push main ─► GitHub Actions
 > 在 deploy job 里加了 TCP 探针，结果 `TCP_PROBE: UNREACHABLE 49.233.87.42:22`（20s 超时、包被丢弃，非认证问题）；
 > 服务器 `/var/log/auth.log` 里也看不到 Runner 的连接记录。而本机能连通（`Test-NetConnection` = True）。
 >
-> 结论：**从 GitHub Runner 主动 SSH 部署这条路被网络阻断**，需要换传输方式或改从可连通的机器部署：
-> - **方案 A（当前在用）**：从可连通服务器的机器部署（本机 `npm run build` 后同步，或经腾讯云「执行命令」拉 `raw.githubusercontent.com`）。
-> - **方案 B**：改用非 22 端口的 SSH（需改 sshd 与防火墙，尚未验证 GitHub 侧是否放行）。
-> - **方案 C**：改为「服务器拉取」——CI 把 `out/` 提交到 `dist` 分支，服务器从 `raw.githubusercontent.com` 取（raw 可达，已验证）。
+> **已采用的解法（方案 C · 2026-09-12 上线）：改为「服务器主动拉」**
 >
-> 在此之前，CI 的 **build** 与 **release** 仍照常工作，只有 **deploy** 会失败（站点不受影响）。
+> - CI 构建后把 `out/` 打成 `site.tar.gz`，连同 `site.sha256` 推到 **`dist` 分支**（单 commit + force push，历史不膨胀）。
+> - 服务器每 **10 分钟**执行 `/usr/local/bin/mhsy-pull.sh`（root crontab，带 `flock` 防重叠）：
+>   1. 先取 64 字节的 `site.sha256`，与本地记录比对 → 相同即退出（几乎零开销）；
+>   2. 不同则下载 `site.tar.gz` 并校验 sha256（raw 有 CDN 缓存，可能短暂返回旧包 → 重试 3 次 + 随机 query）；
+>   3. 校验通过才解压并**原子切换**到 `/var/www/mhsy/out`（旧版保留为 `out.prev`）；**校验失败就中止，现网绝不动**。
+> - 日志：`/var/log/mhsy-pull.log`；脚本源码：`infra/mhsy-pull.sh`（改它走 git，再到服务器
+>   `wget -qO- .../main/infra/mhsy-pull.sh | dd of=/usr/local/bin/mhsy-pull.sh && chmod +x` 重装）
+> - 只有当 `vars.DEPLOY_MODE == 'ssh'` 时才走回 SSH 直推（留给将来网络恢复后用）。
+>
+> 因此现在完整链路是：**push → CI 构建 → 自动发版 → 产物进 dist 分支 → 服务器 10 分钟内自动上线**。
 
 ## 一次性准备
 
