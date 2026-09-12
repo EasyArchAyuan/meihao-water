@@ -121,6 +121,42 @@ systemctl reload caddy
 
 ---
 
+## [1.0.8] — 2026-09-12
+
+**新增主机名**：在 v1.0.7 基础上，Caddy 站点地址扩展为 4 个（同一证书 SAN 覆盖）。
+
+### 新增主机名
+
+| 主机名 | 形式 |
+|---|---|
+| `廊坊美好水业.online` | IDN，Punycode `xn--vhqu7tjwbb1iwpthm1a.online`（已有） |
+| `www.廊坊美好水业.online` | IDN，Punycode `www.xn--vhqu7tjwbb1iwpthm1a.online` |
+| `meihaowater.site` | ASCII（新注册域名） |
+| `www.meihaowater.site` | ASCII |
+
+### 改动
+
+| 文件 | 改动 |
+|---|---|
+| `infra/Caddyfile` | 站点地址由单域名改为 4 域名逗号列表（`xn--...online, www.xn--...online, meihaowater.site, www.meihaowater.site`）；其余配置（root/file_server/headers/缓存/encode）不变 |
+| `package.json` | 1.0.7 → 1.0.8 |
+| `CHANGELOG.md` | 新增 `[1.0.8]` |
+| `docs/deploy-lighthouse.md` | 主机名清单更新 |
+| `memory/2026-09-12.md` | 追加 v1.0.8 记录 |
+
+### 验证结果
+
+| 主机名 | HTTPS | 证书 | HSTS |
+|---|---|---|---|
+| `https://廊坊美好水业.online` | 200 | Let's Encrypt ✅ | ✅ |
+| `https://www.廊坊美好水业.online` | 200 | Let's Encrypt ✅ | ✅ |
+| `https://meihaowater.site` | 200 | Let's Encrypt ✅ | ✅ |
+| `https://www.meihaowater.site` | 200 | Let's Encrypt ✅ | ✅ |
+
+四个名共用一张 SAN 证书，自动续期已排程。三个新增域名的 DNS 均已解析到 `49.233.87.42`（ACME `tls-alpn-01` 校验通过即证明解析生效）。
+
+---
+
 ## [1.0.5] — 2026-09-11
 
 **静态导出 + 部署上线**。本会话 preview server 在受限环境下启动后被 SIGTERM（bash 后台 runner 行为，多种 detach 方式均无效），改用 Next.js 静态导出 + Sites 部署给出在线预览链接。

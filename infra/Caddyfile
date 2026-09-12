@@ -1,14 +1,17 @@
 # 美好水业官网 - Caddyfile
 # 服务 Next.js 16 静态导出产物
-# 站点：廊坊美好水业.online（IDN，Caddy/ACME 必须使用 Punycode 形式）
-#   Punycode: xn--vhqu7tjwbb1iwpthm1a.online
+# 站点：
+#   廊坊美好水业.online（IDN，Punycode: xn--vhqu7tjwbb1iwpthm1a.online）
+#   www.廊坊美好水业.online（Punycode: www.xn--vhqu7tjwbb1iwpthm1a.online）
+#   meihaowater.site
+#   www.meihaowater.site
 
 {
 	# Let's Encrypt ACME 账户联系邮箱（证书到期提醒）
 	email dev@meihaoshuiye.cn
 }
 
-xn--vhqu7tjwbb1iwpthm1a.online {
+xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online, meihaowater.site, www.meihaowater.site {
 	root * /var/www/mhsy/out
 
 	# Next.js trailingSlash 会生成 /about/index.html

@@ -119,11 +119,22 @@ wget --method=HEAD -S -O - https://xn--vhqu7tjwbb1iwpthm1a.online/
 | 外网 `https://廊坊美好水业.online` | 200，站点正常 |
 | ACME | Let's Encrypt 证书已签发，`dev@meihaoshuiye.cn` 账户，自动续期已排程 |
 
-### 后续更新（改域名/加 www）
+### 当前已绑定主机名（一张 SAN 证书覆盖）
 
-若以后要加 `www.廊坊美好水业.online`：Caddyfile 站点地址改为
-`xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online`，
-并对 `www` 也做 A 记录解析到 `49.233.87.42`，重载即可（Caddy 会自动为两个名签发证书）。
+| 主机名 | 形式 |
+|---|---|
+| `廊坊美好水业.online` | IDN，Punycode `xn--vhqu7tjwbb1iwpthm1a.online` |
+| `www.廊坊美好水业.online` | IDN，Punycode `www.xn--vhqu7tjwbb1iwpthm1a.online` |
+| `meihaowater.site` | ASCII |
+| `www.meihaowater.site` | ASCII |
+
+Caddyfile 站点地址为四者逗号列表，`caddy` 自动申请一张含全部 SAN 的 Let's Encrypt 证书并续期。
+
+### 后续更新（加域名/www）
+
+在 Caddyfile 站点地址逗号列表里追加新名（IDN 用 Punycode），新名 DNS A 记录指向 `49.233.87.42`，
+`printf '<b64>\n' | base64 -d | dd of=/etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy`
+即可；Caddy 自动为新名签发证书。
 
 ## 监控 / 备份（待办）
 
