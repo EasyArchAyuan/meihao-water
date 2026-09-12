@@ -98,34 +98,24 @@ npm run serve    # npx serve out，端口 3000
 
 ### 生产部署（腾讯云 Lighthouse）
 
-实例：`lhins-jrsby4oa`（ap-beijing，公网 `49.233.87.42`），已通过 Caddy 服务。
+实例：`lhins-jrsby4oa`（ap-beijing，公网 `49.233.87.42`），Caddy 直接托管静态产物 `/var/www/mhsy/out`。
 
-部署步骤详见 `infra/Caddyfile` 与 `docs/deploy-lighthouse.md`（如需补）。
+> **服务器不需要 git / Node。** 构建在 GitHub Actions 完成，产物经 SSH `rsync` 推送上去
+> —— 彻底绕开「服务器连不上 github.com」的老问题。
 
-```bash
-# 服务器上一次性初始化
-apt-get update && apt-get install -y nginx curl
-# Node 22 已通过 NodeSource 预装
+部署与发版全部由 `.github/workflows/` 自动完成：
 
-cd /var/www
-git clone https://github.com/EasyArchAyuan/meihao-water.git mhsy
-cd mhsy
-npm ci && npm run build
+| Workflow | 触发 | 作用 |
+|---|---|---|
+| `ci-cd.yml` | push / PR → `main` | lint + build；push 时追加 semantic-release 发版 → rsync 部署 → smoke test |
+| `rollback.yml` | 手动 | `previous` 秒级回滚（`out` ↔ `out.prev`）；`build` 重放历史产物 |
+| `backfill.yml` | 手动 / `v1.0.*` tag | 一次性补历史 tag 与 Release（幂等） |
 
-# 写 /etc/caddy/Caddyfile（参考 infra/Caddyfile）
-systemctl reload caddy
+**版本号由 semantic-release 自动推断**（Conventional Commits）：`feat` → minor，`fix`/`perf`/`refactor` → patch，`docs`/`chore`/`ci` 不触发发版。
 
-# Lighthouse 控制台 → 防火墙 → 放行 TCP 80
-```
-
-后续更新：
-
-```bash
-cd /var/www/mhsy
-git pull origin main
-npm run build
-systemctl reload caddy
-```
+- ⚠️ **不要再手改 `package.json` 的 `version`**，也**不要在 commit message 里写 `(vX.Y.Z)` 后缀**。
+- `CHANGELOG.md` 由 `@semantic-release/changelog` 自动维护（历史手写条目保留）。
+- 首次使用需要配置 Secrets / Variables 与服务器权限，详见 `docs/deploy-lighthouse.md`。
 
 ## License
 

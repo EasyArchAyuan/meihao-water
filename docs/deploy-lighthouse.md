@@ -1,6 +1,10 @@
 # 美好水业官网 — Lighthouse 部署指南
 
-目标：把 Next.js 16 静态导出站点部署到腾讯云 Lighthouse 实例。
+目标：把 Next.js 16 静态导出站点部署/发布到腾讯云 Lighthouse 实例。
+
+> ⚠️ 自 v1.0.12 起，部署方式已改为 **GitHub Actions 构建 + SSH 推送产物**。
+> 服务器侧不再需要 `git pull` / Node —— 因为服务器访问 `github.com:443` 经常不可达（135s 超时 / TLS reset），
+> 旧的 `git pull && npm run build` 流程不可靠。历史流程存档见文末「附录：旧流程」。
 
 ## 当前生产实例
 
@@ -12,76 +16,103 @@
 | OS | Ubuntu 24.04 noble |
 | 规格 | 2C / 2GB / 50GB SSD |
 | 域名 | 廊坊美好水业.online（HTTPS；IDN，Punycode `xn--vhqu7tjwbb1iwpthm1a.online`） |
-| 部署路径 | `/var/www/mhsy/out` |
-| Web Server | Caddy（系统默认） |
+| 部署路径 | `/var/www/mhsy/out`（Caddy 直接托管静态文件） |
+| Web Server | Caddy（systemd 托管） |
+| 部署方式 | **GitHub Actions**（rsync over SSH；staging + 原子切换） |
 
-## 首次部署
+## 部署架构
 
-### 1. 一次性初始化
-
-通过腾讯云控制台 → Lighthouse → 实例 → 执行命令（或 SSH）：
-
-```bash
-# 装 curl（系统自带但确认）+ git
-apt-get update && apt-get install -y curl git
-
-# Node 22 通过 NodeSource 源预装；如未装：
-# curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-# apt-get install -y nodejs
-
-node -v && npm -v   # 确认 v22.x
+```
+push main ─► GitHub Actions
+   ├ build   : npm ci → lint → build → upload artifact(out/)
+   ├ release : semantic-release（自动版本号 → tag → GitHub Release → 回写 package.json / CHANGELOG.md）
+   ├ deploy  : rsync out/ → 服务器（staging + 原子切换，旧版本保留为 out.prev）
+   └ caddy   : 仅当 infra/Caddyfile 变更 → validate → install → reload
 ```
 
-### 2. clone + build
+| Workflow | 触发 | 说明 |
+|---|---|---|
+| `.github/workflows/ci-cd.yml` | push / PR → `main` | 主流水线（build / release / deploy / caddy） |
+| `.github/workflows/rollback.yml` | 手动 `workflow_dispatch` | 回滚 |
+| `.github/workflows/backfill.yml` | 手动 / `v1.0.*` tag | 一次性补历史 tag 与 Release（幂等） |
+
+**为什么不用服务器 git pull**：服务器 `github.com:443` 连不上（实测 connect timeout ~135s、`GnuTLS recv error -110`），
+`git pull` 全部失败；`raw.githubusercontent.com` 反而可达。改成 CI 推送产物后，服务器只需 SSH 可达（22 端口已对 `0.0.0.0/0` 开放）。
+
+## 一次性准备
+
+### 1. 服务器权限（已确认 ✅ 2026-09-12）
+
+| 检查 | 结果 |
+|---|---|
+| SSH 用户 | `ubuntu`，**免密 sudo**（`ubuntu ALL=(ALL:ALL) NOPASSWD: ALL`） |
+| 目录属主 | `/var/www/mhsy/out` = `root:root`（无需 chown） |
+| 部署方式 | 先 rsync 到 `~/deploy-incoming/out`，再 `sudo mv` 原子切换 |
+| rsync | `/usr/bin/rsync` 已安装 |
+| Caddy | `systemctl is-active caddy` = active |
+
+部署脚本（`.github/actions/deploy-site/action.yml`）用 `cp -a → mv` 两步切换：
+任一步失败时 `/var/www/mhsy/out` 仍指向旧版本，**站点不中断**。
+
+### 2. GitHub Secrets / Variables
+
+仓库 → **Settings → Secrets and variables → Actions**
+
+**Secrets**
+
+| 名称 | 值 |
+|---|---|
+| `SSH_PRIVATE_KEY` | 部署私钥全文（OpenSSH 格式，`-----BEGIN OPENSSH PRIVATE KEY-----` 起） |
+| `SSH_KNOWN_HOSTS` | `ssh-keyscan -t rsa,ecdsa,ed25519 49.233.87.42` 的输出（防 MITM，指纹请与控制台核对） |
+
+**Variables**
+
+| 名称 | 值 |
+|---|---|
+| `SSH_HOST` | `49.233.87.42` |
+| `SSH_USER` | `ubuntu` |
+| `SSH_PORT` | `22` |
+
+> ⚠️ 私钥**不要**贴进聊天或提交进仓库（`.gitignore` 已忽略 `*.pem`）。
+> 若私钥带 passphrase，GitHub Actions 无法非交互使用 —— 请另生成一把**无口令专用部署密钥**，
+> 把公钥追加到服务器 `/home/ubuntu/.ssh/authorized_keys`，私钥存入 `SSH_PRIVATE_KEY`。
+> 目前服务器 `authorized_keys` 内有 1 把 key（`skey-i1ohtcu1`，即 Lighthouse 密钥对 "Kirin"）。
+
+### 3. 回填历史 tag / Release（一次性，仅做一次）
+
+已发布但漏打 tag 的版本为 `v1.0.6`–`v1.0.11`。
 
 ```bash
-mkdir -p /var/www && cd /var/www
-git clone https://github.com/EasyArchAyuan/meihao-water.git mhsy
-cd mhsy
-npm ci
-npm run build      # 产出 out/（约 2 MB）
+# 本地创建附注 tag 并推送（与 v1.0.0–v1.0.5 保持一致）
+git tag -a v1.0.6  99f5569 -m "v1.0.6 — Lighthouse 部署上线"
+git tag -a v1.0.7  b65d26f -m "v1.0.7 — 域名绑定 + HTTPS 上线"
+git tag -a v1.0.8  e590e8c -m "v1.0.8 — 四域名 SAN 证书上线"
+git tag -a v1.0.9  903ad20 -m "v1.0.9 — 联系方式更新"
+git tag -a v1.0.10 b1a6b62 -m "v1.0.10 — 缓存策略 + JSON-LD 修正"
+git tag -a v1.0.11 f403a28 -m "v1.0.11 — 微信站长认证校验文件"
+git push origin v1.0.6 v1.0.7 v1.0.8 v1.0.9 v1.0.10 v1.0.11
 ```
 
-### 3. 写 Caddy 配置
+推送 `v1.0.*` tag 会自动触发 `backfill.yml`，用 `CHANGELOG.md` 对应小节建 Release（幂等，可重复跑）。
+**必须在启用 release job 之前完成**，否则 semantic-release 会以 `v1.0.5` 为基线算错版本。
 
-把仓库里的 `infra/Caddyfile` 复制到 `/etc/caddy/Caddyfile`（覆盖默认）：
+## 日常发布流程
 
 ```bash
-cp infra/Caddyfile /etc/caddy/Caddyfile
-caddy validate --config /etc/caddy/Caddyfile
-systemctl reload caddy
+git add -A
+git commit -m "feat(scope): 说明"     # Conventional Commits
+git push origin main
 ```
 
-### 4. 放行 80 端口
+推送后自动执行：lint → build → 自动定版本 + tag + GitHub Release → 部署到服务器 → smoke test（含域名 200、关键内容、缓存头校验）。
 
-腾讯云控制台 → Lighthouse → 实例 → 防火墙 → 添加规则：
+**约定（重要）**
 
-| Protocol | Port | Cidr Block | Action |
-|---|---|---|---|
-| TCP | 80 | 0.0.0.0/0 | ACCEPT |
-
-或用 `mcp__lighthouse-ops__create_firewall_rules` API 自动化。
-
-### 5. 验证
-
-```bash
-curl -sI http://127.0.0.1/
-curl -sI http://49.233.87.42/
-curl -s http://49.233.87.42/ | grep -c "廊坊市美好商贸有限公司"
-curl -sI http://49.233.87.42/sitemap.xml
-```
-
-## 后续更新（重新部署）
-
-```bash
-cd /var/www/mhsy
-git pull origin main
-npm run build      # 重新生成 out/
-systemctl reload caddy
-```
-
-`git pull` 会保留 Caddyfile / package.json 等配置文件（除非被改过）。
-**不要**在服务器上 `git reset --hard` —— 会清掉本地 `out/`。
+- ✅ **不要再手改 `package.json` 的 `version`** —— 由 semantic-release 维护。
+- ✅ **不要**在 commit message 里写 `(vX.Y.Z)` 后缀（会变成 release notes 噪音）。
+- ✅ `CHANGELOG.md` 由 `@semantic-release/changelog` 自动写入（历史手写条目保留，风格会与机器条目并存）。
+- ✅ 版本规则：`feat` → minor、`fix`/`perf`/`refactor`/`infra` → patch、`docs`/`chore`/`ci`/`test`/`style` → 不发版。
+- 💡 仅本地验证：`npm ci && npm run lint && npm run build`。
 
 ## HTTPS（已完成 ✅ · 2026-09-12）
 
@@ -90,34 +121,24 @@ systemctl reload caddy
 ### 关键事实
 
 - **IDN 必须用 Punycode**：Caddy 站点地址、SNI、ACME 校验都只认 ASCII。浏览器输入中文域名会自动转 `xn--vhqu7tjwbb1iwpthm1a.online` 发起 TLS，所以 Caddyfile 站点地址写 `xn--vhqu7tjwbb1iwpthm1a.online`。
-- 防火墙 **TCP 443 已在 v1.0.6 开放**，无需再动。
+- 防火墙 **TCP 443 已开放**，无需再动。
 - Caddy 自动：监听 443、308 跳转 80→443、同时服务 ACME 挑战。
+- 缓存策略（v1.0.10 修正）：HTML/RSC `no-cache`（带 ETag 重验证）；`/_next/static/*` 哈希资源 `immutable`；`/sitemap.xml`、`/robots.txt` 1h；`/brand/*` 30d。
+  ⚠️ **Caddy 陷阱**：无 matcher 的 `header { … }` 块会**覆盖**带 matcher 的 `header @x …` 同名 header —— 所以 `Cache-Control` 一律用带 matcher 的形式表达。
 
-### 实际操作（注意命令白名单）
-
-本环境 `execute_command` 已禁止 `tee` / `>` / `>>` / `cat` / `python open('w')` / `wget -O`，且从本机 `git push` github.com 被代理拦截。因此改 Caddyfile 用 `dd` 落盘：
+### 手工改 Caddyfile（CI 不通时的兜底）
 
 ```bash
 # 1) 本地把 infra/Caddyfile 内容 base64（单段 ≤ ~1.7KB）
 # 2) 经 execute_command 落盘（printf 替代 echo，因 echo 也被拦）：
 printf '<BASE64>\n' | base64 -d | dd of=/etc/caddy/Caddyfile
-
 # 3) 校验 + 重载
-caddy validate --config /etc/caddy/Caddyfile
-systemctl reload caddy
-
-# 4) 验证（wget 仅 stdout 可用，-O 被拦）
-wget --method=HEAD -S -O - https://xn--vhqu7tjwbb1iwpthm1a.online/
-# 期望：HTTP/1.1 200 OK + Strict-Transport-Security: max-age=31536000
+caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy
+# 4) 验证（wget 仅 stdout 可用，-O 写文件被拦）
+wget -qO- https://xn--vhqu7tjwbb1iwpthm1a.online/
 ```
 
-### 验证结果
-
-| 检查 | 结果 |
-|---|---|
-| 实例内 HTTPS HEAD | 200 OK + HSTS + 全安全 header |
-| 外网 `https://廊坊美好水业.online` | 200，站点正常 |
-| ACME | Let's Encrypt 证书已签发，`dev@meihaoshuiye.cn` 账户，自动续期已排程 |
+正常路径：改 `infra/Caddyfile` → push → `ci-cd.yml` 的 `caddy` job 自动 validate + install + reload（写前备份 `.bak.<ts>`）。
 
 ### 当前已绑定主机名（一张 SAN 证书覆盖）
 
@@ -128,42 +149,62 @@ wget --method=HEAD -S -O - https://xn--vhqu7tjwbb1iwpthm1a.online/
 | `meihaowater.site` | ASCII |
 | `www.meihaowater.site` | ASCII |
 
-Caddyfile 站点地址为四者逗号列表，`caddy` 自动申请一张含全部 SAN 的 Let's Encrypt 证书并续期。
-
-### 后续更新（加域名/www）
-
-在 Caddyfile 站点地址逗号列表里追加新名（IDN 用 Punycode），新名 DNS A 记录指向 `49.233.87.42`，
-`printf '<b64>\n' | base64 -d | dd of=/etc/caddy/Caddyfile && caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy`
-即可；Caddy 自动为新名签发证书。
+追加新域名：在 `infra/Caddyfile` 站点地址逗号列表里加名（IDN 用 Punycode）→ push，CI 自动同步。
+新域名的 DNS A 记录需先指向 `49.233.87.42`，Caddy 会自动签发证书。
 
 ## 监控 / 备份（待办）
 
 - **监控**：Lighthouse 控制台 → 监控告警 → 加规则（CPU > 80%、内存 > 80%、磁盘 > 80%）
 - **备份**：定时 `tar czf /backup/mhsy-$(date +%F).tar.gz -C /var/www mhsy` 然后 `coscli cp` 到腾讯云 COS
-- **日志**：`journalctl -u caddy -f`（无需 tail -f）
+- **日志**：`journalctl -u caddy -f`
 
 ## 回滚
 
-```bash
-# 1. 退回到上一版本
-cd /var/www/mhsy && git checkout HEAD~1
-npm run build
-systemctl reload caddy
+**方式一：秒级回到上一版**（推荐）
 
-# 2. 完全清掉部署（慎重）
-rm -rf /var/www/mhsy
-# 删 Caddy 站点
-echo ':80 { root * /usr/share/caddy file_server }' > /etc/caddy/Caddyfile
-systemctl reload caddy
-# 删防火墙规则（控制台操作）
+Actions → **Rollback** → Run workflow → `target=previous`
+服务器把 `/var/www/mhsy/out` 与 `out.prev` 互换，坏版本保留为 `out.bad`。
+
+**方式二：回到某一次具体构建**
+
+Actions → **Rollback** → `target=build`，填那次 run 的 `run_id`（artifact 保留 30 天）。
+
+**方式三：代码回退**
+
+```bash
+git revert <bad-commit> && git push origin main   # 流水线自动重新构建 + 部署
 ```
+
+**撤销某个发版**需**同时**删 Release 与 tag：
+
+```bash
+gh release delete vX.Y.Z --yes
+git push --delete origin vX.Y.Z
+git tag -d vX.Y.Z
+```
+
+> 只删 Release 不删 tag，semantic-release 会以为该版本仍然存在，导致下次版本号算错。
 
 ## 故障排查
 
 | 症状 | 排查 |
 |---|---|
-| 外网访问 502 | `curl http://127.0.0.1/`，若 200 则防火墙问题 |
-| Caddy reload 失败 | `caddy validate --config /etc/caddy/Caddyfile` 看错误 |
-| build 失败（找不到 @tailwindcss/postcss） | 需 `npm ci`（带 devDependencies），不能 `--omit=dev` |
-| Caddy 配置改后没生效 | `systemctl status caddy`；`journalctl -u caddy -n 30` |
-| github.com 拉不动 | 检查 Lighthouse 是否能访问外网；DNS 是否被污染 |
+| deploy job 报 `Permission denied (publickey)` | 检查 `SSH_PRIVATE_KEY` 是否为**无口令**私钥；对应公钥是否在服务器 `/home/ubuntu/.ssh/authorized_keys` |
+| deploy job 报 `Host key verification failed` | 重新生成 `SSH_KNOWN_HOSTS`（`ssh-keyscan`），并核对指纹 |
+| deploy job 报 `sudo: a password is required` | 确认 ubuntu 免密 sudo 仍在（`su - ubuntu -c 'sudo -n true'`） |
+| 站点更新了但浏览器没变 | 检查 HTML 缓存头：`curl -sI https://meihaowater.site/` 应为 `Cache-Control: no-cache`（v1.0.10 前是 `immutable`，回访用户一年不重验证） |
+| Caddy reload 失败 | `caddy validate --config /etc/caddy/Caddyfile` 看错误；`journalctl -u caddy -n 30` |
+| build 失败（找不到 `@tailwindcss/postcss`） | 需 `npm ci`（含 devDependencies），不能 `--omit=dev` |
+| release job 报 `EGITNOPERMISSION` / push 被拒 | main 分支保护拦了 bot；给 `github-actions[bot]` 加 bypass，或改用 PAT |
+| 版本号算错（比如跳到奇怪的号） | 检查 tag 是否完整（`git tag --list 'v1.0.*'`）；baseline 取的是最近可达 tag |
+
+## 附录：旧流程（已废弃，存档参考）
+
+v1.0.11 及以前是在服务器上 `git clone` + `npm run build`：
+
+```bash
+# 历史命令，勿再使用（服务器连不上 github.com）
+cd /var/www/mhsy && git pull origin main && npm run build && systemctl reload caddy
+```
+
+其中 `git pull` 取不到代码，`out/` 一度与仓库版本脱节 —— 这正是改用 CI 推送产物的原因。

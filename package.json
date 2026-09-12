@@ -2,26 +2,42 @@
   "name": "meihao-shuiye-web",
   "version": "1.0.11",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EasyArchAyuan/meihao-water.git"
+  },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "serve": "npx -y serve out -l ${PORT:-3000}",
-    "lint": "eslint"
+    "lint": "eslint",
+    "release": "semantic-release"
   },
   "dependencies": {
+    "lucide-react": "^0.460.0",
+    "motion": "^12.0.0",
     "next": "16.3.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "motion": "^12.0.0",
-    "lucide-react": "^0.460.0"
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@semantic-release/changelog": "^7.0.0",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^11.0.1",
+    "@semantic-release/github": "^12.0.9",
+    "@semantic-release/npm": "^13.1.5",
+    "@semantic-release/release-notes-generator": "^14.1.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "conventional-changelog-conventionalcommits": "^10.4.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
+    "semantic-release": "^25.0.9",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

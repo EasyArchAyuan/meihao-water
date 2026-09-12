@@ -1,0 +1,56 @@
+{
+  "branches": ["main"],
+  "tagFormat": "v${version}",
+  "plugins": [
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "conventionalcommits",
+        "releaseRules": [
+          { "type": "feat", "release": "minor" },
+          { "type": "fix", "release": "patch" },
+          { "type": "perf", "release": "patch" },
+          { "type": "refactor", "release": "patch" },
+          { "type": "revert", "release": "patch" },
+          { "type": "infra", "release": "patch" },
+          { "type": "docs", "release": false },
+          { "type": "chore", "release": false },
+          { "type": "ci", "release": false },
+          { "type": "style", "release": false },
+          { "type": "test", "release": false }
+        ]
+      }
+    ],
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "conventionalcommits",
+        "presetConfig": {
+          "types": [
+            { "type": "feat", "section": "新功能", "hidden": false },
+            { "type": "fix", "section": "修复", "hidden": false },
+            { "type": "perf", "section": "性能", "hidden": false },
+            { "type": "refactor", "section": "重构", "hidden": false },
+            { "type": "revert", "section": "回退", "hidden": false },
+            { "type": "infra", "section": "基础设施", "hidden": false },
+            { "type": "docs", "section": "文档", "hidden": true },
+            { "type": "chore", "section": "杂项", "hidden": true },
+            { "type": "ci", "section": "CI", "hidden": true },
+            { "type": "test", "section": "测试", "hidden": true },
+            { "type": "style", "section": "样式", "hidden": true }
+          ]
+        }
+      }
+    ],
+    ["@semantic-release/changelog", { "changelogFile": "CHANGELOG.md" }],
+    ["@semantic-release/npm", { "npmPublish": false }],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["package.json", "package-lock.json", "CHANGELOG.md"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
+    ],
+    ["@semantic-release/github", {}]
+  ]
+}

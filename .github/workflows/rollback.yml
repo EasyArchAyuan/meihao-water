@@ -1,0 +1,86 @@
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "回滚目标"
+        type: choice
+        options:
+          - previous
+          - build
+        default: previous
+      run_id:
+        description: "target=build 时必填：要重放的 GitHub Actions run ID"
+        required: false
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  rollback:
+    name: Rollback (${{ inputs.target }})
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-production   # 与部署共用同一把锁，避免与部署并发
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download historical build (target=build)
+        if: inputs.target == 'build'
+        uses: actions/download-artifact@v4
+        with:
+          name: site-out
+          path: out
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure SSH
+        uses: ./.github/actions/ssh-setup
+        with:
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh_known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Swap out <- out.prev (target=previous)
+        if: inputs.target == 'previous'
+        env:
+          SSH_HOST: ${{ vars.SSH_HOST }}
+          SSH_USER: ${{ vars.SSH_USER }}
+          SSH_PORT: ${{ vars.SSH_PORT || '22' }}
+        run: |
+          set -euo pipefail
+          SSH_OPTS="-i $HOME/.ssh/id_ed25519 -p ${SSH_PORT} -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
+          TARGET="${SSH_USER}@${SSH_HOST}"
+
+          ssh $SSH_OPTS "$TARGET" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          SITE=/var/www/mhsy/out
+          if [ ! -d "${SITE}.prev" ]; then
+            echo "没有 ${SITE}.prev，无法回滚到上一版"; exit 1
+          fi
+          rm -rf "${SITE}.bad"
+          sudo mv "$SITE" "${SITE}.bad"
+          sudo mv "${SITE}.prev" "$SITE"
+          ls -ld "$SITE" "${SITE}.bad"
+          echo "rolled back -> $SITE（坏版本保留为 out.bad）"
+          REMOTE
+
+      - name: Redeploy a historical build (target=build)
+        if: inputs.target == 'build'
+        uses: ./.github/actions/deploy-site
+        with:
+          ssh_host: ${{ vars.SSH_HOST }}
+          ssh_user: ${{ vars.SSH_USER }}
+          ssh_port: ${{ vars.SSH_PORT || '22' }}
+
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          for u in https://meihaowater.site/ https://www.meihaowater.site/; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$u")
+            echo "$u -> $code"
+            test "$code" = "200"
+          done

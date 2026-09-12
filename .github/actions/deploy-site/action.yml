@@ -1,0 +1,63 @@
+name: Deploy site
+description: 把仓库根目录的 ./out rsync 到服务器，并用「staging + 原子切换」更新 /var/www/mhsy/out（假定 SSH 已通过 ssh-setup 配置好）。
+
+inputs:
+  ssh_host:
+    description: 服务器地址
+    required: true
+  ssh_user:
+    description: SSH 用户
+    required: true
+  ssh_port:
+    description: SSH 端口
+    required: false
+    default: "22"
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        DEPLOY_SSH_HOST: ${{ inputs.ssh_host }}
+        DEPLOY_SSH_USER: ${{ inputs.ssh_user }}
+        DEPLOY_SSH_PORT: ${{ inputs.ssh_port }}
+      run: |
+        set -euo pipefail
+
+        : "${DEPLOY_SSH_HOST:?ssh_host 未提供}"
+        : "${DEPLOY_SSH_USER:?ssh_user 未提供}"
+
+        SSH_OPTS="-i $HOME/.ssh/id_ed25519 -p ${DEPLOY_SSH_PORT} -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
+        TARGET="${DEPLOY_SSH_USER}@${DEPLOY_SSH_HOST}"
+
+        test -f out/index.html
+
+        echo "::group::rsync 产物到中转目录"
+        ssh $SSH_OPTS "$TARGET" 'mkdir -p "$HOME/deploy-incoming"'
+        rsync -az --delete -e "ssh $SSH_OPTS" out/ "$TARGET:deploy-incoming/out/"
+        echo "::endgroup::"
+
+        echo "::group::远端原子切换"
+        ssh $SSH_OPTS "$TARGET" 'bash -s' <<'REMOTE'
+        set -euo pipefail
+        SITE=/var/www/mhsy/out
+        IN="$HOME/deploy-incoming/out"
+
+        test -f "$IN/index.html"
+
+        # 先构建完整新目录，再做两次 mv：任一步失败时 SITE 仍指向旧版本，站点不中断
+        rm -rf "${SITE}.new"
+        cp -a "$IN" "${SITE}.new"
+        chmod -R a+rX "${SITE}.new"
+
+        if [ -d "$SITE" ]; then
+          rm -rf "${SITE}.prev"
+          mv "$SITE" "${SITE}.prev"
+        fi
+        sudo mv "${SITE}.new" "$SITE"
+
+        rm -rf "$IN"
+        ls -ld "$SITE"
+        echo "deployed -> $SITE"
+        REMOTE
+        echo "::endgroup::"

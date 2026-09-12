@@ -1,0 +1,208 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# 顶层权限最小化；需要写权限的 job 各自覆盖。
+permissions:
+  contents: read
+
+jobs:
+  # ───────────────────────────────────────────────────────────────
+  # 1) CI：lint + 静态导出构建 + 上传产物
+  # ───────────────────────────────────────────────────────────────
+  build:
+    name: Lint & Build
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ci-build-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: "Build (static export -> out/)"
+        run: npm run build
+
+      - name: Assert static export
+        run: |
+          set -euo pipefail
+          test -f out/index.html
+          test -f out/robots.txt
+          du -sh out
+
+      - name: Upload site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-out
+          path: out
+          retention-days: 30
+          if-no-files-found: error
+
+  # ───────────────────────────────────────────────────────────────
+  # 2) 发版：semantic-release（版本号自动推断 → tag → GitHub Release）
+  #    ⚠️ 必须先完成 v1.0.6–v1.0.11 的 tag 回填，否则会算错基线版本。
+  # ───────────────────────────────────────────────────────────────
+  release:
+    name: Release
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: release
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    steps:
+      - name: Checkout (full history for tag analysis)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
+
+  # ───────────────────────────────────────────────────────────────
+  # 3) 部署：把构建产物 rsync 到 Lighthouse（staging + 原子切换）
+  #    服务器无需 git / Node，彻底绕开「服务器连不上 github」的问题。
+  # ───────────────────────────────────────────────────────────────
+  deploy:
+    name: Deploy → Lighthouse
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download built site
+        uses: actions/download-artifact@v4
+        with:
+          name: site-out
+          path: out
+
+      - name: Configure SSH
+        uses: ./.github/actions/ssh-setup
+        with:
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh_known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Deploy (staging + atomic swap)
+        uses: ./.github/actions/deploy-site
+        with:
+          ssh_host: ${{ vars.SSH_HOST }}
+          ssh_user: ${{ vars.SSH_USER }}
+          ssh_port: ${{ vars.SSH_PORT || '22' }}
+
+      - name: Smoke test (public)
+        run: |
+          set -euo pipefail
+          for u in https://meihaowater.site/ https://www.meihaowater.site/ https://xn--vhqu7tjwbb1iwpthm1a.online/; do
+            code=$(curl -s -o /dev/null -w '%{http_code}' "$u")
+            echo "$u -> $code"
+            test "$code" = "200"
+          done
+          # 关键内容存在性
+          curl -fsS https://meihaowater.site/ | grep -q '廊坊市美好商贸有限公司'
+          curl -fsS https://meihaowater.site/ | grep -q '13393067179'
+          curl -fsS https://meihaowater.site/contact/ | grep -q '廊坊桶装水'
+          curl -fsS https://www.meihaowater.site/cc74d923d820ff83efe0cdc4c5c24913.txt \
+            | grep -q '7b268ebfd39b144363ac45b60aaf262e0f9997f6'
+          # 缓存策略（HTML 不应 immutable）
+          curl -sI https://meihaowater.site/ | grep -iq '^cache-control: no-cache'
+
+  # ───────────────────────────────────────────────────────────────
+  # 4) Caddyfile 同步（仅当 infra/Caddyfile 变更；需要 ubuntu 免密 sudo）
+  # ───────────────────────────────────────────────────────────────
+  caddy:
+    name: Sync Caddyfile (guarded)
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout (need previous commit)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect infra/Caddyfile change
+        id: diff
+        run: |
+          set -euo pipefail
+          BEFORE='${{ github.event.before }}'
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only "$BEFORE" '${{ github.sha }}' | grep -qx 'infra/Caddyfile'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Configure SSH
+        if: steps.diff.outputs.changed == 'true'
+        uses: ./.github/actions/ssh-setup
+        with:
+          ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh_known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Validate & install Caddyfile
+        if: steps.diff.outputs.changed == 'true'
+        env:
+          SSH_HOST: ${{ vars.SSH_HOST }}
+          SSH_USER: ${{ vars.SSH_USER }}
+          SSH_PORT: ${{ vars.SSH_PORT || '22' }}
+        run: |
+          set -euo pipefail
+          SSH_OPTS="-i $HOME/.ssh/id_ed25519 -p ${SSH_PORT} -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts"
+          TARGET="${SSH_USER}@${SSH_HOST}"
+
+          scp -i "$HOME/.ssh/id_ed25519" -P "${SSH_PORT}" \
+              -o BatchMode=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
+              infra/Caddyfile "$TARGET:/tmp/Caddyfile.new"
+
+          ssh $SSH_OPTS "$TARGET" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          sudo cp -a /etc/caddy/Caddyfile "/etc/caddy/Caddyfile.bak.$(date -u +%Y%m%d%H%M%S)"
+          sudo caddy validate --config /tmp/Caddyfile.new
+          sudo install -m 644 -o root -g root /tmp/Caddyfile.new /etc/caddy/Caddyfile
+          sudo systemctl reload caddy
+          rm -f /tmp/Caddyfile.new
+          echo "Caddyfile installed & Caddy reloaded"
+          REMOTE

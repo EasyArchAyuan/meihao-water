@@ -1,0 +1,37 @@
+name: Setup SSH
+description: 写入部署私钥与 known_hosts，供后续 ssh / scp / rsync 步骤使用（不做连接测试）。
+
+inputs:
+  ssh_private_key:
+    description: 部署私钥全文（OpenSSH 格式）
+    required: true
+  ssh_known_hosts:
+    description: known_hosts 内容（防 MITM）
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        DEPLOY_SSH_PRIVATE_KEY: ${{ inputs.ssh_private_key }}
+        DEPLOY_SSH_KNOWN_HOSTS: ${{ inputs.ssh_known_hosts }}
+      run: |
+        set -euo pipefail
+
+        if [ -z "${DEPLOY_SSH_PRIVATE_KEY}" ]; then
+          echo "::error::secret SSH_PRIVATE_KEY 为空"; exit 1
+        fi
+        if [ -z "${DEPLOY_SSH_KNOWN_HOSTS}" ]; then
+          echo "::error::secret SSH_KNOWN_HOSTS 为空"; exit 1
+        fi
+
+        install -d -m 700 "$HOME/.ssh"
+        printf '%s\n' "$DEPLOY_SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
+        chmod 600 "$HOME/.ssh/id_ed25519"
+        printf '%s\n' "$DEPLOY_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+        chmod 644 "$HOME/.ssh/known_hosts"
+
+        # 校验私钥可解析（不连接服务器，失败即快速报错）
+        ssh-keygen -y -f "$HOME/.ssh/id_ed25519" > /dev/null
+        echo "SSH 已就绪（密钥可解析）。"
