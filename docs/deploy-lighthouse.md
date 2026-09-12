@@ -37,7 +37,18 @@ push main ─► GitHub Actions
 | `.github/workflows/backfill.yml` | 手动 / `v1.0.*` tag | 一次性补历史 tag 与 Release（幂等） |
 
 **为什么不用服务器 git pull**：服务器 `github.com:443` 连不上（实测 connect timeout ~135s、`GnuTLS recv error -110`），
-`git pull` 全部失败；`raw.githubusercontent.com` 反而可达。改成 CI 推送产物后，服务器只需 SSH 可达（22 端口已对 `0.0.0.0/0` 开放）。
+`git pull` 全部失败；`raw.githubusercontent.com` 反而可达。
+
+> ⚠️ **已知网络限制（2026-09-12 实测）**：**GitHub 托管的 Runner 连不上本服务器的 22 端口**。
+> 在 deploy job 里加了 TCP 探针，结果 `TCP_PROBE: UNREACHABLE 49.233.87.42:22`（20s 超时、包被丢弃，非认证问题）；
+> 服务器 `/var/log/auth.log` 里也看不到 Runner 的连接记录。而本机能连通（`Test-NetConnection` = True）。
+>
+> 结论：**从 GitHub Runner 主动 SSH 部署这条路被网络阻断**，需要换传输方式或改从可连通的机器部署：
+> - **方案 A（当前在用）**：从可连通服务器的机器部署（本机 `npm run build` 后同步，或经腾讯云「执行命令」拉 `raw.githubusercontent.com`）。
+> - **方案 B**：改用非 22 端口的 SSH（需改 sshd 与防火墙，尚未验证 GitHub 侧是否放行）。
+> - **方案 C**：改为「服务器拉取」——CI 把 `out/` 提交到 `dist` 分支，服务器从 `raw.githubusercontent.com` 取（raw 可达，已验证）。
+>
+> 在此之前，CI 的 **build** 与 **release** 仍照常工作，只有 **deploy** 会失败（站点不受影响）。
 
 ## 一次性准备
 

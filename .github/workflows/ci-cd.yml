@@ -97,7 +97,7 @@ jobs:
 
       - name: Diagnose token permissions
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
           echo "token length: ${#GH_TOKEN}"
@@ -112,7 +112,8 @@ jobs:
 
       - name: semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 若仓库默认 GITHUB_TOKEN 无推送权（push:false），可建 fine-grained PAT 存为 RELEASE_TOKEN
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           set +e
           npx semantic-release > /tmp/semrel.log 2>&1
