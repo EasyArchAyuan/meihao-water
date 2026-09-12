@@ -90,10 +90,28 @@ export default function ShuineighborPage() {
           </Reveal>
         </section>
 
-        {/* 主图 */}
+        {/* 水源与品质 */}
         <section className="container-wide pb-16 sm:pb-24">
-          <Reveal>
-            <Figure id="shuineighbor" ratio="4/3" ratioSm="16/9" rounded />
+          <Reveal className="grid gap-10 sm:gap-14 lg:grid-cols-12 lg:gap-20">
+            <RevealItem className="lg:col-span-5 flex flex-col gap-6">
+              <span className="eyebrow !text-[var(--accent-text)]">
+                水源与品质
+              </span>
+              <h2 className="display-sub text-[var(--ink)]">
+                来自中国十大矿泉水之乡。
+              </h2>
+              <p className="body-lg text-[var(--ink-soft)]">
+                「水邻居」与同门的「美好水一族」，水源地是河北固安——中国十大矿泉水之乡。取自地下深层，天然无污染。
+              </p>
+              <ul className="flex flex-col gap-3 text-[15px] leading-relaxed text-[var(--ink-soft)]">
+                <li>国家级绿色食品认证</li>
+                <li>富含矿物质及锶、偏硅酸等微量元素</li>
+                <li>2020 年由美好水业自主研发，作为廊坊的城市名片打造</li>
+              </ul>
+            </RevealItem>
+            <RevealItem className="lg:col-span-7">
+              <Figure id="source-gu-an" ratio="4/3" ratioSm="3/2" rounded />
+            </RevealItem>
           </Reveal>
         </section>
       </main>
