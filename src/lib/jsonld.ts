@@ -33,9 +33,9 @@ export function localBusinessJsonLd(): string {
     url: site.url,
     priceRange: "¥¥",
   };
-  // 真实电话才输出
+  // 真实电话才输出（schema.org telephone 用 E.164，不带 tel: 前缀）
   if (primaryPhone?.tel) {
-    data.telephone = primaryPhone.tel;
+    data.telephone = primaryPhone.tel.replace(/^tel:/, "");
   }
   // 真实地址才输出
   if (company.address && !isTodo(company.address)) {

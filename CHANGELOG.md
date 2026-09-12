@@ -196,6 +196,39 @@ systemctl reload caddy
 
 ---
 
+## [1.0.10] — 2026-09-12
+
+**缓存与结构化数据修正**（v1.0.9 上线后复查发现的两处隐患）。
+
+### 修复
+
+| 项 | 旧 | 新 |
+|---|---|---|
+| HTML 缓存 | `Cache-Control: public, max-age=31536000, immutable`（默认 header 对所有响应生效） | 默认 `no-cache`（带 ETag 重验证）；仅 `/_next/static/*` 哈希资源保留 `immutable` |
+| JSON-LD `telephone` | `tel:+8613393067179`（含 `tel:` 前缀，不符合 schema.org） | `+8613393067179`（E.164） |
+
+### 改动
+
+| 文件 | 改动 |
+|---|---|
+| `infra/Caddyfile` | 默认 header 的 `Cache-Control` 由 immutable 改为 `no-cache`；新增 `@immutable path /_next/static/*` 覆盖为 `immutable`；`@meta`(sitemap/robots) 1h、`@brand` 30d 不变 |
+| `src/lib/jsonld.ts` | `data.telephone` 输出前 `replace(/^tel:/, "")` |
+| `package.json` | 1.0.9 → 1.0.10 |
+| `CHANGELOG.md` | 新增 `[1.0.10]` |
+| `memory/2026-09-12.md` | 追加 v1.0.10 记录 |
+
+### 背景
+
+v1.0.9 上线后复查发现：Caddyfile 默认 header 把 **HTML 也标成一年 immutable**，浏览器不重验证，导致内容更新对回访用户不生效；JSON-LD 的 `telephone` 带 `tel:` 前缀，不规范。
+
+### 验证
+
+- HTML 响应头 `Cache-Control: no-cache`
+- `/_next/static/*` 响应头 `Cache-Control: public, max-age=31536000, immutable`
+- JSON-LD `"telephone":"+8613393067179"`
+
+---
+
 ## [1.0.5] — 2026-09-11
 
 **静态导出 + 部署上线**。本会话 preview server 在受限环境下启动后被 SIGTERM（bash 后台 runner 行为，多种 detach 方式均无效），改用 Next.js 静态导出 + Sites 部署给出在线预览链接。
