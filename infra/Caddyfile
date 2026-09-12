@@ -1,0 +1,33 @@
+# 美好水业官网 - Caddyfile
+# 服务 Next.js 16 静态导出产物
+
+:80 {
+    root * /var/www/mhsy/out
+
+    # Next.js trailingSlash 会生成 /about/index.html
+    # Caddy 的 file_server 自动处理：先找 /about → /about/index.html
+    file_server
+
+    # 安全 headers
+    header {
+        # 去除暴露的 server 信息
+        -Server
+        # XSS / MIME 嗅探保护
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # 静态资源缓存（Next.js 自带 hash，不可变）
+        Cache-Control "public, max-age=31536000, immutable"
+    }
+
+    # sitemap / robots 不缓存太久
+    @meta path /sitemap.xml /robots.txt
+    header @meta Cache-Control "public, max-age=3600"
+
+    # 品牌素材单独规则：30 天缓存
+    @brand path /brand/*
+    header @brand Cache-Control "public, max-age=2592000"
+
+    # 启用 gzip（Caddy 自动处理）
+    encode zstd gzip
+}
