@@ -42,7 +42,8 @@ jobs:
         uses: ./.github/actions/ssh-setup
         with:
           ssh_private_key: ${{ secrets.SSH_PRIVATE_KEY }}
-          ssh_known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+          ssh_host: ${{ vars.SSH_HOST }}
+          ssh_port: ${{ vars.SSH_PORT || '22' }}
 
       - name: Swap out <- out.prev (target=previous)
         if: inputs.target == 'previous'

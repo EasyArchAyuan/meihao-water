@@ -1,13 +1,17 @@
 name: Setup SSH
-description: 写入部署私钥与 known_hosts，供后续 ssh / scp / rsync 步骤使用（不做连接测试）。
+description: 写入部署私钥，并在运行时用 ssh-keyscan 生成 known_hosts 且校验固定指纹（无需手工粘贴 known_hosts secret）。
 
 inputs:
   ssh_private_key:
     description: 部署私钥全文（OpenSSH 格式）
     required: true
-  ssh_known_hosts:
-    description: known_hosts 内容（防 MITM）
+  ssh_host:
+    description: 服务器地址
     required: true
+  ssh_port:
+    description: SSH 端口
+    required: false
+    default: "22"
 
 runs:
   using: composite
@@ -15,23 +19,48 @@ runs:
     - shell: bash
       env:
         DEPLOY_SSH_PRIVATE_KEY: ${{ inputs.ssh_private_key }}
-        DEPLOY_SSH_KNOWN_HOSTS: ${{ inputs.ssh_known_hosts }}
+        DEPLOY_SSH_HOST: ${{ inputs.ssh_host }}
+        DEPLOY_SSH_PORT: ${{ inputs.ssh_port }}
       run: |
         set -euo pipefail
 
         if [ -z "${DEPLOY_SSH_PRIVATE_KEY}" ]; then
-          echo "::error::secret SSH_PRIVATE_KEY 为空"; exit 1
+          echo "::error title=missing_secret::secret SSH_PRIVATE_KEY 为空"; exit 1
         fi
-        if [ -z "${DEPLOY_SSH_KNOWN_HOSTS}" ]; then
-          echo "::error::secret SSH_KNOWN_HOSTS 为空"; exit 1
+        if [ -z "${DEPLOY_SSH_HOST}" ]; then
+          echo "::error title=missing_host::ssh_host 未提供"; exit 1
         fi
 
         install -d -m 700 "$HOME/.ssh"
         printf '%s\n' "$DEPLOY_SSH_PRIVATE_KEY" > "$HOME/.ssh/id_ed25519"
         chmod 600 "$HOME/.ssh/id_ed25519"
-        printf '%s\n' "$DEPLOY_SSH_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
-        chmod 644 "$HOME/.ssh/known_hosts"
+        # 私钥可解析性校验（不连接服务器，失败即快速报错）
+        if ! ssh-keygen -y -f "$HOME/.ssh/id_ed25519" > /dev/null 2>&1; then
+          echo "::error title=bad_private_key::SSH_PRIVATE_KEY 无法解析（格式错误，或它是带 passphrase 的私钥 —— Actions 无法非交互使用）"
+          exit 1
+        fi
 
-        # 校验私钥可解析（不连接服务器，失败即快速报错）
-        ssh-keygen -y -f "$HOME/.ssh/id_ed25519" > /dev/null
-        echo "SSH 已就绪（密钥可解析）。"
+        # 运行时获取 host key —— 比手工粘贴的 secret 可靠，服务器重装后也自动适配
+        ssh-keyscan -T 15 -t rsa,ecdsa,ed25519 -p "$DEPLOY_SSH_PORT" "$DEPLOY_SSH_HOST" 2>/dev/null > /tmp/kh
+        if [ ! -s /tmp/kh ]; then
+          echo "::error title=keyscan_failed::ssh-keyscan 未取到 ${DEPLOY_SSH_HOST}:${DEPLOY_SSH_PORT} 的主机公钥"
+          exit 1
+        fi
+
+        FPRS=$(ssh-keygen -lf /tmp/kh -E sha256 | awk '{print $2}' | sort -u)
+        echo "扫描到的 host key 指纹："; echo "$FPRS"
+
+        # 固定指纹（公开信息）—— 防 MITM
+        for want in \
+          "SHA256:GI8e4PzplPTAMkrSaPTc72tMa156/N93hJd43arm31Y" \
+          "SHA256:YAMNdCrLTb1twTSfNJLuZcBXzlNlt70hXPGOxm+OUzg" \
+          "SHA256:Q6EoxZaU2b1eXvjd1lHqusEEXvb9DrOmXNFvrDrn0d4"; do
+          if ! grep -qx "$want" <<< "$FPRS"; then
+            echo "::error title=host_key_mismatch::期望指纹 $want 未出现 —— 可能被中间人劫持，已中止"
+            exit 1
+          fi
+        done
+
+        cp /tmp/kh "$HOME/.ssh/known_hosts"
+        chmod 644 "$HOME/.ssh/known_hosts"
+        echo "SSH 已就绪（host key 指纹校验通过）。"
