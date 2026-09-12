@@ -234,6 +234,30 @@ v1.0.9 上线后复查发现：Caddyfile 默认 header 把 **HTML 也标成一�
 
 ---
 
+## [1.0.11] — 2026-09-12
+
+**微信站长认证**。微信提示 `www.meihaowater.site` 需完成站长认证方可恢复正常访问，按要求在网站根目录部署校验文件。
+
+### 改动
+
+| 文件 | 改动 |
+|---|---|
+| `public/cc74d923d820ff83efe0cdc4c5c24913.txt`（新增） | 微信站长认证校验文件，内容 `7b268ebfd39b144363ac45b60aaf262e0f9997f6`。放 `public/` 以便构建时自动拷到导出根目录。**请勿删除**，否则微信会再次拦截 |
+| `package.json` | 1.0.10 → 1.0.11 |
+| `CHANGELOG.md` | 新增 `[1.0.11]` |
+| `memory/2026-09-12.md` | 追加 v1.0.11 记录 |
+
+### 验证
+
+- `https://www.meihaowater.site/cc74d923d820ff83efe0cdc4c5c24913.txt` → `7b268ebfd39b144363ac45b60aaf262e0f9997f6`
+- 另两个主机名（`meihaowater.site`、`廊坊美好水业.online`）同样返回该内容
+
+### 说明
+
+- 因 github 不可达，本次直接写入服务器 `/var/www/mhsy/out/` 根目录；`public/` 版本随下次 `git pull && npm run build` 一并生效并长期保留。
+
+---
+
 ## [1.0.5] — 2026-09-11
 
 **静态导出 + 部署上线**。本会话 preview server 在受限环境下启动后被 SIGTERM（bash 后台 runner 行为，多种 detach 方式均无效），改用 Next.js 静态导出 + Sites 部署给出在线预览链接。
