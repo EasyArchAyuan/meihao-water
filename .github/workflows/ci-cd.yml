@@ -223,7 +223,11 @@ jobs:
           set -euo pipefail
           test -f out/index.html
           tar -czf /tmp/site.tar.gz -C out .
+          # 先发布一个 64 字节的 sha 文件：服务器据此判断是否有更新，避免每次都下载整包
+          sha256sum /tmp/site.tar.gz | cut -d' ' -f1 > /tmp/site.sha256
+          cp /tmp/site.sha256 /tmp/sha256.txt
           ls -lh /tmp/site.tar.gz
+          cat /tmp/site.sha256
 
       - name: Push to dist branch (single commit, force)
         run: |
@@ -233,7 +237,8 @@ jobs:
           git switch --orphan dist_tmp
           git rm -rf . >/dev/null 2>&1 || true
           cp /tmp/site.tar.gz site.tar.gz
-          git add -f site.tar.gz
+          cp /tmp/sha256.txt site.sha256
+          git add -f site.tar.gz site.sha256
           git commit -m "chore(dist): build ${GITHUB_SHA::7}"
           git branch -M dist
           git push -f origin dist
