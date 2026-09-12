@@ -18,6 +18,11 @@
 #
 set -euo pipefail
 
+# 日志：cron 里不便重定向，统一在脚本内追加
+LOG=/var/log/mhsy-pull.log
+exec >>"$LOG" 2>&1
+echo "[$(date '+%F %T')] pull start"
+
 SITE=/var/www/mhsy/out
 BASE=https://raw.githubusercontent.com/EasyArchAyuan/meihao-water/dist
 T=/tmp/mhsy-pull
@@ -30,7 +35,7 @@ wget -q --timeout=60 -O "$T/site.sha256" "$BASE/site.sha256?r=$RANDOM"
 N=$(cut -d' ' -f1 "$T/site.sha256")
 O=$(cat "$S" 2>/dev/null || echo "")
 if [ "$N" = "$O" ]; then
-  echo "no-change $N"
+  echo "[$(date '+%F %T')] no-change $N"
   exit 0
 fi
 
@@ -46,7 +51,7 @@ for i in 1 2 3; do
   sleep 5
 done
 if [ "$ok" != "1" ]; then
-  echo "sha mismatch after retries: want=$N got=${A:-none}"
+  echo "[$(date '+%F %T')] ERROR sha mismatch after retries: want=$N got=${A:-none}"
   exit 1
 fi
 
@@ -67,4 +72,4 @@ fi
 mv "${SITE}.new" "$SITE"
 
 echo "$N" > "$S"
-echo "deployed $N"
+echo "[$(date '+%F %T')] deployed $N"
