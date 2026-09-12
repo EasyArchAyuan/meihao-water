@@ -1,33 +1,42 @@
 # 美好水业官网 - Caddyfile
 # 服务 Next.js 16 静态导出产物
+# 站点：廊坊美好水业.online（IDN，Caddy/ACME 必须使用 Punycode 形式）
+#   Punycode: xn--vhqu7tjwbb1iwpthm1a.online
 
-:80 {
-    root * /var/www/mhsy/out
+{
+	# Let's Encrypt ACME 账户联系邮箱（证书到期提醒）
+	email dev@meihaoshuiye.cn
+}
 
-    # Next.js trailingSlash 会生成 /about/index.html
-    # Caddy 的 file_server 自动处理：先找 /about → /about/index.html
-    file_server
+xn--vhqu7tjwbb1iwpthm1a.online {
+	root * /var/www/mhsy/out
 
-    # 安全 headers
-    header {
-        # 去除暴露的 server 信息
-        -Server
-        # XSS / MIME 嗅探保护
-        X-Content-Type-Options "nosniff"
-        X-Frame-Options "SAMEORIGIN"
-        Referrer-Policy "strict-origin-when-cross-origin"
-        # 静态资源缓存（Next.js 自带 hash，不可变）
-        Cache-Control "public, max-age=31536000, immutable"
-    }
+	# Next.js trailingSlash 会生成 /about/index.html
+	# Caddy 的 file_server 自动处理：先找 /about → /about/index.html
+	file_server
 
-    # sitemap / robots 不缓存太久
-    @meta path /sitemap.xml /robots.txt
-    header @meta Cache-Control "public, max-age=3600"
+	# 安全 headers
+	header {
+		# 去除暴露的 server 信息
+		-Server
+		# XSS / MIME 嗅探保护
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# HSTS（仅 HTTPS 生效）
+		Strict-Transport-Security "max-age=31536000"
+		# 静态资源缓存（Next.js 自带 hash，不可变）
+		Cache-Control "public, max-age=31536000, immutable"
+	}
 
-    # 品牌素材单独规则：30 天缓存
-    @brand path /brand/*
-    header @brand Cache-Control "public, max-age=2592000"
+	# sitemap / robots 不缓存太久
+	@meta path /sitemap.xml /robots.txt
+	header @meta Cache-Control "public, max-age=3600"
 
-    # 启用 gzip（Caddy 自动处理）
-    encode zstd gzip
+	# 品牌素材单独规则：30 天缓存
+	@brand path /brand/*
+	header @brand Cache-Control "public, max-age=2592000"
+
+	# 启用 gzip/zstd（Caddy 自动处理）
+	encode zstd gzip
 }
