@@ -36,6 +36,14 @@
 - `/sitemap.xml`、`/robots.txt`：1h；`/brand/*`：30d
 - **Caddy 陷阱**：无 matcher 的 `header { … }` 块会**覆盖**带 matcher 的 `header @x …` 同名 header。所以 `Cache-Control` 必须全部用带 matcher 的形式表达（默认值用 `@plain not path /_next/static/* /sitemap.xml /robots.txt /brand/*`）。
 
+## 仓库卫生 / .gitignore 约定（2026-09-12 整理）
+- 原则：**只提交源码 + 必要静态资源 + 文档 + 项目记忆**；构建产物、依赖、密钥、本地临时文件一律不进 git。
+- 已忽略：`node_modules`、`.next/`、`out/`、`coverage`、`build`、`.turbo`、`site.tar.gz` / `site.sha256`（本地部署产物）、`.env*` / `*.pem` / `*.key` / `*.p12`、`*.log` / `*.tmp`、`next-env.d.ts`、`*.tsbuildinfo`、`.vercel`、OS/编辑器垃圾、`.workbuddy/*`（仅放行 `memory/` 与 `skills/`）、`.wbapp_*.genie`。
+- ⚠️ **`.gitignore` 不支持行尾注释**（`#` 只在行首生效）——写 `next-env.d.ts  # 注释` 会让该规则整个失效。注释必须单独一行。
+- 改完 `.gitignore` 应自检：`git ls-files -i -c --exclude-standard`（列出被忽略规则误伤的已跟踪文件，应为空）+ `git check-ignore <path>` 抽查关键路径。
+- 体积参考：仓库内容很小（`src`≈0.1MB、`public`≈4.0MB）；本地大块是被忽略的 `node_modules`（≈717MB）与 `.next`（≈303MB），均可重建。用户已确认**暂不清理**这两者（保留以便随时构建）。
+- `dist` 分支含约 2MB 构建产物，`git clone` 默认会拉它；只要源码时用 `git clone --single-branch --branch main <url>`。
+
 ## 已修复
 - ~~HTML 被标一年 `immutable`~~ → v1.0.10 已修（改 `no-cache`）。
 - ~~JSON-LD `LocalBusiness.telephone` 带 `tel:` 前缀~~ → v1.0.10 已修（现为 `+8613393067179`）。

@@ -200,7 +200,7 @@ export const media: Record<string, MediaItem> = {
     alt: "美好水业配送员双手抱着桶装水走出楼道",
     ratio: "3/4",
     note: "20 年 Section 三图拼贴之二：配送员 / 桶装水。",
-    todo: true,
+    todo: false,
   },
   "years-03": {
     id: "years-03",
@@ -218,15 +218,15 @@ export const media: Record<string, MediaItem> = {
     alt: "家庭厨房里的饮水机与桶装水，晨光洒在台面上",
     ratio: "4/3",
     note: "我们做什么 · 家庭饮水。",
-    todo: true,
+    todo: false,
   },
   "whatwedo-02": {
     id: "whatwedo-02",
-    src: null,
-    alt: "办公室饮水场景（待替换）",
+    src: "/home/whatwedo-02.jpg",
+    alt: "办公室茶水间的饮水机与整齐摆放的白色水杯",
     ratio: "4/3",
     note: "我们做什么 · 企业饮水。",
-    todo: true,
+    todo: false,
   },
   "whatwedo-03": {
     id: "whatwedo-03",
@@ -238,31 +238,31 @@ export const media: Record<string, MediaItem> = {
   },
   "whatwedo-04": {
     id: "whatwedo-04",
-    src: null,
-    alt: "一次性桶装水特写（待替换）",
+    src: "/home/whatwedo-04.jpg",
+    alt: "整桶塑封的一次性桶装水特写",
     ratio: "4/3",
     note: "我们做什么 · 一次性桶装水。",
-    todo: true,
+    todo: false,
   },
 
   // 04 家庭
   "home-life": {
     id: "home-life",
-    src: null,
-    alt: "家庭厨房 / 客厅饮水场景（待替换）",
+    src: "/home/home-life.jpg",
+    alt: "家中客厅一角，饮水机旁的小桌上放着水杯与书",
     ratio: "4/5",
     note: "家庭饮水 Section 主图：厨房 / 客厅 / 饮水机，暖光。",
-    todo: true,
+    todo: false,
   },
 
   // 05 企业
   "office-space": {
     id: "office-space",
-    src: null,
-    alt: "办公 / 商务空间（待替换）",
+    src: "/home/office-space.jpg",
+    alt: "可俯瞰城市天际线的现代办公空间与茶水区",
     ratio: "3/2",
     note: "企业与商务 Section 主图：城市商务感，非欧美素材。",
-    todo: true,
+    todo: false,
   },
 
   // 06 一次性
@@ -278,11 +278,11 @@ export const media: Record<string, MediaItem> = {
   // 07 水邻居
   "shuineighbor": {
     id: "shuineighbor",
-    src: null,
-    alt: "水邻居品牌场景（待替换）",
+    src: "/home/shuineighbor.jpg",
+    alt: "浅薄荷绿色的随身水壶置于明亮台面，旁有绿植与毛巾",
     ratio: "4/5",
     note: "水邻居 Section 主图：年轻 / 轻盈 / 低饱和蓝绿氛围。",
-    todo: true,
+    todo: false,
   },
 
   // 09 城市
