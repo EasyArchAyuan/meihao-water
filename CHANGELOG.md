@@ -1,3 +1,18 @@
+## [1.1.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.0.11...v1.1.0) (2026-09-12)
+
+### 新功能
+
+* **ci:** 新增 publish-dist —— 打包产物推 dist 分支，改为服务器主动拉取（默认部署模式） ([fd756a5](https://github.com/EasyArchAyuan/meihao-water/commit/fd756a5e303a1378b9562972dc0eacda9727ff05))
+* **content:** 依据廊商库专访扩充企业内容 —— 发展历程 / 创始人 / 公益 / 荣誉 + 17 张实拍图 ([bb66f3d](https://github.com/EasyArchAyuan/meihao-water/commit/bb66f3d3f1e57d7eccae230d81fa96c0e8eb3da6))
+* **deploy:** mhsy-pull.sh 增加执行日志（/var/log/mhsy-pull.log） ([0496f7e](https://github.com/EasyArchAyuan/meihao-water/commit/0496f7e36aa971256090f262d1ded2c58c7ee62c))
+* **deploy:** 新增服务器端拉取脚本 infra/mhsy-pull.sh（含 sha 校验与重试） ([a05f7c2](https://github.com/EasyArchAyuan/meihao-water/commit/a05f7c29b535e93a34a4320998b95a13f911fed6))
+
+### 修复
+
+* **ci:** SSH 改用 accept-new 信任首次连接 + 加 TCP 连通性探针（排障） ([2f396b8](https://github.com/EasyArchAyuan/meihao-water/commit/2f396b8973557d7e8fddc57fc2d28c1a9c02407e))
+* **ci:** ssh-setup 改为运行时 ssh-keyscan + 指纹校验，不再依赖手工粘贴 known_hosts ([97da58d](https://github.com/EasyArchAyuan/meihao-water/commit/97da58d125d59f86fa4612de682c2563b609a836))
+* **release:** 降级 conventional-changelog-conventionalcommits 到 ^8（与 conventional-changelog-writer@8 匹配，修复 Missing helper 报错） ([68b853c](https://github.com/EasyArchAyuan/meihao-water/commit/68b853c6bba212b1e1bcddc1cdefbd90680b6804))
+
 # 变更日志
 
 本项目所有值得注意的变更都会记录在本文档。
