@@ -19,6 +19,12 @@
 - 微信公众号：「廊坊桶装水」（2026-09-12 更名，原「水邻居饮用水」）。
 - **单一数据源 `src/data/company.ts`**（`company.phones` / `wechatPublicName` / `primaryPhone`），改一处全站生效 —— 改联系方式优先改这里。
 
-## 已知隐患
-- Caddyfile 默认 header 对所有响应（含 HTML）设 `Cache-Control: public, max-age=31536000, immutable`。HTML 不应 immutable，会导致内容更新对回访用户不生效。**待修**（建议仅 `/_next/static/*` immutable，HTML 用 `no-cache`）。
-- JSON-LD `LocalBusiness.telephone` 值带 `tel:` 前缀（历史遗留），规范值应为 `+8613393067179`。
+## Caddy 缓存策略（v1.0.10 起）
+- HTML / RSC 等：`Cache-Control: no-cache`（带 ETag 重验证，内容更新即时生效）
+- `/_next/static/*`（文件名含 hash）：`public, max-age=31536000, immutable`
+- `/sitemap.xml`、`/robots.txt`：1h；`/brand/*`：30d
+- **Caddy 陷阱**：无 matcher 的 `header { … }` 块会**覆盖**带 matcher 的 `header @x …` 同名 header。所以 `Cache-Control` 必须全部用带 matcher 的形式表达（默认值用 `@plain not path /_next/static/* /sitemap.xml /robots.txt /brand/*`）。
+
+## 已修复
+- ~~HTML 被标一年 `immutable`~~ → v1.0.10 已修（改 `no-cache`）。
+- ~~JSON-LD `LocalBusiness.telephone` 带 `tel:` 前缀~~ → v1.0.10 已修（现为 `+8613393067179`）。
