@@ -180,42 +180,42 @@ export const media: Record<string, MediaItem> = {
   // Hero / 02 二十年
   "hero-city-water": {
     id: "hero-city-water",
-    src: null,
-    alt: "城市与水的生活场景（待替换）",
+    src: "/hero/city-water.jpg",
+    alt: "清晨的城市社区街景，前方一杯清水，路边停着载满桶装水的配送车",
     ratio: "4/5",
     note: "Hero 大图：水的通透感 + 城市生活感，安静干净。移动端 4/5，>=640px 由调用方传 ratioSm=16/9。",
-    todo: true,
+    todo: false,
   },
   "years-01": {
     id: "years-01",
-    src: null,
-    alt: "老水站历史照片（待替换）",
+    src: "/hero/years-01.jpg",
+    alt: "早期的桶装水店面，门口整齐码放的桶装水与送水三轮车",
     ratio: "3/4",
     note: "20 年 Section 三图拼贴之一：水站 / 配送 / 廊坊街巷（真实纪实）。",
-    todo: true,
+    todo: false,
   },
   "years-02": {
     id: "years-02",
-    src: null,
-    alt: "配送服务照片（待替换）",
+    src: "/hero/years-02.jpg",
+    alt: "美好水业配送员双手抱着桶装水走出楼道",
     ratio: "3/4",
     note: "20 年 Section 三图拼贴之二：配送员 / 桶装水。",
     todo: true,
   },
   "years-03": {
     id: "years-03",
-    src: null,
-    alt: "廊坊街巷（待替换）",
+    src: "/hero/years-03.jpg",
+    alt: "清晨的廊坊街巷，沿街店铺与远处居民楼",
     ratio: "3/4",
     note: "20 年 Section 三图拼贴之三：廊坊本地。",
-    todo: true,
+    todo: false,
   },
 
   // 03 我们做什么 hover 图
   "whatwedo-01": {
     id: "whatwedo-01",
-    src: null,
-    alt: "家庭饮水场景（待替换）",
+    src: "/home/whatwedo-01.jpg",
+    alt: "家庭厨房里的饮水机与桶装水，晨光洒在台面上",
     ratio: "4/3",
     note: "我们做什么 · 家庭饮水。",
     todo: true,
@@ -230,11 +230,11 @@ export const media: Record<string, MediaItem> = {
   },
   "whatwedo-03": {
     id: "whatwedo-03",
-    src: null,
-    alt: "商务会议场景（待替换）",
+    src: "/home/whatwedo-03.jpg",
+    alt: "商务会议室中为每位与会者备好的饮用水",
     ratio: "4/3",
     note: "我们做什么 · 商务用水。",
-    todo: true,
+    todo: false,
   },
   "whatwedo-04": {
     id: "whatwedo-04",
@@ -268,11 +268,11 @@ export const media: Record<string, MediaItem> = {
   // 06 一次性
   "disposable-hero": {
     id: "disposable-hero",
-    src: null,
-    alt: "一次性桶装水产品主图（待替换）",
+    src: "/home/disposable-hero.jpg",
+    alt: "浅色渐变背景上的桶装水产品，四周大量留白",
     ratio: "16/9",
     note: "一次性桶装水 Section 主视觉：产品单品，纯背景 + 强留白。",
-    todo: true,
+    todo: false,
   },
 
   // 07 水邻居

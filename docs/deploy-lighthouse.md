@@ -54,6 +54,11 @@ push main ─► GitHub Actions
 >   `wget -qO- .../main/infra/mhsy-pull.sh | dd of=/usr/local/bin/mhsy-pull.sh && chmod +x` 重装）
 > - 只有当 `vars.DEPLOY_MODE == 'ssh'` 时才走回 SSH 直推（留给将来网络恢复后用）。
 >
+> - 注意：`git clone` 默认会拉取**所有分支**，包括 `dist`（里面是约 2MB 的构建产物）。
+>   只要源码时用：`git clone --single-branch --branch main https://github.com/EasyArchAyuan/meihao-water.git`
+> - 仓库内容很小（`src` ≈0.1MB、`public` ≈4.0MB）；本地体积主要来自被忽略的
+>   `node_modules`（≈717MB）与 `.next`（≈303MB），两者都是构建缓存，可随时重建。
+>
 > 因此现在完整链路是：**push → CI 构建 → 自动发版 → 产物进 dist 分支 → 服务器 10 分钟内自动上线**。
 
 ## 一次性准备
