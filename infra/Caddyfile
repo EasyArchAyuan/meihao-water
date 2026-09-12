@@ -16,9 +16,14 @@ xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online, meihaowater.
 		X-Frame-Options "SAMEORIGIN"
 		Referrer-Policy "strict-origin-when-cross-origin"
 		Strict-Transport-Security "max-age=31536000"
-		# 默认不缓存：HTML 等每次带 ETag 重验证，内容更新即时生效
-		Cache-Control "no-cache"
 	}
+
+	# 注意：Caddy 中「无 matcher 的 header 块」会覆盖带 matcher 的同名 header，
+	# 因此 Cache-Control 全部用带 matcher 的 header 设置，默认值也用 not path 表达。
+
+	# 默认（HTML / RSC 等）：不缓存，每次带 ETag 重验证，内容更新即时生效
+	@plain not path /_next/static/* /sitemap.xml /robots.txt /brand/*
+	header @plain Cache-Control "no-cache"
 
 	# Next.js 哈希静态资源（文件名含 hash）：长期 immutable
 	@immutable path /_next/static/*

@@ -211,7 +211,7 @@ systemctl reload caddy
 
 | 文件 | 改动 |
 |---|---|
-| `infra/Caddyfile` | 默认 header 的 `Cache-Control` 由 immutable 改为 `no-cache`；新增 `@immutable path /_next/static/*` 覆盖为 `immutable`；`@meta`(sitemap/robots) 1h、`@brand` 30d 不变 |
+| `infra/Caddyfile` | `Cache-Control` 全部改为**带 matcher** 设置：`@plain not path …` → `no-cache`（默认）、`@immutable /_next/static/*` → `immutable`、`@meta` 1h、`@brand` 30d |
 | `src/lib/jsonld.ts` | `data.telephone` 输出前 `replace(/^tel:/, "")` |
 | `package.json` | 1.0.9 → 1.0.10 |
 | `CHANGELOG.md` | 新增 `[1.0.10]` |
@@ -221,10 +221,15 @@ systemctl reload caddy
 
 v1.0.9 上线后复查发现：Caddyfile 默认 header 把 **HTML 也标成一年 immutable**，浏览器不重验证，导致内容更新对回访用户不生效；JSON-LD 的 `telephone` 带 `tel:` 前缀，不规范。
 
+### 踩坑
+
+- **Caddy header 覆盖顺序**：无 matcher 的 `header { … }` 块会**覆盖**带 matcher 的 `header @x …` 同名 header。实测把默认 `Cache-Control` 设为 `no-cache` 后，`@immutable` / `@meta` / `@brand` 全部失效（404 之外的一切都被 `no-cache` 覆盖）。正确做法：**默认值也用 matcher 表达**（`@plain not path /_next/static/* /sitemap.xml /robots.txt /brand/*`）。
+
 ### 验证
 
 - HTML 响应头 `Cache-Control: no-cache`
 - `/_next/static/*` 响应头 `Cache-Control: public, max-age=31536000, immutable`
+- `sitemap.xml` → `max-age=3600`；`/brand/*` → `max-age=2592000`
 - JSON-LD `"telephone":"+8613393067179"`
 
 ---
