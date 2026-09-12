@@ -54,9 +54,20 @@ push main ─► GitHub Actions
 部署脚本（`.github/actions/deploy-site/action.yml`）用 `cp -a → mv` 两步切换：
 任一步失败时 `/var/www/mhsy/out` 仍指向旧版本，**站点不中断**。
 
-### 2. GitHub Secrets / Variables
+### 2. 仓库 Actions 权限（必须 · 2026-09-12 已设置 ✅）
 
-仓库 → **Settings → Secrets and variables → Actions**
+**Settings → Actions → General → Workflow permissions** → 选 **Read and write permissions** → Save。
+
+直达：`https://github.com/EasyArchAyuan/meihao-water/settings/actions`
+
+> 若保持默认的 Read-only，`GITHUB_TOKEN` 无推送权 → semantic-release 无法打 tag / 建 Release，release job 会失败。
+
+### 3. GitHub Secrets / Variables
+
+直达链接（同一页面，上方 tab 切换）：
+
+- **Secrets**：`https://github.com/EasyArchAyuan/meihao-water/settings/secrets/actions` → **New repository secret**
+- **Variables**：`https://github.com/EasyArchAyuan/meihao-water/settings/variables/actions` → **New repository variable**
 
 **Secrets**
 
@@ -78,7 +89,7 @@ push main ─► GitHub Actions
 > 把公钥追加到服务器 `/home/ubuntu/.ssh/authorized_keys`，私钥存入 `SSH_PRIVATE_KEY`。
 > 目前服务器 `authorized_keys` 内有 1 把 key（`skey-i1ohtcu1`，即 Lighthouse 密钥对 "Kirin"）。
 
-### 3. 回填历史 tag / Release（一次性，仅做一次）
+### 4. 回填历史 tag / Release（一次性，仅做一次）
 
 已发布但漏打 tag 的版本为 `v1.0.6`–`v1.0.11`。
 
