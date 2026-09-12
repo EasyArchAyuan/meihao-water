@@ -6,8 +6,8 @@
  *   法定名称：廊坊市美好商贸有限公司（原"廊坊美好水业有限公司"）
  *   成立时间：1998 年
  *   地址：廊坊市北凤道399号（标准化为"河北省廊坊市广阳区北凤道399号"）
- *   订水电话：2805599 / 2232111 / 13393067179
- *   公众号：水邻居饮用水
+ *   订水电话：13393067179（主号） / 2805599 / 2232111
+ *   公众号：廊坊桶装水
  */
 
 export const company = {
@@ -24,11 +24,18 @@ export const company = {
   rawAddress: "廊坊市北凤道399号",
   phones: [
     {
+      label: "手机号",
+      number: "13393067179",
+      display: "133 9306 7179",
+      tel: "tel:+8613393067179",
+      primary: true,
+    },
+    {
       label: "订水热线",
       number: "2805599",
       display: "2805599",
       tel: "tel:+8631642805599",
-      primary: true,
+      primary: false,
     },
     {
       label: "订水热线",
@@ -37,15 +44,8 @@ export const company = {
       tel: "tel:+8631642232111",
       primary: false,
     },
-    {
-      label: "手机号",
-      number: "13393067179",
-      display: "133 9306 7179",
-      tel: "tel:+8613393067179",
-      primary: false,
-    },
   ] as const,
-  wechatPublicName: "水邻居饮用水",
+  wechatPublicName: "廊坊桶装水",
   wechatService: "TODO: REAL_WECHAT_ID",
   douyin: "TODO: REAL_DOUYIN_ACCOUNT",
   icp: "TODO: ICP备案完成后填写",
