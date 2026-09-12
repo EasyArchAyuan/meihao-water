@@ -89,6 +89,12 @@ jobs:
       - name: Install
         run: npm ci
 
+      - name: Configure git identity
+        # CI runner 默认没有 git user，@semantic-release/git 的 commit 会因此失败
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
       - name: Diagnose token permissions
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -98,14 +104,25 @@ jobs:
           curl -sS -o /dev/null -w 'repo API status: %{http_code}\n' \
             -H "Authorization: Bearer ${GH_TOKEN}" \
             "https://api.github.com/repos/${{ github.repository }}"
-          curl -sS -H "Authorization: Bearer ${GH_TOKEN}" \
+          PERMS=$(curl -sS -H "Authorization: Bearer ${GH_TOKEN}" \
             "https://api.github.com/repos/${{ github.repository }}" \
-            | tr ',' '\n' | grep -E '"(push|admin|maintain)"' || true
+            | tr ',' '\n' | grep -E '"(push|admin|maintain)"' | tr '\n' ' ' || true)
+          echo "token repo perms: ${PERMS}"
+          echo "::warning title=TOKEN_PERMS::${PERMS}"
 
       - name: semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+        run: |
+          set +e
+          npx semantic-release > /tmp/semrel.log 2>&1
+          RC=$?
+          cat /tmp/semrel.log
+          if [ "$RC" -ne 0 ]; then
+            MSG=$(grep -E '✖|Error|error|E[A-Z]{4,}' /tmp/semrel.log | tail -6 | tr '\n' '|' | cut -c1-900)
+            echo "::error title=semantic-release_failed::${MSG}"
+          fi
+          exit $RC
 
   # ───────────────────────────────────────────────────────────────
   # 3) 部署：把构建产物 rsync 到 Lighthouse（staging + 原子切换）
