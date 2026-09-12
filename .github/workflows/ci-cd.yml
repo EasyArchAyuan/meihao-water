@@ -130,9 +130,10 @@ jobs:
   #    服务器无需 git / Node，彻底绕开「服务器连不上 github」的问题。
   # ───────────────────────────────────────────────────────────────
   deploy:
-    name: Deploy → Lighthouse
+    name: Deploy → Lighthouse (SSH)
     needs: build
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    # 默认走「服务器主动拉」；只有显式设 DEPLOY_MODE=ssh 才走 SSH 直推（Runner 到 22 端口不通）
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.DEPLOY_MODE == 'ssh'
     runs-on: ubuntu-latest
     concurrency:
       group: deploy-production
@@ -191,6 +192,52 @@ jobs:
             | grep -q '7b268ebfd39b144363ac45b60aaf262e0f9997f6'
           # 缓存策略（HTML 不应 immutable）
           curl -sI https://meihaowater.site/ | grep -iq '^cache-control: no-cache'
+
+  # ───────────────────────────────────────────────────────────────
+  # 3') 发布产物到 dist 分支 —— 服务器主动拉取（默认部署模式）
+  #     GitHub Runner 到服务器 22 端口不通（TCP_PROBE: UNREACHABLE），
+  #     故改为「服务器拉」：CI 打包 out/ → 推 dist 分支 →
+  #     服务器定时任务从 raw.githubusercontent.com 拉取并原子切换。
+  # ───────────────────────────────────────────────────────────────
+  publish-dist:
+    name: Publish dist (server pulls)
+    needs: build
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && vars.DEPLOY_MODE != 'ssh'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download built site
+        uses: actions/download-artifact@v4
+        with:
+          name: site-out
+          path: out
+
+      - name: Pack site
+        run: |
+          set -euo pipefail
+          test -f out/index.html
+          tar -czf /tmp/site.tar.gz -C out .
+          ls -lh /tmp/site.tar.gz
+
+      - name: Push to dist branch (single commit, force)
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch --orphan dist_tmp
+          git rm -rf . >/dev/null 2>&1 || true
+          cp /tmp/site.tar.gz site.tar.gz
+          git add -f site.tar.gz
+          git commit -m "chore(dist): build ${GITHUB_SHA::7}"
+          git branch -M dist
+          git push -f origin dist
+          echo "::notice title=dist_published::$(du -h /tmp/site.tar.gz | cut -f1) -> dist @ ${GITHUB_SHA::7}"
 
   # ───────────────────────────────────────────────────────────────
   # 4) Caddyfile 同步（仅当 infra/Caddyfile 变更；需要 ubuntu 免密 sudo）
