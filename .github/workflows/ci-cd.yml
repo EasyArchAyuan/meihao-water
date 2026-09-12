@@ -112,15 +112,19 @@ jobs:
 
       - name: semantic-release
         env:
-          # 若仓库默认 GITHUB_TOKEN 无推送权（push:false），可建 fine-grained PAT 存为 RELEASE_TOKEN
+          # 若仓库默认 GITHUB_TOKEN 无推送权，可建 fine-grained PAT 存为 RELEASE_TOKEN
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN || secrets.GITHUB_TOKEN }}
+          DEBUG: semantic-release:*
         run: |
           set +e
           npx semantic-release > /tmp/semrel.log 2>&1
           RC=$?
+          echo '===== semantic-release log ====='
           cat /tmp/semrel.log
+          echo '===== end ====='
           if [ "$RC" -ne 0 ]; then
-            MSG=$(grep -E '✖|Error|error|E[A-Z]{4,}' /tmp/semrel.log | tail -6 | tr '\n' '|' | cut -c1-900)
+            # 直接取末尾若干行（grep 匹配不到会导致注解消息为空，空消息不渲染）
+            MSG=$(tail -25 /tmp/semrel.log | tr '\n' '|' | cut -c1-900)
             echo "::error title=semantic-release_failed::${MSG}"
           fi
           exit $RC
