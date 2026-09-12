@@ -86,12 +86,46 @@ src/
 
 ## 部署
 
+项目输出 **静态文件**（`output: "export"`），不依赖 Node 运行时。
+
+### 本地预览
+
 ```bash
-npm run build
-npm start
+npm install
+npm run build    # 生成 out/
+npm run serve    # npx serve out，端口 3000
 ```
 
-推荐 Vercel（一键部署）。如需自托管，构建产物在 `.next/` 目录。
+### 生产部署（腾讯云 Lighthouse）
+
+实例：`lhins-jrsby4oa`（ap-beijing，公网 `49.233.87.42`），已通过 Caddy 服务。
+
+部署步骤详见 `infra/Caddyfile` 与 `docs/deploy-lighthouse.md`（如需补）。
+
+```bash
+# 服务器上一次性初始化
+apt-get update && apt-get install -y nginx curl
+# Node 22 已通过 NodeSource 预装
+
+cd /var/www
+git clone https://github.com/EasyArchAyuan/meihao-water.git mhsy
+cd mhsy
+npm ci && npm run build
+
+# 写 /etc/caddy/Caddyfile（参考 infra/Caddyfile）
+systemctl reload caddy
+
+# Lighthouse 控制台 → 防火墙 → 放行 TCP 80
+```
+
+后续更新：
+
+```bash
+cd /var/www/mhsy
+git pull origin main
+npm run build
+systemctl reload caddy
+```
 
 ## License
 
