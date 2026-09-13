@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // CloudBase 云函数（独立 CommonJS Node 运行时，不适用 Next 应用的 TS 规则）
+    "cloudfunctions/**",
   ]),
 ]);
 
