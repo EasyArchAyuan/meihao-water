@@ -1,3 +1,9 @@
+## [1.2.1](https://github.com/EasyArchAyuan/meihao-water/compare/v1.2.0...v1.2.1) (2026-09-13)
+
+### 修复
+
+* **content:** 文章取数改为三源合并，修复 md 新文章被快照遮蔽 ([9e5839e](https://github.com/EasyArchAyuan/meihao-water/commit/9e5839e4d4ea2a3ef1677b37af35e4f48c8966f0))
+
 ## [1.2.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.1.3...v1.2.0) (2026-09-13)
 
 ### 新功能
