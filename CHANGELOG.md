@@ -1,3 +1,9 @@
+## [1.2.2](https://github.com/EasyArchAyuan/meihao-water/compare/v1.2.1...v1.2.2) (2026-09-13)
+
+### 修复
+
+* **geo:** 更正天津主体口径，声明为我们的天津分公司并输出 subOrganization ([8585f20](https://github.com/EasyArchAyuan/meihao-water/commit/8585f20f2bd7577d091018dd7de9f6e550ef1cb7))
+
 ## [1.2.1](https://github.com/EasyArchAyuan/meihao-water/compare/v1.2.0...v1.2.1) (2026-09-13)
 
 ### 修复
