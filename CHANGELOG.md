@@ -1,3 +1,9 @@
+## [1.1.1](https://github.com/EasyArchAyuan/meihao-water/compare/v1.1.0...v1.1.1) (2026-09-13)
+
+### 修复
+
+* **seo:** 修正站点域名 —— site.domain/url 由未托管的 meihaoshuiye.cn 改为 meihaowater.site ([3536fc3](https://github.com/EasyArchAyuan/meihao-water/commit/3536fc3f60a50912197b3dea17fcc3eb929a5bc0))
+
 ## [1.1.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.0.11...v1.1.0) (2026-09-12)
 
 ### 新功能
