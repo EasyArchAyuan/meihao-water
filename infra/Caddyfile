@@ -45,10 +45,12 @@ xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online, meihaowater.
 	import headers_cache
 	root * /var/www/mhsy/out
 	file_server
+	tls /etc/ssl/shared/fullchain.pem /etc/ssl/shared/privkey.pem
 }
 
 linju.meihaowater.site {
 	import headers_cache
 	root * /var/www/shuineighbor/out
 	file_server
+	tls /etc/ssl/shared/fullchain.pem /etc/ssl/shared/privkey.pem
 }
