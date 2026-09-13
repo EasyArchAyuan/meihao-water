@@ -1,15 +1,16 @@
 # 美好水业官网 - Caddyfile（Next.js 16 静态导出）
 # 站点：廊坊美好水业.online(xn--vhqu7tjwbb1iwpthm1a.online) / www 同 /
 #       meihaowater.site / www.meihaowater.site
+#
+# 水邻居官网（另一仓库 shuineighbor-water）：
+#       linju.meihaowater.site
 
 {
 	email dev@meihaoshuiye.cn
 }
 
-xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online, meihaowater.site, www.meihaowater.site {
-	root * /var/www/mhsy/out
-	file_server
-
+# 共用：安全头 + 分级缓存 + 压缩。两个站点块均 import 复用。
+(headers_cache) {
 	header {
 		-Server
 		X-Content-Type-Options "nosniff"
@@ -38,4 +39,16 @@ xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online, meihaowater.
 	header @brand Cache-Control "public, max-age=2592000"
 
 	encode zstd gzip
+}
+
+xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online, meihaowater.site, www.meihaowater.site {
+	import headers_cache
+	root * /var/www/mhsy/out
+	file_server
+}
+
+linju.meihaowater.site {
+	import headers_cache
+	root * /var/www/shuineighbor/out
+	file_server
 }
