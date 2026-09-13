@@ -1,3 +1,9 @@
+## [1.1.2](https://github.com/EasyArchAyuan/meihao-water/compare/v1.1.1...v1.1.2) (2026-09-13)
+
+### 基础设施
+
+* **caddy:** 新增水邻居官网站点块 linju.meihaowater.site ([ab6995a](https://github.com/EasyArchAyuan/meihao-water/commit/ab6995a6e28a0018aff441eda3ab832dcbd86def))
+
 ## [1.1.1](https://github.com/EasyArchAyuan/meihao-water/compare/v1.1.0...v1.1.1) (2026-09-13)
 
 ### 修复
