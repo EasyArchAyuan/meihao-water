@@ -6,8 +6,8 @@
 export const site = {
   name: "美好水业",
   legalName: "廊坊市美好商贸有限公司",
-  domain: "meihaoshuiye.cn",
-  url: "https://meihaoshuiye.cn",
+  domain: "meihaowater.site",
+  url: "https://meihaowater.site",
   locale: "zh-CN",
   ogLocale: "zh_CN",
   description:
