@@ -1,0 +1,83 @@
+name: content-publish
+
+# 即时 webhook：文章在数据库里发布 / 修改后，调用 GitHub repository_dispatch
+# （event_type: content-publish）即可立即重建并推 dist，服务器 cron 随后拉取上线。
+#
+# 手动入口：Actions → content-publish → Run workflow
+on:
+  repository_dispatch:
+    types: [content-publish]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    name: Sync → Build → Publish dist
+    runs-on: ubuntu-latest
+    concurrency:
+      group: content-publish
+      cancel-in-progress: false
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Sync articles from API → snapshot
+        # 拉不到就沿用仓库里的旧快照，绝不中断（接口故障不应阻断发版）
+        env:
+          ARTICLES_API_URL: ${{ vars.ARTICLES_API_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${ARTICLES_API_URL:-}" ]; then
+            echo "::warning title=NO_API::未配置 vars.ARTICLES_API_URL，跳过同步，使用仓库内快照"
+          elif ! npm run sync:content; then
+            echo "::warning title=SYNC_FAILED::同步失败，使用仓库内已有快照继续构建"
+          fi
+
+      - name: Build
+        env:
+          # 构建期也会再兜一层：未配置则读快照 / Markdown
+          ARTICLES_API_URL: ${{ vars.ARTICLES_API_URL }}
+        run: npm run build
+
+      - name: Assert & audit
+        run: |
+          set -euo pipefail
+          test -f out/index.html
+          npm run verify:ssg
+
+      - name: Pack site
+        run: |
+          set -euo pipefail
+          tar -czf /tmp/site.tar.gz -C out .
+          sha256sum /tmp/site.tar.gz | cut -d' ' -f1 > /tmp/sha256.txt
+          ls -lh /tmp/site.tar.gz
+
+      - name: Push to dist branch (single commit, force)
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch --orphan dist_tmp
+          git rm -rf . >/dev/null 2>&1 || true
+          cp /tmp/site.tar.gz site.tar.gz
+          cp /tmp/sha256.txt site.sha256
+          git add -f site.tar.gz site.sha256
+          git commit -m "chore(dist): content publish ${GITHUB_SHA::7}"
+          git branch -M dist
+          git push -f origin dist
+          echo "::notice title=dist_published::content publish done"

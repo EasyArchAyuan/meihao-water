@@ -1,0 +1,83 @@
+{
+  "note": "官网 GEO 软文选题库。定时任务按 pillar 配比取下一个 used=false 的选题，写完把 used 置 true 并填 publishedSlug。配比：P1 40% / P2 25% / P3 20% / P4 15%。",
+  "pillars": {
+    "P1": "饮水科普（建立专业信任）",
+    "P2": "品牌信任（转化核心）",
+    "P3": "场景方案（把产品嵌进生活）",
+    "P4": "本地服务（促拨打）"
+  },
+  "ideas": [
+    {
+      "id": "idea-01",
+      "pillar": "P2",
+      "title": "廊坊桶装水怎么选？二十余年本地水商说三句实话",
+      "angle": "不看谁便宜，看谁在持续给你送：水正不正 / 配送稳不稳 / 善后好不好",
+      "keywords": ["廊坊桶装水", "廊坊桶装水哪家好", "廊坊送水"],
+      "used": true,
+      "publishedSlug": "how-to-choose-bottled-water-langfang"
+    },
+    {
+      "id": "idea-02",
+      "pillar": "P1",
+      "title": "桶装水开封后能放多久？廊坊人该知道的三件事",
+      "angle": "开封后的保存与饮水机清洗频次，纠正常见误区",
+      "keywords": ["桶装水开封", "桶装水能放几天", "饮水机清洗"],
+      "used": false,
+      "publishedSlug": ""
+    },
+    {
+      "id": "idea-03",
+      "pillar": "P1",
+      "title": "怎么一眼看出桶装水正不正规",
+      "angle": "看桶身标签、SC 标识、封口与回收桶消毒，附自查清单",
+      "keywords": ["桶装水正品", "桶装水 SC 标识", "回收桶消毒"],
+      "used": false,
+      "publishedSlug": ""
+    },
+    {
+      "id": "idea-04",
+      "pillar": "P3",
+      "title": "廊坊公司订水避坑：行政该问清的三个问题",
+      "angle": "能否开票、能否固定频次补送、空桶谁回收",
+      "keywords": ["廊坊公司订水", "企业订水", "廊坊送水上门"],
+      "used": false,
+      "publishedSlug": ""
+    },
+    {
+      "id": "idea-05",
+      "pillar": "P1",
+      "title": "夏天喝水越多，反而越不对？",
+      "angle": "大量出汗只补纯水的误区，家庭囤水与规格选择",
+      "keywords": ["夏季饮水", "家庭囤水", "健康饮水"],
+      "used": false,
+      "publishedSlug": ""
+    },
+    {
+      "id": "idea-06",
+      "pillar": "P3",
+      "title": "办公室喝水，行政这一步做错了",
+      "angle": "水票算不清、临时断水、员工抱怨水不新鲜的解决方式",
+      "keywords": ["办公室饮水", "公司订水方案", "廊坊企业送水"],
+      "used": false,
+      "publishedSlug": ""
+    },
+    {
+      "id": "idea-07",
+      "pillar": "P4",
+      "title": "刚搬来廊坊，送水电话存这一个就够",
+      "angle": "新廊坊人的本地服务指南：覆盖范围、订水流程、公众号",
+      "keywords": ["廊坊送水电话", "刚搬来廊坊", "廊坊便民"],
+      "used": false,
+      "publishedSlug": ""
+    },
+    {
+      "id": "idea-08",
+      "pillar": "P2",
+      "title": "换了三家送水商之后，我总结出一条标准",
+      "angle": "第一人称视角：低价短期 vs 长期稳定，用真实服务细节说话",
+      "keywords": ["廊坊桶装水", "送水商选择", "水票"],
+      "used": false,
+      "publishedSlug": ""
+    }
+  ]
+}

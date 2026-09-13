@@ -1,0 +1,9 @@
+{
+  "name": "articles-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "description": "文章只读接口，供官网构建期取数",
+  "dependencies": {
+    "@cloudbase/node-sdk": "^3.0.0"
+  }
+}

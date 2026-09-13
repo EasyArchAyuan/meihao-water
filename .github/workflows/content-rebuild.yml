@@ -1,0 +1,55 @@
+name: content-rebuild
+
+# 兜底：若某次内容推送后 CI 偶发失败，次日这里会重新构建并推 dist，
+# 让服务器 cron 拉到最新内容。也可手动触发。
+on:
+  schedule:
+    # 每天 UTC 03:17（北京 11:17）
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    # 只有 main 分支有内容更新时才重跑，避免空转
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check for content changes
+        id: changes
+        run: |
+          if git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -qE '^(content/|src/)'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-node@v4
+        if: steps.changes.outputs.changed == 'true'
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        if: steps.changes.outputs.changed == 'true'
+        run: npm ci
+
+      - name: Lint / build / audit
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          npm run lint
+          npm run build
+          test -f out/index.html
+          npm run verify:ssg
+
+      - uses: actions/upload-artifact@v4
+        if: steps.changes.outputs.changed == 'true'
+        with:
+          name: site-out-rebuild
+          path: out
+          retention-days: 3

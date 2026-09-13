@@ -197,6 +197,62 @@ html {
   border-radius: 2px;
 }
 
+/* 文章正文排版（Markdown 渲染结果，见 src/lib/content.ts 的 mdToHtml） */
+.article-body {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  color: var(--ink-soft);
+}
+.article-body > * + * {
+  margin-top: 1.5em;
+}
+.article-body h2 {
+  font-size: var(--fs-title);
+  line-height: var(--lh-heading);
+  letter-spacing: var(--ls-heading);
+  font-weight: 500;
+  color: var(--ink);
+  margin-top: 2.4em;
+}
+.article-body h3 {
+  font-size: var(--fs-body-lg);
+  line-height: var(--lh-heading);
+  font-weight: 500;
+  color: var(--ink);
+  margin-top: 2em;
+}
+.article-body strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+.article-body a {
+  color: var(--brand);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.article-body ul,
+.article-body ol {
+  padding-left: 1.4em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+}
+.article-body ul {
+  list-style: disc;
+}
+.article-body ol {
+  list-style: decimal;
+}
+.article-body blockquote {
+  border-left: 2px solid var(--brand);
+  padding-left: 1.2em;
+  color: var(--ink);
+}
+.article-body hr {
+  border: 0;
+  border-top: 1px solid var(--hairline);
+}
+
 /* 选区颜色 */
 ::selection {
   background: var(--brand);

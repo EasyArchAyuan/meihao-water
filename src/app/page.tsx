@@ -10,6 +10,7 @@ import { OfficeSection } from "@/components/home/OfficeSection";
 import { DisposableSection } from "@/components/home/DisposableSection";
 import { ShuiNeighborSection } from "@/components/home/ShuiNeighborSection";
 import { DeliveryFlow } from "@/components/home/DeliveryFlow";
+import { NewsTeaser } from "@/components/home/NewsTeaser";
 import { CitySection } from "@/components/home/CitySection";
 import { ClosingCTA } from "@/components/home/ClosingCTA";
 
@@ -33,6 +34,7 @@ export default function HomePage() {
         <DisposableSection />
         <ShuiNeighborSection />
         <DeliveryFlow />
+        <NewsTeaser />
         <CitySection />
         <ClosingCTA />
       </main>
