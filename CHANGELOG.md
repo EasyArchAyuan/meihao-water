@@ -1,3 +1,9 @@
+## [1.1.3](https://github.com/EasyArchAyuan/meihao-water/compare/v1.1.2...v1.1.3) (2026-09-13)
+
+### 基础设施
+
+* **caddy:** 启用 DNS-01 共享证书，两站块加 tls 指向 /etc/ssl/shared ([cb20b2d](https://github.com/EasyArchAyuan/meihao-water/commit/cb20b2d4c9435ccf8a369365523bb124ed8cbb57))
+
 ## [1.1.2](https://github.com/EasyArchAyuan/meihao-water/compare/v1.1.1...v1.1.2) (2026-09-13)
 
 ### 基础设施
