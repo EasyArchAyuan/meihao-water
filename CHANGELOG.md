@@ -1,3 +1,10 @@
+## [1.2.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.1.3...v1.2.0) (2026-09-13)
+
+### 新功能
+
+* **content:** 新增行业资讯板块与数据库驱动的内容自动化链路 ([f1bb84e](https://github.com/EasyArchAyuan/meihao-water/commit/f1bb84e2dd1fe40b70ea691b1c206a0b9a62d4ff))
+* **geo:** 完善实体结构化数据，新增 FAQ 与廊坊配送落地页 ([a3b11c2](https://github.com/EasyArchAyuan/meihao-water/commit/a3b11c293a4dc3417c49aaa2ed8301e4c6bd8ee5))
+
 ## [1.1.3](https://github.com/EasyArchAyuan/meihao-water/compare/v1.1.2...v1.1.3) (2026-09-13)
 
 ### 基础设施
