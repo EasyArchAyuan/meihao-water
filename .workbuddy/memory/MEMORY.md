@@ -50,7 +50,9 @@
 
 ## 5. 内容自动化 + 数据库化
 - **架构铁律：静态导出站点只能「构建期取数」** —— 正文必须落在静态 HTML 里；前端 fetch = 豆包/搜索引擎抓不到 = GEO 归零。**别再提 SSR/CSR。**
-- 取数优先级（`src/lib/content.ts`，异步，8 秒超时降级）：接口 `ARTICLES_API_URL` → `content/snapshot.json` → `content/news/*.md`。
+- ⚠️ **取数是「三源合并去重」而不是「短路降级」**（`src/lib/content.ts` 的 `mergeSources`）：Markdown（低）→ `content/snapshot.json`（中）→ `ARTICLES_API_URL` 接口（高），**同 slug 后者覆盖前者**。
+  **踩过的坑**：原实现写 `??` 短路 → 只要 snapshot.json 存在，`content/news/*.md` 永远读不到 → **定时任务写的新文章会静默不上线**。2026-09-14 已修（`fix(content)`），并用「临时插入一篇 md → 构建 → 检查 `out/news/<slug>/index.html` 存在 → 删除探针」做过端到端验证。**以后改取数逻辑务必守住「merge 而非 fallback」**。
+  仍需 8 秒超时降级，绝不让 CI 卡死。
 - 文章源演进：`content/news/*.md`（Markdown + 极简 front-matter，解析在 `src/lib/markdown.ts`，**零依赖**，先 escape 再渲染防 XSS；定时任务写 md 比改 TS 数组安全）→ 现由 **CloudBase PostgreSQL** 驱动。
 - **DB**：环境 `workbuddy-d3g8add0q20e56cce`（ap-shanghai，体验版，**PG 模式无 NoSQL**），表 `public.articles`，RLS 仅放行 `status='published'`。⚠️ 建表/改 schema **必须走 `managePgDatabase action=applyMigration`**，`execute` 拒绝 DDL。迁移文件 `cloudbase/migrations/`。
 - ⚠️ **已知坑：云函数 `@cloudbase/node-sdk` 的 `app.rdb()` 报 `Invalid value "undefined" for header "Accept-Profile"`**（init 传 env / 不传 / `rdb("public")` / `rdb({schema:"public"})` 四种写法全失败）→ 接口层不可用，构建走快照兜底。修法候选：`pg` 直连（需连接串+VPC）、锁 SDK 版本、数据模型 HTTP API。

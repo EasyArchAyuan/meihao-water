@@ -1,9 +1,13 @@
 /**
- * 文章数据源。取数优先级：
+ * 文章数据源。三个来源**合并去重**（同 slug 时优先级高的覆盖低的）：
  *
- *   1. HTTP 接口（CloudBase 云函数，环境变量 `ARTICLES_API_URL`）
- *   2. 本地快照 `content/snapshot.json`（`npm run sync:content` 生成，接口不通时的兜底）
- *   3. `content/news/*.md`（迁移期兜底）
+ *   1. HTTP 接口（CloudBase 云函数，环境变量 `ARTICLES_API_URL`）—— 最高
+ *   2. 本地快照 `content/snapshot.json`（`npm run sync:content` 生成）
+ *   3. `content/news/*.md`（定时任务 / 人工新增文章走这里）—— 最低
+ *
+ * ⚠️ 必须「合并」而不是「短路降级」：定时任务是把新文章写成 .md 后提交，
+ * 若用 `??` 短路，只要 snapshot.json 存在就永远读不到 .md，新文章会静默不上线。
+ * 同 slug 冲突时以 DB/接口 为准（后台终审版本优先于仓库里的 md 草稿）。
  *
  * 为什么是「构建期取数」而不是浏览器端 fetch：
  * 站点是 `output: "export"` 静态导出，正文必须在静态 HTML 里；
@@ -151,10 +155,26 @@ function loadMarkdown(): RawArticle[] {
 
 let cache: Promise<Article[]> | null = null;
 
+/**
+ * 合并多来源，同 slug 时**后面的覆盖前面的**。
+ * 调用顺序决定优先级：Markdown（低） → 快照（中） → 接口（高）。
+ */
+function mergeSources(...lists: RawArticle[][]): RawArticle[] {
+  const bySlug = new Map<string, RawArticle>();
+  for (const list of lists) {
+    for (const a of list) {
+      if (!a?.slug) continue;
+      bySlug.set(a.slug, a);
+    }
+  }
+  return [...bySlug.values()];
+}
+
 /** 全部文章（按日期倒序）。构建期调用，同一进程内缓存。 */
 export function loadArticles(): Promise<Article[]> {
   cache ??= (async () => {
-    const raw = (await fetchFromApi()) ?? loadSnapshot() ?? loadMarkdown();
+    const fromApi = (await fetchFromApi()) ?? [];
+    const raw = mergeSources(loadMarkdown(), loadSnapshot() ?? [], fromApi);
     return raw
       .map(toArticle)
       .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
