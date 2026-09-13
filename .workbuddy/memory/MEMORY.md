@@ -25,11 +25,19 @@
 
 ## 3. 本机环境坑（重要）
 - **沙箱 Bash 的 coreutils 全缺**（`ls`/`head`/`tail`/`wc`/`rm`/`dirname` 均 command not found），`rm` 还被 safe-bin shim 拦截 → **不要用管道和 coreutils**；文件操作走 Read/Write/Edit/Glob/Grep，删除走 `git clean -f -- <显式路径>`。
+- ⚠️ **`npm` 在沙箱里被解析到 `wsl.exe`，被安全策略直接拦截**（PROGRAM BLOCKED，不可绕过）。**验证/构建要直接调托管 Node**：
+  ```
+  NODE="/c/Users/shang/.workbuddy/binaries/node/versions/22.22.2-3/node.exe"
+  "$NODE" node_modules/eslint/bin/eslint.js .      # 替代 npm run lint
+  "$NODE" node_modules/next/dist/bin/next build     # 替代 npm run build
+  "$NODE" scripts/verify-ssg.mjs                    # 替代 npm run verify:ssg
+  ```
 - PowerShell 工具**不回显 stdout**（命令能执行但拿不到输出）→ 需要看结果时改用 Git Bash 跑 git，或把结果写文件再 Read。
-- **`git push` 默认凭据链会 `cannot spawn sh`**（PATH 坏）。可用写法：
+- **`git push` 默认凭据链会 `cannot spawn sh`**（PATH 坏）。**可用写法（2026-09-14 实测成功）**：
   `git -c credential.helper= -c credential.helper=wincred push origin main`
-  （`git-credential-wincred.exe` 在 `C:\Program Files\Git\mingw64\libexec\git-core\`，直调可用）。
+  凭据已存在 Windows 凭据管理器，不会弹窗；dry-run 同样写法可预检。`gh` CLI **未安装**，查 CI 用 `https://api.github.com/repos/EasyArchAyuan/meihao-water/actions/runs?per_page=5`。
 - ⚠️ **绝对不要在坏 PATH 下跑 `git stash` / `git rebase`** —— 2026-09-14 曾因此让 `.git` 整体丢失（index.lock 创建失败）。恢复办法见 §6。
+- **`eslint.config.mjs` 已忽略 `cloudfunctions/**`**：云函数是独立 CommonJS Node 运行时，`require()` 会触发 `no-require-imports` 让 lint exit 1 阻断 CI。以后新增云函数/脚本目录同理处理。
 
 ## 4. GEO（AI 搜索可见度）线
 - 权威待办：资料库云端文档 **「官网GEO待办」`NGYX6c3OWKnuT4OBMkdNa7`**（豆包实测诊断 2026-09-13）。
