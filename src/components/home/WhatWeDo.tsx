@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { easeOut } from "@/lib/motion";
 import { cn } from "@/lib/cn";
+import { Figure } from "@/components/ui/Figure";
 
 type Item = {
   title: string;
@@ -99,19 +100,14 @@ export function WhatWeDo() {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={reduced ? undefined : { opacity: 0 }}
                   transition={{ duration: 0.5, ease: easeOut }}
-                  className="relative w-full overflow-hidden rounded-2xl bg-[var(--bg-alt)]"
-                  style={{ aspectRatio: "16 / 9" }}
-                  data-placeholder="TODO: REPLACE_WITH_REAL_IMAGE"
+                  className="relative w-full"
                 >
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-1.5 p-6 text-center text-[var(--ink-muted)]">
-                    <span className="text-[10px] uppercase tracking-[0.24em]">
-                      figure-placeholder
-                    </span>
-                    <span className="text-[12px]">{items[active].image}</span>
-                    <span className="text-[10px] opacity-60">
-                      {items[active].title} · 16/9
-                    </span>
-                  </div>
+                  <Figure
+                    id={items[active].image}
+                    ratio="16/9"
+                    rounded
+                    sizes="(max-width: 1024px) 90vw, 640px"
+                  />
                 </motion.div>
               </AnimatePresence>
             </div>

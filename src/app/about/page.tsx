@@ -89,13 +89,56 @@ export default function AboutPage() {
               <br />
               做了二十余年。
             </RevealItem>
-            <RevealItem>
-              <p className="body-lg mt-8 max-w-2xl text-[var(--ink-soft)]">
-                {company.legalName}，1998 年成立。二十余年，只做一件事：把好水送到廊坊人的身边。
-              </p>
-            </RevealItem>
-          </Reveal>
-        </section>
+              <RevealItem>
+                <p className="body-lg mt-8 max-w-2xl text-[var(--ink-soft)]">
+                  {company.legalName}，1998 年成立。二十余年，只做一件事：把好水送到廊坊人的身边。
+                </p>
+              </RevealItem>
+              {/* 实体消歧：与天津同名主体区分，避免工商平台信息被 AI 混淆 */}
+              <RevealItem>
+                <p className="mt-6 max-w-2xl text-[15px] leading-relaxed text-[var(--ink-muted)]">
+                  {company.disambiguation}
+                </p>
+              </RevealItem>
+            </Reveal>
+          </section>
+
+          {/* 主体信息（品牌名 / 法律主体 / 地址 / 起始年） */}
+          <section aria-labelledby="entity-title" className="pb-16 sm:pb-24">
+            <div className="container-wide">
+              <Reveal className="flex flex-col gap-8">
+                <RevealItem>
+                  <h2 id="entity-title" className="sr-only">
+                    企业主体信息
+                  </h2>
+                </RevealItem>
+                <RevealItem>
+                  <dl className="grid gap-x-10 border-t border-[var(--hairline-strong)] sm:grid-cols-2">
+                    {[
+                      { label: "品牌名称", value: company.brandName },
+                      { label: "法律主体", value: company.legalName },
+                      { label: "成立时间", value: `${company.establishedYear} 年` },
+                      { label: "所在城市", value: "河北省廊坊市" },
+                      { label: "注册地址", value: company.address },
+                      { label: "订水电话", value: company.phones.map((p) => p.display).join(" / ") },
+                    ].map((row) => (
+                      <div
+                        key={row.label}
+                        className="flex flex-col gap-1 border-b border-[var(--hairline)] py-5 sm:flex-row sm:items-baseline sm:gap-6 sm:py-6"
+                      >
+                        <dt className="w-28 shrink-0 text-[11px] uppercase tracking-[0.24em] text-[var(--ink-muted)]">
+                          {row.label}
+                        </dt>
+                        <dd className="text-[15px] leading-relaxed text-[var(--ink)]">
+                          {row.value}
+                        </dd>
+                      </div>
+                    ))}
+                  </dl>
+                </RevealItem>
+              </Reveal>
+            </div>
+          </section>
 
         {/* 企业历程 */}
         <section className="container-wide pb-16 sm:pb-24">

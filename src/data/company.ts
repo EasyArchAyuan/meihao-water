@@ -50,10 +50,60 @@ export const company = {
   douyin: "TODO: REAL_DOUYIN_ACCOUNT",
   icp: "TODO: ICP备案完成后填写",
   copyrightYear: 2026,
+  /**
+   * 结构化地址（GEO 实体锚点）。
+   * `address` 为展示用完整地址，此处拆分为 schema.org PostalAddress 各字段。
+   */
+  addressParts: {
+    country: "CN",
+    region: "河北省",
+    city: "廊坊市",
+    district: "广阳区",
+    street: "北凤道399号",
+  },
+  /**
+   * 配送服务事实（`TODO:` 表示尚未确认，渲染层降级为中性表述，绝不编造）。
+   * 确认后只改这里，FAQ / 落地页 / JSON-LD 全站生效。
+   */
+  delivery: {
+    /** 覆盖区域口径 */
+    areas: "TODO: REAL_DELIVERY_AREAS",
+    /** 送达时效口径 */
+    leadTime: "TODO: REAL_LEAD_TIME",
+    /** 已确认的服务场景 */
+    scenes: ["家庭", "公司", "社区", "门店", "会议"],
+    /** 已确认的经营品类 */
+    categories: ["桶装水", "一次性桶装水", "瓶装水", "饮水机"],
+  },
+  /**
+   * 实体消歧：企查查等平台存在「美好水业（天津）有限公司」等同名/近名主体，
+   * 需在官网明确「廊坊本地 + 1998 起步 + 与天津同名公司无关联」。
+   */
+  disambiguation:
+    "美好水业是廊坊本地的饮用水服务品牌，隶属于廊坊市美好商贸有限公司，自 1998 年起在廊坊经营桶装水配送业务。与工商登记中的「美好水业（天津）有限公司」并非同一主体，无任何股权、经营或品牌关联。",
+  /**
+   * 已认证的第三方主页链接（抖音 / 58 同城 / 公众号图文等）。
+   * 用于 JSON-LD `sameAs`，帮助搜索引擎与 AI 做实体归并。
+   * 只填**已认证且可公开访问**的主页；为空时不输出该字段。
+   */
+  sameAs: [] as readonly string[],
   shuineighbor: {
     name: "水邻居",
     tagline: "新一代饮水生活品牌。",
     domain: "TODO: REAL_SHUINEIGHBOR_DOMAIN",
+    /** 全名（用于 Product Schema 与实体消歧） */
+    fullName: "水邻居天然矿泉水",
+    /** 品类 */
+    category: "天然矿泉水",
+    /** 水源地 */
+    source: "河北固安（中国十大矿泉水之乡）",
+    /** 已确认的品质事实 */
+    facts: [
+      "水源取自河北固安地下深层，天然矿泉水",
+      "国家级绿色食品认证",
+      "富含锶、偏硅酸等微量元素",
+      "2020 年由美好水业自主研发上市",
+    ] as readonly string[],
   },
 } as const;
 

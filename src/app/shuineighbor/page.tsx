@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { buildMetadata } from "@/lib/seo";
+import { shuineighborProductJsonLd } from "@/lib/jsonld";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
@@ -104,9 +105,10 @@ export default function ShuineighborPage() {
                 「水邻居」与同门的「美好水一族」，水源地是河北固安——中国十大矿泉水之乡。取自地下深层，天然无污染。
               </p>
               <ul className="flex flex-col gap-3 text-[15px] leading-relaxed text-[var(--ink-soft)]">
-                <li>国家级绿色食品认证</li>
-                <li>富含矿物质及锶、偏硅酸等微量元素</li>
-                <li>2020 年由美好水业自主研发，作为廊坊的城市名片打造</li>
+                {shuineighbor.facts.map((f) => (
+                  <li key={f}>{f}</li>
+                ))}
+                <li>2020 年上市，作为廊坊的城市名片打造，自有品牌、自主灌装</li>
               </ul>
             </RevealItem>
             <RevealItem className="lg:col-span-7">
@@ -116,6 +118,12 @@ export default function ShuineighborPage() {
         </section>
       </main>
       <Footer />
+
+      {/* Product 结构化数据：水源 / 认证 / 微量元素，正面回应「贴牌」质疑 */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: shuineighborProductJsonLd() }}
+      />
     </>
   );
 }

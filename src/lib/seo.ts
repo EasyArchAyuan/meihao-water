@@ -18,6 +18,12 @@ type BuildOptions = {
   keywords?: string[];
   /** 不收录（预留页 / service 占位） */
   noindex?: boolean;
+  /** OG 图片（相对路径或绝对 URL）；不传则不输出 og:image */
+  ogImage?: string;
+  /** 页面类型：文章页传 "article" */
+  type?: "website" | "article";
+  /** 发布时间（article 用，ISO 日期） */
+  publishedTime?: string;
 };
 
 const SITE_SUFFIX = "｜廊坊本地饮水服务品牌";
@@ -28,10 +34,14 @@ export function buildMetadata({
   path = "/",
   keywords,
   noindex,
+  ogImage,
+  type = "website",
+  publishedTime,
 }: BuildOptions): Metadata {
   const fullTitle = title.includes("美好水业") || title.includes(site.name) ? title : `${title}${SITE_SUFFIX}`;
   const desc = description ?? site.description;
   const url = new URL(path, site.url).toString();
+  const image = ogImage ? new URL(ogImage, site.url).toString() : undefined;
   return {
     title: fullTitle,
     description: desc,
@@ -42,12 +52,14 @@ export function buildMetadata({
       ? { index: false, follow: false }
       : { index: true, follow: true },
     openGraph: {
-      type: "website",
+      type: type === "article" ? "article" : "website",
       locale: site.ogLocale,
       url,
       siteName: site.name,
       title: fullTitle,
       description: desc,
+      ...(image ? { images: [{ url: image }] } : {}),
+      ...(type === "article" && publishedTime ? { publishedTime } : {}),
     },
     twitter: {
       card: "summary_large_image",

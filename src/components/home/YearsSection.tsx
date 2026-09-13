@@ -1,4 +1,5 @@
 import { Reveal, RevealItem, RevealOne } from "@/components/ui/Reveal";
+import { Figure } from "@/components/ui/Figure";
 import { company } from "@/data/company";
 
 const keywords = ["廊坊", "家庭", "社区", "企业", "城市生活"];
@@ -46,12 +47,27 @@ export function YearsSection() {
             </RevealItem>
           </Reveal>
 
-          {/* 右：三图并排（占位）—— 移动端 3 列图片带，桌面同构，不做脆弱的 row-span 拼贴 */}
+          {/* 右：三图并排 —— 移动端 3 列图片带，桌面同构，不做脆弱的 row-span 拼贴 */}
           <RevealOne className="lg:col-span-5">
             <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
-              <YearFigure id="years-01" ratio="3/4" />
-              <YearFigure id="years-02" ratio="3/4" />
-              <YearFigure id="years-03" ratio="3/4" />
+              <Figure
+                id="years-01"
+                ratio="3/4"
+                rounded
+                sizes="(max-width: 640px) 30vw, (max-width: 1024px) 28vw, 15vw"
+              />
+              <Figure
+                id="years-02"
+                ratio="3/4"
+                rounded
+                sizes="(max-width: 640px) 30vw, (max-width: 1024px) 28vw, 15vw"
+              />
+              <Figure
+                id="years-03"
+                ratio="3/4"
+                rounded
+                sizes="(max-width: 640px) 30vw, (max-width: 1024px) 28vw, 15vw"
+              />
             </div>
           </RevealOne>
         </div>
@@ -79,34 +95,5 @@ export function YearsSection() {
         </Reveal>
       </div>
     </section>
-  );
-}
-
-/**
- * 占位图：移动端 3 列时单张仅约 106px 宽，
- * 因此占位文案极简化（仅 TODO + 编号），避免文字溢出小容器。
- */
-function YearFigure({
-  id,
-  ratio,
-}: {
-  id: string;
-  ratio: `${number}/${number}`;
-}) {
-  return (
-    <div
-      className="relative w-full overflow-hidden rounded-xl bg-[var(--on-dark-soft)]/10 sm:rounded-2xl"
-      style={{ aspectRatio: ratio.replace("/", " / ") }}
-      data-placeholder="TODO: REPLACE_WITH_REAL_IMAGE"
-    >
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5 p-1 text-center text-[var(--on-dark-soft)]">
-        <span className="text-[9px] uppercase tracking-[0.16em] opacity-70">
-          TODO
-        </span>
-        <span className="text-[10px] tabular-nums opacity-50">
-          {id.replace("years-", "")}
-        </span>
-      </div>
-    </div>
   );
 }

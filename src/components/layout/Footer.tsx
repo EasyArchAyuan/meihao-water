@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
 import { company, isTodo } from "@/data/company";
-import { primaryNav } from "@/data/navigation";
+import { primaryNav, footerNav } from "@/data/navigation";
 import { cn } from "@/lib/cn";
 
 export function Footer() {
@@ -60,6 +60,11 @@ export function Footer() {
           <div className="grid grid-cols-2 gap-8 border-t border-[var(--on-dark-soft)]/15 pt-8 sm:gap-10 md:flex md:gap-16 md:border-0 md:pt-0">
             <FooterCol title="网站">
               {primaryNav.map((item) => (
+                <FooterLink key={item.href} href={item.href}>
+                  {item.label}
+                </FooterLink>
+              ))}
+              {footerNav.map((item) => (
                 <FooterLink key={item.href} href={item.href}>
                   {item.label}
                 </FooterLink>

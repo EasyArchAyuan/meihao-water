@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import "./globals.css";
 import { site } from "@/data/site";
 import { localBusinessJsonLd, organizationJsonLd } from "@/lib/jsonld";
@@ -63,21 +62,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           跳到主要内容
         </a>
         {children}
-        {/* 结构化数据：仅输出真实字段 */}
-        <Script
-          id="ld-organization"
+        {/*
+          结构化数据：仅输出真实字段。
+          必须用原生 <script> 内联，不能用 next/script（afterInteractive 只在运行时注入，
+          静态 HTML 里没有内容，搜索引擎与 AI 抓取不到，GEO 会失效）。
+        */}
+        <script
           type="application/ld+json"
-          strategy="afterInteractive"
-        >
-          {organizationJsonLd()}
-        </Script>
-        <Script
-          id="ld-local-business"
+          dangerouslySetInnerHTML={{ __html: organizationJsonLd() }}
+        />
+        <script
           type="application/ld+json"
-          strategy="afterInteractive"
-        >
-          {localBusinessJsonLd()}
-        </Script>
+          dangerouslySetInnerHTML={{ __html: localBusinessJsonLd() }}
+        />
       </body>
     </html>
   );
