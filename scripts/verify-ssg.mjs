@@ -182,6 +182,41 @@ for (const r of crumbRoutes) {
 }
 check(`文章与区县页含 BreadcrumbList（缺 ${crumbMissing}）`, crumbMissing === 0);
 
+// 3e：关联主体归属（分公司等）—— 正文与结构化数据都要声明，
+//     口径从 src/data/company.ts 的 relatedOrganizations 派生，不硬编码主体名。
+const companySrc = existsSync("src/data/company.ts")
+  ? readFileSync("src/data/company.ts", "utf8")
+  : "";
+const related = [...companySrc.matchAll(/name:\s*"([^"]+)",\s*relation:\s*"([^"]+)"/g)].map(
+  (m) => ({ name: m[1], relation: m[2] }),
+);
+if (related.length > 0) {
+  const about = byRoute.get("/about");
+  const textMissing = related.filter((r) => !(about?.visibleText ?? "").includes(r.name));
+  check(
+    `/about 声明关联主体（缺 ${textMissing.length}/${related.length}）`,
+    textMissing.length === 0,
+    textMissing.map((r) => r.name).join(", "),
+  );
+
+  const subMissing = related.filter(
+    (r) =>
+      ![...byRoute.values()].some((v) =>
+        v.blocks.some(
+          (b) =>
+            !b.__parseError &&
+            Array.isArray(b.subOrganization) &&
+            b.subOrganization.some((s) => s && typeof s === "object" && s.name === r.name),
+        ),
+      ),
+  );
+  check(
+    `Organization.subOrganization 声明关联主体（${related.length - subMissing.length}/${related.length}）`,
+    subMissing.length === 0,
+    subMissing.map((r) => r.name).join(", "),
+  );
+}
+
 // 4：新增路由已生成
 for (const route of ["/faq", "/langfang", "/news"]) {
   check(`路由 ${route} 已静态生成`, byRoute.has(route));

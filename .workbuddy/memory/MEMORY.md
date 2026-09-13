@@ -42,6 +42,8 @@
 ## 4. GEO（AI 搜索可见度）线
 - 权威待办：资料库云端文档 **「官网GEO待办」`NGYX6c3OWKnuT4OBMkdNa7`**（豆包实测诊断 2026-09-13）。
 - 诊断：豆包首选旧站 `meihaoshuiye.com`（旧名「廊坊美好水业有限公司」），新站未被引用；混入「贴牌/押金」负信号、电话漂移 `2235556`、企查查「美好水业(天津)」实体混淆。
+- ⚠️ **天津主体口径（2026-09-14 用户更正）**：「美好水业（天津）有限公司」**是我们的天津分公司**，与廊坊总部同属一个品牌体系 —— **不是**无关的同名公司。原先写的「并非同一主体、无任何股权经营品牌关联」是错的，已全部改掉。落地方式：`company.disambiguation` 正文改口径 + 新增 `company.relatedOrganizations`（`{name, relation}`）→ `jsonld.ts` 输出 `Organization.subOrganization`，让 AI 从结构化数据直接归并实体。`verify-ssg.mjs` 加了 2 条断言（/about 正文含关联主体名、ld+json 有 `subOrganization`），口径从 `company.ts` 派生不硬编码。
+  ⚠️ **术语待用户核对**：注册名以「有限公司」结尾者是**独立法人**，法律上属子公司/关联公司；工商意义上的「分公司」不具独立法人资格、名称形如「XX有限公司天津分公司」。若天津那家执照全名确为「美好水业（天津）有限公司」，对外宜写「关联公司/子公司」；若其实是「廊坊市美好商贸有限公司天津分公司」，则「分公司」正确但主体全名需按执照写。
 - 已落地：`company.ts` 加 `addressParts`/`delivery`/`disambiguation`/`sameAs`/`shuineighbor.facts`；`jsonld.ts` 修正 Organization（`name=美好水业` + `legalName=廊坊市美好商贸有限公司`，**原代码写反**）+ 新增 `faqPageJsonLd()`/`shuineighborProductJsonLd()`；新增 **`/faq`**（源 `src/data/faq.ts`，页面与 FAQPage Schema 同源）、**`/langfang`** 落地页；`/about` 加实体消歧段；`/shuineighbor` 注入 Product Schema；sitemap 补 `/faq` `/langfang`。
 - ⚠️ **重大坑：`next/script` + `afterInteractive` 的 JSON-LD 不会进静态 HTML**（只在运行时注入，爬虫抓不到）。**以后新增 JSON-LD 一律用原生 `<script dangerouslySetInnerHTML>` 内联。**
 - 审计：`npm run verify:ssg`（`scripts/verify-ssg.mjs`，报告 `ssg-audit.txt`，已 gitignore）。

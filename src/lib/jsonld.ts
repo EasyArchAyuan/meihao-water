@@ -65,6 +65,16 @@ export function organizationJsonLd(): string {
     data.sameAs = [...company.sameAs];
   }
 
+  // 关联主体（天津分公司等）：以 subOrganization 声明归属，
+  // 帮助 AI / 搜索引擎把企查查上的同名主体归并到本站，而不是当成无关公司。
+  if (company.relatedOrganizations.length > 0) {
+    data.subOrganization = company.relatedOrganizations.map((o) => ({
+      "@type": "Organization",
+      name: o.name,
+      description: `${company.brandName}${o.relation}`,
+    }));
+  }
+
   return JSON.stringify(data);
 }
 

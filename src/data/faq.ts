@@ -47,7 +47,7 @@ export const faqItems: readonly FaqItem[] = [
   {
     id: "entity",
     group: "正品与资质",
-    question: "美好水业是廊坊本地公司吗？和天津的同名公司有关系吗？",
+    question: "美好水业是廊坊本地公司吗？和天津的美好水业是什么关系？",
     answer: [
       company.disambiguation,
       `对外品牌名为「${company.brandName}」，在法律文件、票据与备案信息中使用的主体名称为「${company.legalName}」，二者是同一家廊坊本地企业。`,

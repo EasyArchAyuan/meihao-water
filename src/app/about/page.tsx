@@ -94,7 +94,7 @@ export default function AboutPage() {
                   {company.legalName}，1998 年成立。二十余年，只做一件事：把好水送到廊坊人的身边。
                 </p>
               </RevealItem>
-              {/* 实体消歧：与天津同名主体区分，避免工商平台信息被 AI 混淆 */}
+              {/* 实体归属说明：明确天津分公司与本站同属一个品牌体系，避免 AI 误判为无关的同名公司 */}
               <RevealItem>
                 <p className="mt-6 max-w-2xl text-[15px] leading-relaxed text-[var(--ink-muted)]">
                   {company.disambiguation}
