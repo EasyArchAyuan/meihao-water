@@ -1,3 +1,9 @@
+## [1.3.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.2.3...v1.3.0) (2026-09-14)
+
+### 新功能
+
+* **contact:** 接入微信服务号「搜一搜」卡片 ([8397318](https://github.com/EasyArchAyuan/meihao-water/commit/83973187f5cede3a05268046828fa4498fb280e7))
+
 ## [1.2.3](https://github.com/EasyArchAyuan/meihao-water/compare/v1.2.2...v1.2.3) (2026-09-14)
 
 ### 修复
