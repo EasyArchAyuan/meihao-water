@@ -4,6 +4,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { Figure } from "@/components/ui/Figure";
+import { BrandAuthorizations } from "@/components/about/BrandAuthorizations";
 import { company } from "@/data/company";
 
 export const metadata: Metadata = buildMetadata({
@@ -322,6 +323,8 @@ export default function AboutPage() {
             </Reveal>
           </div>
         </section>
+
+        <BrandAuthorizations />
       </main>
       <Footer />
     </>

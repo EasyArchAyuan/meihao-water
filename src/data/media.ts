@@ -177,6 +177,32 @@ export const media: Record<string, MediaItem> = {
     todo: false,
   },
 
+  // 品牌授权资质（官方授权书 / 经销证明）
+  "certificate-hengda": {
+    id: "certificate-hengda",
+    src: "/company/certificates/hengda-bingquan.jpg",
+    alt: "恒大冰泉特许直销商授权书（廊坊市美好商贸有限公司）",
+    ratio: "3/2",
+    note: "/about 与 /brands 品牌授权资质展示：恒大冰泉。",
+    todo: false,
+  },
+  "certificate-wahaha": {
+    id: "certificate-wahaha",
+    src: "/company/certificates/wahaha.jpg",
+    alt: "娃哈哈桶装水特许经销商授权书（廊坊市美好商贸有限公司）",
+    ratio: "3/2",
+    note: "/about 与 /brands 品牌授权资质展示：娃哈哈。",
+    todo: false,
+  },
+  "certificate-yibao": {
+    id: "certificate-yibao",
+    src: "/company/certificates/yibao.png",
+    alt: "怡宝纯净水廊坊地区销售证明书（廊坊市美好商贸有限公司）",
+    ratio: "3/2",
+    note: "/about 与 /brands 品牌授权资质展示：怡宝。",
+    todo: false,
+  },
+
   // Hero / 02 二十年
   "hero-city-water": {
     id: "hero-city-water",

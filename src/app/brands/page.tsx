@@ -6,6 +6,7 @@ import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { agencyBrands } from "@/data/brands";
 import { primaryPhone } from "@/data/company";
 import { Hairline } from "@/components/ui/Hairline";
+import { BrandAuthorizations } from "@/components/about/BrandAuthorizations";
 
 export const metadata: Metadata = buildMetadata({
   title: "代理品牌",
@@ -82,6 +83,12 @@ export default function BrandsPage() {
             </div>
           </Reveal>
         </section>
+
+        <BrandAuthorizations
+          eyebrow="授权证明"
+          title="代理，\n有授权书才算数。"
+          subtitle="这些品牌在廊坊的销售/配送授权，美好水业持有品牌方或区域总代理出具的书面证明。"
+        />
 
         {/* CTA */}
         <section className="bg-[var(--bg-alt)]">

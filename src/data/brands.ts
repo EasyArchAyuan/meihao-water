@@ -29,3 +29,28 @@ export type AgencyBrand = (typeof agencyBrands)[number];
 
 /** 一句话简述（用于 /products 页底 strip 与首页提及） */
 export const brandsIntro = "以下品牌的桶装水与瓶装水，我们都在送。";
+
+/**
+ * 品牌授权资质展示。
+ * 仅放用户已提供书面授权书 / 经销证明书的品牌；无授权书的品牌不列。
+ */
+export const brandAuthorizations = [
+  {
+    id: "auth-hengda",
+    brand: "恒大冰泉",
+    mediaId: "certificate-hengda",
+    label: "特许直销商授权书",
+  },
+  {
+    id: "auth-wahaha",
+    brand: "娃哈哈",
+    mediaId: "certificate-wahaha",
+    label: "桶装水特许经销商授权书",
+  },
+  {
+    id: "auth-yibao",
+    brand: "怡宝",
+    mediaId: "certificate-yibao",
+    label: "廊坊地区销售证明书",
+  },
+] as const;
