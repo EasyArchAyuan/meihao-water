@@ -1,3 +1,9 @@
+## [1.4.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.3.0...v1.4.0) (2026-09-14)
+
+### 新功能
+
+* **about,brands:** 展示恒大冰泉/娃哈哈/怡宝品牌授权资质 ([627ae24](https://github.com/EasyArchAyuan/meihao-water/commit/627ae24685da853f37d07b7e3f9a71f9433db64e))
+
 ## [1.3.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.2.3...v1.3.0) (2026-09-14)
 
 ### 新功能
