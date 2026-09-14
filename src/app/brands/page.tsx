@@ -86,7 +86,8 @@ export default function BrandsPage() {
 
         <BrandAuthorizations
           eyebrow="授权证明"
-          title="代理，\n有授权书才算数。"
+          title={`代理，
+有授权书才算数。`}
           subtitle="这些品牌在廊坊的销售/配送授权，美好水业持有品牌方或区域总代理出具的书面证明。"
         />
 
