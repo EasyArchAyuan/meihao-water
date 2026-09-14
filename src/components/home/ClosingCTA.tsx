@@ -77,11 +77,18 @@ export function ClosingCTA() {
               <div className="flex flex-col items-center gap-3 sm:items-end sm:gap-4">
                 <span className="eyebrow">微信服务号</span>
                 {/* 宽度必须由外层容器约束：Figure 基类含 w-full，且 cn() 不做冲突消解 */}
-                <div className="w-32 sm:w-36">
-                  <Figure id="wechat-qr" ratio="1/1" rounded />
+                <div className="w-48 sm:w-56">
+                  <Figure
+                    src="/images/wechat-service-card.jpg"
+                    alt="微信搜一搜「廊坊桶装水」，关注美好水业服务号"
+                    ratio="3/1"
+                    fit="contain"
+                    rounded
+                    sizes="(max-width: 640px) 60vw, 240px"
+                  />
                 </div>
                 <p className="text-[12px] text-[var(--ink-muted)]">
-                  扫码加微信 · 二维码待替换
+                  微信搜一搜「廊坊桶装水」
                 </p>
               </div>
             </div>

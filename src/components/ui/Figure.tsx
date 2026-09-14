@@ -54,6 +54,7 @@ const ASPECT_BASE: Record<string, string> = {
   "3/4": "aspect-[3/4]",
   "4/5": "aspect-[4/5]",
   "16/9": "aspect-[16/9]",
+  "3/1": "aspect-[3/1]",
 };
 
 const ASPECT_SM: Record<string, string> = {
@@ -63,6 +64,7 @@ const ASPECT_SM: Record<string, string> = {
   "3/4": "sm:aspect-[3/4]",
   "4/5": "sm:aspect-[4/5]",
   "16/9": "sm:aspect-[16/9]",
+  "3/1": "sm:aspect-[3/1]",
 };
 
 export function Figure({

@@ -305,15 +305,6 @@ export const media: Record<string, MediaItem> = {
     todo: true,
   },
 
-  // 微信服务号二维码
-  "wechat-qr": {
-    id: "wechat-qr",
-    src: null,
-    alt: "微信服务号二维码（待替换）",
-    ratio: "1/1",
-    note: "结尾 CTA 与 /contact 共用：扫码加微信。",
-    todo: true,
-  },
 };
 
 export const getMedia = (id: string): MediaItem | undefined => media[id];

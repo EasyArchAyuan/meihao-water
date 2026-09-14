@@ -46,7 +46,8 @@ export const company = {
     },
   ] as const,
   wechatPublicName: "廊坊桶装水",
-  wechatService: "TODO: REAL_WECHAT_ID",
+  /** 微信服务号搜索关键词（与公众号同名） */
+  wechatService: "廊坊桶装水",
   douyin: "TODO: REAL_DOUYIN_ACCOUNT",
   icp: "TODO: ICP备案完成后填写",
   copyrightYear: 2026,

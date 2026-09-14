@@ -79,14 +79,21 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              {/* 右：二维码 */}
+              {/* 右：微信服务号搜索卡片 */}
               <div className="lg:col-span-5 flex flex-col items-start gap-5 sm:gap-6">
                 <span className="eyebrow">微信服务号</span>
-                <div className="w-40 sm:w-52">
-                  <Figure id="wechat-qr" ratio="1/1" rounded />
+                <div className="w-full max-w-sm">
+                  <Figure
+                    src="/images/wechat-service-card.jpg"
+                    alt="微信搜一搜「廊坊桶装水」，关注美好水业服务号"
+                    ratio="3/1"
+                    fit="contain"
+                    rounded
+                    sizes="(max-width: 1024px) 80vw, 360px"
+                  />
                 </div>
                 <p className="text-[13px] text-[var(--ink-muted)]">
-                  扫码加微信 · 二维码待替换
+                  微信搜一搜「廊坊桶装水」
                 </p>
               </div>
             </div>
