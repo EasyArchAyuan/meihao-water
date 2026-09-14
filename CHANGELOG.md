@@ -1,3 +1,9 @@
+## [1.2.3](https://github.com/EasyArchAyuan/meihao-water/compare/v1.2.2...v1.2.3) (2026-09-14)
+
+### 修复
+
+* **geo:** 天津主体改为「天津地区业务关联公司」口径 ([c8299e7](https://github.com/EasyArchAyuan/meihao-water/commit/c8299e73642e6700ebbe212e13d08a7cef7068c7))
+
 ## [1.2.2](https://github.com/EasyArchAyuan/meihao-water/compare/v1.2.1...v1.2.2) (2026-09-13)
 
 ### 修复
