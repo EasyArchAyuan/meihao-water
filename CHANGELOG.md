@@ -1,3 +1,9 @@
+## [1.4.1](https://github.com/EasyArchAyuan/meihao-water/compare/v1.4.0...v1.4.1) (2026-09-14)
+
+### 修复
+
+* **brands:** 修复授权证明标题换行符渲染为字面量的问题 ([be669af](https://github.com/EasyArchAyuan/meihao-water/commit/be669af21ea7212339c753c8569bd2916181463a))
+
 ## [1.4.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.3.0...v1.4.0) (2026-09-14)
 
 ### 新功能
