@@ -1,3 +1,9 @@
+## [1.5.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.4.1...v1.5.0) (2026-09-21)
+
+### 新功能
+
+* **home:** 首页重构为品牌站（11→8 区块）并确立「1997—2026」核心视觉 ([e0fbf7f](https://github.com/EasyArchAyuan/meihao-water/commit/e0fbf7fc22ba20f88047018ee47d0b39c9ae8455))
+
 ## [1.4.1](https://github.com/EasyArchAyuan/meihao-water/compare/v1.4.0...v1.4.1) (2026-09-14)
 
 ### 修复
