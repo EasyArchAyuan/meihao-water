@@ -1,3 +1,9 @@
+## [1.6.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.5.0...v1.6.0) (2026-09-21)
+
+### 新功能
+
+* **contact:** 接入高德静态地图与一键导航 ([de73d0c](https://github.com/EasyArchAyuan/meihao-water/commit/de73d0c7b31a7832098e9dbcd5b0b1375b04ea41))
+
 ## [1.5.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.4.1...v1.5.0) (2026-09-21)
 
 ### 新功能
