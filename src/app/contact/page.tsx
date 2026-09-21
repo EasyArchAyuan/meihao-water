@@ -6,12 +6,31 @@ import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { Figure } from "@/components/ui/Figure";
 import { TelLink } from "@/components/ui/TelLink";
 import { company } from "@/data/company";
+import { geo, hasStaticMap } from "@/data/geo.generated";
 
 export const metadata: Metadata = buildMetadata({
   title: "联系我们",
   description: `美好水业（${company.legalName}）联系方式：订水热线 ${company.phones.map((p) => p.number).join(" / ")}，地址 ${company.address}。`,
   path: "/contact",
 });
+
+/**
+ * 一键导航走高德 URI API（https://uri.amap.com/marker），**不需要 key**，
+ * 参数依官方文档：position=lng,lat · coordinate=gaode（GCJ-02）·
+ * callnative=1 在移动端尝试唤起高德 App 直接进入导航。
+ *
+ * 坐标未就绪时（src/data/geo.generated.ts 的 lng/lat 为 null）不渲染该入口 ——
+ * 给出一个点了没反应的按钮，比不给更伤信任。
+ */
+const hasGeo = typeof geo.lng === "number" && typeof geo.lat === "number";
+const navHref = hasGeo
+  ? [
+      "https://uri.amap.com/marker",
+      `?position=${geo.lng},${geo.lat}`,
+      `&name=${encodeURIComponent(company.brandName)}`,
+      "&src=meihaowater&coordinate=gaode&callnative=1",
+    ].join("")
+  : null;
 
 export default function ContactPage() {
   return (
@@ -67,6 +86,17 @@ export default function ContactPage() {
                   <p className="mt-2 text-[15px] text-[var(--ink-soft)]">
                     {company.city} · 河北省
                   </p>
+                  {navHref ? (
+                    <a
+                      href={navHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-4 inline-flex min-h-11 items-center gap-2 text-[15px] font-medium text-[var(--brand)] underline-offset-4 transition-colors hover:underline"
+                    >
+                      在高德地图中打开并导航
+                      <span aria-hidden>→</span>
+                    </a>
+                  ) : null}
                 </div>
                 <div>
                   <span className="eyebrow">公众号</span>
@@ -100,15 +130,24 @@ export default function ContactPage() {
           </Reveal>
         </section>
 
-        {/* 地图占位 */}
-        <section className="container-wide pb-16 sm:pb-24">
-          <Reveal>
-            <Figure id="map-placeholder" ratio="4/3" ratioSm="16/9" rounded />
-          </Reveal>
-          <p className="mt-4 text-center text-[12px] text-[var(--ink-muted)]">
-            地图位置示意 · 真实地图待接入
-          </p>
-        </section>
+        {/*
+          位置地图。图片由 `npm run map:fetch` 在构建期从高德静态地图 API 抓取并纳入 git
+          （前端因此零 key、零外部请求）。未生成时整块不渲染 —— 不留「待接入」字样占位。
+        */}
+        {hasStaticMap ? (
+          <section className="container-wide pb-16 sm:pb-24">
+            <Reveal className="flex flex-col gap-4">
+              <RevealItem>
+                <Figure id="map-location" ratio="16/9" rounded />
+              </RevealItem>
+              <RevealItem>
+                <p className="text-[12px] text-[var(--ink-muted)]">
+                  地图数据 © 高德地图
+                </p>
+              </RevealItem>
+            </Reveal>
+          </section>
+        ) : null}
       </main>
       <Footer />
     </>

@@ -321,14 +321,21 @@ export const media: Record<string, MediaItem> = {
     todo: true,
   },
 
-  // /contact 地图占位
-  "map-placeholder": {
-    id: "map-placeholder",
-    src: null,
-    alt: "廊坊市北凤道 399 号位置示意（待替换为真实地图）",
+  /*
+   * 门店静态地图。
+   * ⚠️ 图片由 `npm run map:fetch` 在构建期从高德静态地图 API 抓取（key 只存环境变量），
+   *    产物 public/map/location.png 纳入 git —— 站点运行时零 key、零外部请求。
+   *    图片未生成时 /contact 不渲染本图（由 geo.generated.ts 的 hasStaticMap 控制），
+   *    因此这里指向一个暂时不存在的路径也不会产生破图或 404。
+   * ⚠️ 底图水印与疆域由高德统一处理，不得裁切或遮盖。
+   */
+  "map-location": {
+    id: "map-location",
+    src: "/map/location.png",
+    alt: `美好水业库房位置（${"廊坊市广阳区北凤道399号"}），地图数据 © 高德地图`,
     ratio: "16/9",
-    note: "/contact 页面地图占位。",
-    todo: true,
+    note: "由 scripts/fetch-map.mjs 生成：高德静态地图 API（zoom 16、750*422、scale 2、品牌色标注）。",
+    todo: false,
   },
 
 };

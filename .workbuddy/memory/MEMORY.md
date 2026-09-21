@@ -32,10 +32,11 @@
 - 🔴 **`next build` 必卡**：它收尾时会清理 `.next` / `out`，**必然命中上面那条中文路径删除 bug → 进程静默挂起**（实测挂 10 分钟无进展、`BUILD_EXIT=127`）。**`CODEBUDDY_SAFE_DELETE_ENABLED=0` 不足以绕过**（该拦截层不在 node 内）。
   - **正确流程**：构建前先把 `.next` 和 `out` 用 `Move-Item` 挪到项目外（如 `C:\Users\shang\WorkBuddy\.build-trash-<date>`），再跑 `next build` → **27 秒完成**。
   - 另注：托管 Node 还注入 `node-safe-delete-shim.cjs`（`SAFE_DELETE_BULK_CONFIRM_REQUIRED`），CI 无此 shim，故本地与 CI 行为不同。
+- ⚠️ **别在 `out/` 里起预览服务**：`next build` 收尾会 `rmdir out`，若预览进程的**工作目录**就是 `out`（如 `cd out && python -m http.server`），Windows 会报 `EBUSY: resource busy or locked, rmdir '...\out'` 令构建失败（2026-09-21 踩过）。改用 `python -m http.server 8123 --bind 127.0.0.1 --directory out`（CWD 留在项目根），或预览完先杀掉该进程再构建。
 - **PowerShell 工具不回显 stdout** → 结果写文件再 Read。
 - ⚠️ **`git push` 必须用 Bash 工具跑，PowerShell 里即便补齐 Git 的 `usr/bin` 到 PATH 仍报 `cannot spawn sh`**。可用写法（Bash 中实测成功）：
   `git -c credential.helper= -c credential.helper=wincred push origin main`（凭据已在 Windows 凭据管理器）。`gh` CLI 未安装，查 CI 用 `https://api.github.com/repos/EasyArchAyuan/meihao-water/actions/runs?per_page=5`。
-- **中文 commit message 走 `git commit -F <UTF-8 无 BOM 文件>`**，避免 PowerShell 编码损坏。
+- **中文 commit message 走 `git commit -F <UTF-8 无 BOM 文件>`**，避免 PowerShell 编码损坏。⚠️ 该文件**必须放在项目目录内**（实测用 `.git/mhsy-commit-msg.txt`）：Bash 沙箱**读不到 `%TEMP%`**，放临时目录会报 `fatal: could not read log file`（2026-09-21 踩过）。用 Write 工具写出的即 UTF-8 无 BOM，可直接使用。
 - ⚠️ 绝不要在坏 PATH 下跑 `git stash` / `git rebase` —— 2026-09-14 曾让 `.git` 整体丢失。恢复：备份工作区 → `git init -b main` → `remote add` → `fetch origin main` → `update-ref refs/heads/main FETCH_HEAD` → `reset --mixed main`（保留工作区改动）→ 重新 commit/push。**本地 `.git` 是唯一历史载体，动手前先备份。**
 
 ## 4. GEO（AI 搜索可见度）

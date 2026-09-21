@@ -16,6 +16,7 @@
     "lint": "eslint",
     "verify:ssg": "node scripts/verify-ssg.mjs",
     "check:content": "node scripts/check-content.mjs",
+    "map:fetch": "node scripts/fetch-map.mjs",
     "sync:content": "node scripts/sync-articles.mjs",
     "notify:build": "node scripts/notify-build.mjs",
     "release": "semantic-release"
