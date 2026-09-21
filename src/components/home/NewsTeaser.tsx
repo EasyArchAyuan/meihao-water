@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { listArticles } from "@/lib/content";
+import { company } from "@/data/company";
 
 /**
- * 首页「最新资讯」区块。
+ * 首页「行业资讯」区块。
  * 作用：给首页注入更新信号（新文章一发布，首页内容即变化），
  * 并把首页权重导向文章页，形成 首页 → 列表 → 详情 的内链闭环。
+ *
+ * 标题改动：「选水这件事，我们写过。」→ 落到品牌主体与时间纵深上。
+ * 原句只说明「我们发过文章」，不说谁写的、写了多久；
+ * 新句把「近三十年」这个唯一性事实前置，文章才有可信度来源。
  */
 export async function NewsTeaser({ limit = 3 }: { limit?: number }) {
   const articles = (await listArticles()).slice(0, limit);
@@ -19,10 +24,13 @@ export async function NewsTeaser({ limit = 3 }: { limit?: number }) {
             <div className="flex flex-col gap-4">
               <span className="eyebrow">行业资讯</span>
               <h2 id="news-teaser-title" className="display-section text-[var(--ink)]">
-                选水这件事，
+                送水{company.yearsCopy}，
                 <br />
-                我们写过。
+                选水这件事没少被问。
               </h2>
+              <p className="max-w-md text-[15px] leading-relaxed text-[var(--ink-soft)]">
+                不推销，只把判断标准说清楚。
+              </p>
             </div>
             <Link
               href="/news/"

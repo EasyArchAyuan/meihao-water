@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
-import { company, isTodo } from "@/data/company";
+import { brandSpan, company, isTodo } from "@/data/company";
 import { primaryNav, footerNav } from "@/data/navigation";
 import { cn } from "@/lib/cn";
 
@@ -27,8 +27,15 @@ export function Footer() {
               <br />
               在身边。
             </p>
+            {/*
+              年份跨度是品牌核心视觉之一（与首页 YearsSection 的巨字同源）。
+              Footer 里克制处理：只做中等字号 + 弱色，不跟 slogan 抢层级。
+            */}
+            <p className="mt-4 text-[clamp(19px,2.3vw,26px)] font-medium tracking-[-0.02em] tabular-nums text-[var(--on-dark-soft)] sm:mt-5">
+              {brandSpan.label}
+            </p>
             <p className="mt-3 text-[14px] leading-relaxed text-[var(--on-dark-soft)] sm:mt-4">
-              {company.legalName} · 自 1998 年起 · 廊坊本地饮水服务
+              {company.legalName} · 廊坊本地饮水服务
             </p>
           </div>
 

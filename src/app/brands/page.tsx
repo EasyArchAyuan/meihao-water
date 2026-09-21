@@ -3,7 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
-import { agencyBrands } from "@/data/brands";
+import { agencyBrandsByCategory } from "@/data/brands";
 import { primaryPhone } from "@/data/company";
 import { Hairline } from "@/components/ui/Hairline";
 import { BrandAuthorizations } from "@/components/about/BrandAuthorizations";
@@ -15,14 +15,8 @@ export const metadata: Metadata = buildMetadata({
   path: "/brands",
 });
 
-// 按品类分组
-const groups: Record<string, string[]> = {};
-for (const b of agencyBrands) {
-  for (const c of b.category) {
-    if (!groups[c]) groups[c] = [];
-    groups[c].push(b.name);
-  }
-}
+// 按品类分组（口径来自 src/data/brands.ts，与首页共用）
+const groups = agencyBrandsByCategory;
 
 export default function BrandsPage() {
   return (
@@ -55,7 +49,7 @@ export default function BrandsPage() {
         <section className="container-wide pb-16 sm:pb-24">
           <Reveal>
             <div className="flex flex-col gap-10 sm:gap-14">
-              {Object.entries(groups).map(([category, names], gi) => (
+              {groups.map(({ category, names }, gi) => (
                 <RevealItem as="div" key={category}>
                   <div className="flex flex-col gap-5 sm:gap-6">
                     <div className="flex items-baseline justify-between">

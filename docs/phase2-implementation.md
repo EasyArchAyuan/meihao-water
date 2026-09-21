@@ -127,7 +127,7 @@ if (prevPathname !== pathname) {
 | `public/brand/logo.jpg` | ✅ 从 D 盘复制 |
 | `public/brand/logo-white.svg` | ✅ 自制（抽象"水"字符 + 字标） |
 | `data/site.ts` | ✅ |
-| `data/company.ts` | ✅ 含真实电话/地址/1998 |
+| `data/company.ts` | ✅ 含真实电话/地址/1997 |
 | `data/products.ts` | ✅ |
 | `data/brands.ts` | ✅ 10 个代理品牌 |
 | `data/navigation.ts` | ✅ |

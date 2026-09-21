@@ -11,7 +11,7 @@ import { deliveryAreas, deliveryLeadTime } from "@/data/faq";
 
 export const metadata: Metadata = buildMetadata({
   title: "廊坊桶装水配送",
-  description: `廊坊桶装水配送与送水上门服务：${company.brandName}（${company.legalName}）自 1998 年起服务廊坊，覆盖${deliveryAreas}，经营桶装水、一次性桶装水、瓶装水与饮水机配送，承接家庭、公司、社区与会议用水。`,
+  description: `廊坊桶装水配送与送水上门服务：${company.brandName}（${company.legalName}）${company.yearsPhrase}服务廊坊，覆盖${deliveryAreas}，经营桶装水、一次性桶装水、瓶装水与饮水机配送，承接家庭、公司、社区与会议用水。`,
   path: "/langfang",
   keywords: [
     "廊坊桶装水",
@@ -43,12 +43,12 @@ const reasons = [
     desc: "库房 5000 余平米，成品水分区码放，廊坊本地出库，不依赖外地调货。",
   },
   {
-    title: "二十余年没换行",
-    desc: "自 1998 年起在廊坊经营饮用水配送，做的是同一件事。",
+    title: `${company.yearsCopy}没换行`,
+    desc: `${company.yearsPhrase}在廊坊经营饮用水配送，做的是同一件事。`,
   },
   {
     title: "品牌可自选",
-    desc: "代理多个知名品牌的桶装水与瓶装水，也有自有的「水邻居」天然矿泉水。",
+    desc: "代理多个知名品牌的桶装水与瓶装水，也有自有的「水邻居」饮用天然水。",
   },
   {
     title: "公司客户有据可查",

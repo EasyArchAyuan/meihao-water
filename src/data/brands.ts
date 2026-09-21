@@ -19,7 +19,7 @@ export const agencyBrands = [
   { name: "恒大冰泉",   category: ["桶装水", "瓶装水"] },
   { name: "昆仑山",     category: ["桶装水", "瓶装水"] },
   { name: "汇源",       category: ["桶装水", "瓶装水"] },
-  { name: "水邻居天然矿泉水", category: ["桶装水"] },
+  { name: "水邻居饮用天然水", category: ["桶装水"] },
   { name: "水立方",     category: ["桶装水", "瓶装水"] },
   { name: "冰露",       category: ["瓶装水"] },
   { name: "百事可乐",   category: ["饮料"] },
@@ -29,6 +29,33 @@ export type AgencyBrand = (typeof agencyBrands)[number];
 
 /** 一句话简述（用于 /products 页底 strip 与首页提及） */
 export const brandsIntro = "以下品牌的桶装水与瓶装水，我们都在送。";
+
+/**
+ * 自有品牌（不属于「代理」口径），统计代理条数时必须排除。
+ * 注意：`agencyBrands` 目前仍把「水邻居饮用天然水」列在其中，与文件顶部
+ * 注释「自有品牌不列在此」不一致 —— 该清单的取舍待确认，暂不改动，
+ * 但对外数字一律用下面的 `agencyBrandCount` 派生，避免把自有品牌算成代理。
+ */
+const OWN_BRAND_NAMES = ["水邻居", "美好水一族"];
+
+/** 可按对外口径宣称的「代理品牌」条数（已排除自有品牌） */
+export const agencyBrandCount = agencyBrands.filter(
+  (b) => !OWN_BRAND_NAMES.some((own) => b.name.startsWith(own)),
+).length;
+
+/** 品类展示顺序：桶装水 → 瓶装水 → 饮料 */
+export const brandCategoryOrder = ["桶装水", "瓶装水", "饮料"] as const;
+
+/** 按品类分组后的品牌名（/brands 与首页共用，保证两处口径一致） */
+export const agencyBrandsByCategory: readonly {
+  category: string;
+  names: readonly string[];
+}[] = brandCategoryOrder.map((category) => ({
+  category,
+  names: agencyBrands
+    .filter((b) => (b.category as readonly string[]).includes(category))
+    .map((b) => b.name),
+}));
 
 /**
  * 品牌授权资质展示。

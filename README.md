@@ -50,7 +50,7 @@ src/
 │   └── home/           # 首页 10 个 Section
 ├── data/               # 所有可变数据 + 媒体清单
 │   ├── site.ts
-│   ├── company.ts      # 公司真实信息（电话/地址/1998/水邻居）
+│   ├── company.ts      # 公司真实信息（电话/地址/1997/水邻居）
 │   ├── products.ts     # 自营 5 类
 │   ├── brands.ts       # 代理 10 个品牌
 │   ├── navigation.ts   # 主导航

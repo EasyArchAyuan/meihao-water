@@ -24,9 +24,6 @@ export default function ShuineighborPage() {
   const { shuineighbor } = company;
   const domain = shuineighbor.domain;
   const isDomainKnown = !isTodo(domain);
-  const linkProps = isDomainKnown
-    ? { href: domain, target: "_blank", rel: "noopener noreferrer" }
-    : { href: "#" };
 
   return (
     <>
@@ -56,15 +53,23 @@ export default function ShuineighborPage() {
                 订水更简单，喝水这件小事也更轻松。
               </p>
             </RevealItem>
-            <RevealItem>
-              <a
-                {...linkProps}
-                className="mt-8 inline-flex min-h-11 items-center gap-2 text-[16px] font-medium text-[var(--accent-text)] underline-offset-4 transition-colors hover:underline"
-              >
-                {isDomainKnown ? "访问水邻居官网" : "官网即将上线"}
-                <span aria-hidden>→</span>
-              </a>
-            </RevealItem>
+            {/*
+              口径修正：独立域名仍为 TODO 时，原实现回退成 href="#"（点了跳页首）。
+              该链接指向水邻居独立官网，未上线前**不渲染**比放一个死链干净。
+            */}
+            {isDomainKnown ? (
+              <RevealItem>
+                <a
+                  href={domain}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-8 inline-flex min-h-11 items-center gap-2 text-[16px] font-medium text-[var(--accent-text)] underline-offset-4 transition-colors hover:underline"
+                >
+                  访问水邻居官网
+                  <span aria-hidden>→</span>
+                </a>
+              </RevealItem>
+            ) : null}
           </Reveal>
         </section>
 
@@ -102,7 +107,7 @@ export default function ShuineighborPage() {
                 来自中国十大矿泉水之乡。
               </h2>
               <p className="body-lg text-[var(--ink-soft)]">
-                「水邻居」与同门的「美好水一族」，水源地是河北固安——中国十大矿泉水之乡。取自地下深层，天然无污染。
+                「水邻居」与同门的「美好水一族」，水源地是河北固安——中国十大矿泉水之乡，水取自地下深层。
               </p>
               <ul className="flex flex-col gap-3 text-[15px] leading-relaxed text-[var(--ink-soft)]">
                 {shuineighbor.facts.map((f) => (

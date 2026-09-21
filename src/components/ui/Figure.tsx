@@ -107,11 +107,18 @@ export function Figure({
       style={
         useInlineRatio ? { aspectRatio: ratio.replace("/", " / ") } : undefined
       }
-      title={noteText}
+      /*
+        维护信息只进 data-note，且**仅开发环境输出**。
+        `note` 是写给图片替换者的内部说明（如「Hero 大图：移动端 4/5，
+        >=640px 由调用方传 ratioSm=16/9」）—— 它既不该做成 title tooltip
+        给访客看，也不该留在生产 HTML 里（会暴露内部实现细节、白增体积）。
+        生产构建下 NODE_ENV 被静态替换为 "production"，该属性整体被消除；
+        完整说明始终保存在 data/media.ts 的 note 字段。
+      */
       data-placeholder={
         isTodoSrc || isPlaceholder ? "TODO: REPLACE_WITH_REAL_IMAGE" : undefined
       }
-      data-note={noteText}
+      data-note={process.env.NODE_ENV === "production" ? undefined : noteText}
     >
       {isPlaceholder ? (
         <PlaceholderContent

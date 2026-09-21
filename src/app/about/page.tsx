@@ -9,11 +9,11 @@ import { company } from "@/data/company";
 
 export const metadata: Metadata = buildMetadata({
   title: "关于美好水业",
-  description: `美好水业（${company.legalName}），1998 年成立，二十余年专注廊坊本地的桶装水、一次性桶装水、瓶装水与饮水配送服务。`,
+  description: `美好水业（${company.legalName}），${company.establishedYear} 年成立，近三十年专注廊坊本地的桶装水、一次性桶装水、瓶装水与饮水配送服务。`,
   path: "/about",
 });
 
-/** 企业历程（1998 起步，1999 定名美好水业） */
+/** 企业历程（1997 起步，1999 定名美好水业） */
 const milestones = [
   {
     year: "1999",
@@ -38,7 +38,7 @@ const milestones = [
   {
     year: "2020",
     title: "做自己的品牌",
-    desc: "「水邻居」「美好水一族」天然矿泉水上市——水源来自中国十大矿泉水之乡，河北固安。",
+    desc: "「水邻居」「美好水一族」饮用天然水上市——水源来自中国十大矿泉水之乡，河北固安。",
   },
   {
     year: "2023",
@@ -54,7 +54,7 @@ const values = [
   },
   {
     title: "持续",
-    desc: "二十余年，做的是同一件事。",
+    desc: "近三十年，做的是同一件事。",
   },
   {
     title: "克制",
@@ -88,11 +88,11 @@ export default function AboutPage() {
             >
               我们在廊坊，
               <br />
-              做了二十余年。
+              做了{company.yearsCopy}。
             </RevealItem>
               <RevealItem>
                 <p className="body-lg mt-8 max-w-2xl text-[var(--ink-soft)]">
-                  {company.legalName}，1998 年成立。二十余年，只做一件事：把好水送到廊坊人的身边。
+                  {company.legalName}，{company.establishedYear} 年成立。{company.yearsCopy}，只做一件事：把好水送到廊坊人的身边。
                 </p>
               </RevealItem>
               {/* 实体归属说明：明确天津分公司与本站同属一个品牌体系，避免 AI 误判为无关的同名公司 */}
@@ -149,7 +149,7 @@ export default function AboutPage() {
             </RevealItem>
             <RevealItem>
               <h2 className="display-sub text-[var(--ink)]">
-                一桶水，二十余年。
+                一桶水，{company.yearsCopy}。
               </h2>
             </RevealItem>
             <RevealItem>
@@ -203,7 +203,7 @@ export default function AboutPage() {
                   踏踏实实做事。
                 </h2>
                 <p className="body-lg text-[var(--ink-soft)]">
-                  美好水业创始人、总经理尤宝来，土生土长的廊坊人。二十余年前接手一间水站，从一天卖不出几桶水开始，把「美好水业」做成了廊坊人熟悉的名字。
+                  美好水业创始人、总经理尤宝来，土生土长的廊坊人。近三十年前接手一间水站，从一天卖不出几桶水开始，把「美好水业」做成了廊坊人熟悉的名字。
                 </p>
                 <p className="text-[15px] leading-relaxed text-[var(--ink-soft)]">
                   曾有人拿着一张 20 年前美好水业发行的水票来问还能不能换。她没有犹豫：能，只要我在，就能换。

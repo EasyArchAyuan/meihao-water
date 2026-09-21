@@ -104,7 +104,7 @@ export default function FaqPage() {
                 <h2 className="display-sub text-[var(--ink)]">
                   一个廊坊的牌子，
                   <br />
-                  做了二十余年。
+                  做了{company.yearsCopy}。
                 </h2>
                 <p className="body-lg text-[var(--ink-soft)]">
                   {company.disambiguation}

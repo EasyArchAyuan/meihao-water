@@ -6,12 +6,12 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
 import { TelLink } from "@/components/ui/TelLink";
-import { primaryPhone } from "@/data/company";
+import { primaryPhone, company } from "@/data/company";
 
 export const metadata: Metadata = buildMetadata({
   title: "行业资讯",
   description:
-    "美好水业行业资讯：廊坊桶装水怎么选、桶装水保存与饮水机清洗、公司订水避坑、正品识别与退桶押金。廊坊本地二十余年送水经验分享。",
+    "美好水业行业资讯：廊坊桶装水怎么选、桶装水保存与饮水机清洗、公司订水避坑、正品识别与退桶押金。廊坊本地近三十年送水经验分享。",
   path: "/news",
   keywords: ["廊坊桶装水", "廊坊送水", "桶装水怎么选", "公司订水", "美好水业"],
 });
@@ -36,7 +36,7 @@ export default async function NewsPage() {
             </RevealItem>
             <RevealItem>
               <p className="body-lg mt-8 max-w-2xl text-[var(--ink-soft)]">
-                廊坊本地二十余年的送水经验，挑出来写成短文。不推销，只把判断标准说清楚。
+                廊坊本地{company.yearsCopy}的送水经验，挑出来写成短文。不推销，只把判断标准说清楚。
               </p>
             </RevealItem>
           </Reveal>

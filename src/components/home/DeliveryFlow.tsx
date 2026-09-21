@@ -1,8 +1,20 @@
+import Link from "next/link";
 import { Reveal, RevealItem } from "@/components/ui/Reveal";
+import { deliveryAreas } from "@/data/faq";
 
 const steps = ["下单", "接单", "配送", "送达", "持续服务"];
-const values = ["本地", "及时", "长期", "可靠"];
 
+/**
+ * 配送服务。
+ *
+ * 改动：
+ * 1. 底部原本是「本地 / 及时 / 长期 / 可靠」四个词 —— 与 CitySection 的关键词线
+ *    同属「任何行业都能用的形容词」，没有信息量。换成真实配送口径
+ *    （覆盖区域从 company.delivery 派生，未确认时自动降级），并补上 /langfang 内链
+ *    —— 原 CitySection 承担的本地下沉入口，随该区块一并移交到这里。
+ * 2. 标题从「你负责生活，我们负责送水」这类抒情句，改为对下方五步流程的
+ *    直接承诺（说清每一步），标题与内容重新建立了逻辑关系。
+ */
 export function DeliveryFlow() {
   return (
     <section aria-labelledby="delivery-title" className="bg-[var(--bg)]">
@@ -16,9 +28,9 @@ export function DeliveryFlow() {
             id="delivery-title"
             className="display-section text-[var(--ink)]"
           >
-            你负责生活，
+            送水这件事，
             <br />
-            我们负责送水。
+            我们能说清每一步。
           </RevealItem>
         </Reveal>
 
@@ -53,22 +65,25 @@ export function DeliveryFlow() {
           </ol>
         </Reveal>
 
-        {/* 关键词 */}
+        {/* 配送口径 + 本地下沉入口 */}
         <Reveal className="mt-14 flex flex-col items-center gap-6 sm:mt-24">
           <RevealItem>
             <hr className="h-px w-16 border-0 bg-[var(--hairline-strong)]" />
           </RevealItem>
           <RevealItem>
-            <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 sm:gap-x-10">
-              {values.map((v) => (
-                <li
-                  key={v}
-                  className="text-[15px] tracking-wide text-[var(--ink-soft)]"
-                >
-                  {v}
-                </li>
-              ))}
-            </ul>
+            <p className="max-w-xl text-center text-[15px] leading-relaxed text-[var(--ink-soft)] sm:text-[16px]">
+              覆盖{deliveryAreas}。家庭按周、公司按月，都可以约定固定频次；
+              急用与批量用水，提前电话说明即可安排。
+            </p>
+          </RevealItem>
+          <RevealItem>
+            <Link
+              href="/langfang/"
+              className="inline-flex min-h-11 items-center gap-2 text-[14px] font-medium text-[var(--brand)] underline-offset-4 transition-colors hover:underline"
+            >
+              查看廊坊配送覆盖
+              <span aria-hidden>→</span>
+            </Link>
           </RevealItem>
         </Reveal>
       </div>

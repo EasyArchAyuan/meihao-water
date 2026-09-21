@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import { useEffect } from "react";
 import { primaryNav } from "@/data/navigation";
-import { primaryPhone } from "@/data/company";
+import { primaryPhone, company } from "@/data/company";
 import { cn } from "@/lib/cn";
 import { easeOut } from "@/lib/motion";
 
@@ -83,7 +83,7 @@ export function MobileMenu({
                 {primaryPhone.display}
               </a>
               <span className="mt-1 block text-[13px] text-[var(--ink-muted)]">
-                廊坊本地 · 二十余年
+                廊坊本地 · {company.yearsCopy}
               </span>
             </div>
           </div>

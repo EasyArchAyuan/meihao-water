@@ -1,9 +1,31 @@
 import { Reveal, RevealItem, RevealOne } from "@/components/ui/Reveal";
 import { Figure } from "@/components/ui/Figure";
-import { company } from "@/data/company";
+import { brandSpan, company } from "@/data/company";
+import { agencyBrandCount } from "@/data/brands";
 
-const keywords = ["廊坊", "家庭", "社区", "企业", "城市生活"];
+/**
+ * 品牌坐标（右侧事实索引）。
+ * 每一项都是美好水业**独有、可核对**的事实。原来的「廊坊 / 家庭 / 社区 /
+ * 企业 / 城市生活」关键词线与 CitySection 一字不差，是首页最明显的模板痕迹，
+ * 已删除 —— 任何本地水站都能套用的词，一律不出现。
+ */
+const coordinates = [
+  { value: "4 家", label: "分店：光明西道 · 燕青宾馆 · 花园楼市场 · 朝阳市场" },
+  { value: "5000 余平米", label: "库房，不同品牌与规格分区码放" },
+  { value: `${agencyBrandCount} 个`, label: "桶装水与瓶装水品牌，本地都能送" },
+  { value: "30 吨", label: "北京盒马鲜生仓配一体化，日吞吐量" },
+];
 
+/**
+ * 品牌跨度 —— 全站核心视觉之一。
+ *
+ * 设计意图：把「1997—2026」做成一个可识别的图形资产，而不是一句话。
+ * - 它比「近三十年」更硬：具体年份无法被同行复制；
+ * - 数字形态（tabular-nums + 极紧字距）天然具备标识般的可记忆性；
+ * - 因改为整行独占的超大字，宽度不再受侧栏挤压，故可安全取到 200px。
+ *
+ * ⚠️ 数据全部来自 `brandSpan`，页面里不出现字面量「1997—2026」或「29」。
+ */
 export function YearsSection() {
   return (
     <section
@@ -11,44 +33,38 @@ export function YearsSection() {
       className="bg-[var(--brand-deep)] text-[var(--on-dark)]"
     >
       <div className="container-wide section-y">
-        <div className="grid gap-10 sm:gap-14 lg:grid-cols-12 lg:gap-20">
-          {/* 左：超大数字 + 副文 */}
-          <Reveal className="lg:col-span-7 flex flex-col gap-6 sm:gap-8">
-            <RevealItem>
-              <span className="eyebrow !text-[var(--on-dark-soft)]">
-                {company.yearsPhrase}
-              </span>
-            </RevealItem>
+        {/* 核心视觉：年份跨度巨字（整行独占） */}
+        <Reveal className="flex flex-col gap-5 sm:gap-6">
+          <RevealItem>
+            <span className="eyebrow !text-[var(--on-dark-soft)]">
+              {company.yearsPhrase}
+            </span>
+          </RevealItem>
 
-            {/*
-              移动端字号下限 60px：375px 屏上 4 字 = 240px < 可用 335px，不溢出。
-              原 clamp(120px,…) 在 375px 屏取 120px，4 字 480px 会横向溢出。
-            */}
-            <RevealItem
-              as="h2"
-              id="years-title"
-              className="text-[clamp(60px,15.5vw,220px)] font-medium leading-[0.95] tracking-[-0.045em] tabular-nums text-[var(--on-dark)]"
-            >
-              {company.yearsCopy}
-            </RevealItem>
+          {/*
+            字号下限 52px：375px 屏可用宽 335px，本行约 5.5em ≈ 286px，不溢出。
+            上限 200px：1600px 容器可用 1472px，200 × 5.5 = 1100px，留足余白。
+          */}
+          <RevealItem
+            as="h2"
+            id="years-title"
+            className="text-[clamp(52px,13vw,200px)] font-medium leading-[1] tracking-[-0.045em] tabular-nums text-[var(--on-dark)]"
+          >
+            {brandSpan.label}
+          </RevealItem>
 
-            <RevealItem>
-              <p className="display-sub text-[var(--on-dark)]">
-                从一桶水开始，
-                <br />
-                我们一直在廊坊。
-              </p>
-            </RevealItem>
+          <RevealItem>
+            <p className="display-sub text-[var(--on-dark)]">
+              {brandSpan.years} 年，
+              <br />
+              从一间水站开始，一直在廊坊。
+            </p>
+          </RevealItem>
+        </Reveal>
 
-            <RevealItem>
-              <p className="body-lg max-w-xl text-[var(--on-dark-soft)]">
-                二十余年，一桶桶水送进廊坊的家庭、办公室和街巷。
-              </p>
-            </RevealItem>
-          </Reveal>
-
-          {/* 右：三图并排 —— 移动端 3 列图片带，桌面同构，不做脆弱的 row-span 拼贴 */}
-          <RevealOne className="lg:col-span-5">
+        {/* 纪实三图 + 品牌坐标 */}
+        <div className="mt-14 grid gap-10 sm:mt-20 lg:grid-cols-12 lg:gap-20">
+          <RevealOne className="lg:col-span-7">
             <div className="grid grid-cols-3 gap-2 sm:gap-3 lg:gap-4">
               <Figure
                 id="years-01"
@@ -70,29 +86,25 @@ export function YearsSection() {
               />
             </div>
           </RevealOne>
-        </div>
 
-        {/* 关键词线 */}
-        <Reveal className="mt-20 flex flex-col gap-6 sm:mt-32 sm:gap-8 lg:mt-40">
-          <RevealItem>
-            <hr className="h-px w-full border-0 bg-[var(--on-dark-soft)]/15" />
-          </RevealItem>
-          <RevealItem>
-            <ul className="flex flex-wrap items-baseline gap-x-6 gap-y-3 text-[var(--on-dark-soft)] sm:gap-x-10 sm:gap-y-4 lg:gap-x-14">
-              {keywords.map((k, i) => (
-                <li
-                  key={k}
-                  className="flex items-baseline gap-2 text-[14px] sm:gap-3 sm:text-[17px]"
+          <RevealOne className="lg:col-span-5">
+            <dl className="flex flex-col">
+              {coordinates.map((c) => (
+                <div
+                  key={c.label}
+                  className="flex flex-col gap-1.5 border-b border-[var(--on-dark-soft)]/15 py-4 first:pt-0 last:border-b-0 last:pb-0"
                 >
-                  <span className="tabular-nums text-[10px] tracking-[0.2em] text-[var(--on-dark-soft)]/60 sm:text-[11px] sm:tracking-[0.24em]">
-                    0{i + 1}
-                  </span>
-                  <span>{k}</span>
-                </li>
+                  <dt className="text-[clamp(20px,2.2vw,28px)] font-medium leading-tight tracking-tight tabular-nums text-[var(--on-dark)]">
+                    {c.value}
+                  </dt>
+                  <dd className="text-[13px] leading-relaxed text-[var(--on-dark-soft)]">
+                    {c.label}
+                  </dd>
+                </div>
               ))}
-            </ul>
-          </RevealItem>
-        </Reveal>
+            </dl>
+          </RevealOne>
+        </div>
       </div>
     </section>
   );

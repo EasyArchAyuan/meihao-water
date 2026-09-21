@@ -12,25 +12,31 @@ type Item = {
   image: string;
 };
 
+/**
+ * 四项描述从「抒情句」改为**可核对的服务事实**（配送频次 / 发票 / 当天安排 /
+ * 一次性封装）。原句如「日常的一桶水，准时到家」任何水站都能写，不构成品牌信息。
+ * 这四项同时吸收了原 HomeWaterSection / OfficeSection / DisposableSection
+ * 三个独立区块要表达的内容，是首页能一次砍掉三个区块的前提。
+ */
 const items: Item[] = [
   {
     title: "家庭饮水",
-    desc: "日常的一桶水，准时到家。",
+    desc: "按周或按月约定频次，送到门口。",
     image: "whatwedo-01",
   },
   {
     title: "企业饮水",
-    desc: "办公室里的水，不该成为要操心的事。",
+    desc: "办公室、门店的定期补给，可开发票。",
     image: "whatwedo-02",
   },
   {
     title: "商务用水",
-    desc: "会议、接待、门店。有客人在，水要先备好。",
+    desc: "会议、接待、活动，急用当天能安排。",
     image: "whatwedo-03",
   },
   {
     title: "一次性桶装水",
-    desc: "不用回收，也不用清洗。",
+    desc: "一次性封装，不回收、不重复使用。",
     image: "whatwedo-04",
   },
 ];
@@ -50,7 +56,9 @@ export function WhatWeDo() {
               id="wwd-title"
               className="display-section mt-5 text-[var(--ink)] sm:mt-6"
             >
-              一桶水，连着每一天的生活。
+              家庭、公司、门店，
+              <br />
+              水都在送。
             </h2>
           </header>
 

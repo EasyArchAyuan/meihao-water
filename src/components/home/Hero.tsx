@@ -27,8 +27,13 @@ export function Hero() {
           </RevealItem>
 
           <RevealItem>
+            {/*
+              副文案承担「品牌坐标」职能：首屏第一句就给出只有美好水业才有的事实
+              （起始年份 / 分店 / 库房），避免沦为「某本地水品牌」这类可套用描述。
+            */}
             <p className="body-lg max-w-xl text-[var(--ink-soft)]">
-              廊坊本地饮水服务品牌。二十余年，从一桶水开始，把水送进家庭、办公室和街巷。
+              {company.yearsPhrase}在廊坊送水。四家分店、5000 余平米库房，
+              家庭和公司的水，一直是我们送。
             </p>
           </RevealItem>
 
