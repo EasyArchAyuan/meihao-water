@@ -1,8 +1,10 @@
 # meihaoshuiye.com 上线操作手册（canonical 主域）
 
 > 决策：meihaoshuiye.com 作为官网 2.0 的 **canonical 主域**，其余 4 个旧域名 301 永久跳转到它。
-> 范围：本次仅上线域名（不含旧站 URL 继承，见末尾风险）。
+> 范围：本次仅上线域名。**旧 2023 站（103.66.92.229）即将到期，用户明确放弃，不再做旧 URL 继承。**
 > 为什么是我写、你执行：本机连不上你的 DNSPod 与服务器 22 端口（与现有「服务器主动拉」部署模型一致），DNS 改解析与 Caddy reload 需你在对应控制台/服务器上完成。
+>
+> **状态（2026-09-22 更新）**：✅ 步骤 1（DNSPod 改解析）已完成并由我验证 `meihaoshuiye.com`/`www` 均解析到 `49.233.87.42`；✅ 步骤 2（等解析生效）已完成；⏳ 仅剩**步骤 3（服务器应用 Caddyfile）**需你执行。
 
 ## 仓库侧已完成的改动（已 commit 前请 review）
 - `src/data/site.ts`：`domain` / `url` → `meihaoshuiye.com` / `https://meihaoshuiye.com`（canonical 全站自动传导：seo/sitemap/robots/JSON-LD 均读 `site.url`）。
@@ -15,40 +17,34 @@
 证书走 ACME `tls-alpn-01`，**校验时 CA 会解析 DNS 到 49.233.87.42 做 443 挑战**。
 若先 reload Caddy 而 DNS 还指向旧 IP，证书签发会失败。故顺序固定为：
 
-### 步骤 1 · DNSPod 改解析（腾讯云控制台）
-在 DNSPod / 腾讯云 DNS 解析控制台，把 `meihaoshuiye.com` 的解析改为：
-- 主机记录 `@`（裸域）：类型 `A`，记录值 `49.233.87.42`，TTL 建议先设 `600`（10 分钟，便于回滚）。
-- 主机记录 `www`：类型 `A`，记录值 `49.233.87.42`。
-- 删除/替换原先指向 `103.66.92.229` 的记录（旧 IIS 站随之离线，符合预期）。
+### 步骤 1 · DNSPod 改解析（腾讯云控制台） ✅ 已完成
+已把 `meihaoshuiye.com` / `www` 的 A 记录改为 `49.233.87.42`（原 103.66.92.229 记录已替换，旧 IIS 站随之离线）。
 
-> 旧域名（meihaowater.site / 廊坊美好水业.online）的解析**保持不动**（仍指向 49.233.87.42，共享证书已覆盖）。
-
-### 步骤 2 · 等解析生效
-本地验：
-```bash
-nslookup -type=A meihaoshuiye.com      # 应返回 49.233.87.42
-nslookup -type=A www.meihaoshuiye.com  # 应返回 49.233.87.42
+### 步骤 2 · 等解析生效 ✅ 已完成
+已由我验证：
+```text
+nslookup -type=A meihaoshuiye.com      → 49.233.87.42
+nslookup -type=A www.meihaoshuiye.com  → 49.233.87.42
 ```
-全球生效可能 5–30 分钟，以本地 `nslookup` 看到 49.233.87.42 为准（可多查几次）。
+> 线上 HTTPS 当前握手失败，是因为 `49.233.87.42` 仍跑**旧 Caddyfile**（无 meihaoshuiye.com 块），属预期——步骤 3 执行后即恢复。
 
-### 步骤 3 · 服务器应用新 Caddyfile（49.233.87.42）
-SSH 登录服务器后：
+### 步骤 3 · 服务器应用新 Caddyfile（49.233.87.42） ⏳ 待你执行
+SSH 登录服务器后执行（服务器可直连 `raw.githubusercontent.com`，故直接拉最新 Caddyfile，免 scp/手贴）：
 ```bash
 # 0) 先备份
 cp /etc/caddy/Caddyfile /tmp/Caddyfile.bak-$(date +%s)
 
-# 1) 用最新仓库的 infra/Caddyfile 覆盖（下面给完整内容，粘贴或 scp 均可）
-#    推荐：从本机把文件 base64 后粘贴（避免中文/格式错乱）
-#    本机：  base64 -w0 infra/Caddyfile
-#    服务器：echo '<BASE64>' | base64 -d | tee /etc/caddy/Caddyfile
+# 1) 从仓库 main 分支拉最新 Caddyfile（已含 meihaoshuiye.com 主站块 + 旧域 301）
+wget -q -O /etc/caddy/Caddyfile "https://raw.githubusercontent.com/EasyArchAyuan/meihao-water/main/infra/Caddyfile"
 
-# 2) 校验（必须 0 错误）
+# 2) 校验语法（必须 0 错误）
 caddy validate --config /etc/caddy/Caddyfile
 
-# 3) 热加载（不中断现网）
+# 3) 热加载（不中断现网；Caddy 自动向 CA 申请 meihaoshuiye.com 证书并 301 旧域）
 systemctl reload caddy
 ```
-> 若 `caddy validate` 报证书相关错误，通常是 DNS 未完全生效，回到步骤 2 再等；不要强行 reload。
+> 若 `caddy validate` 报证书相关错误，通常是 DNS 未完全生效或 CA 挑战未过，等几分钟再 reload；不要强行 reload。
+> 证书由 Caddy 首次加载时自动签发（零停机），无需手动申请。
 
 ### 步骤 4 · 验证
 ```bash
@@ -72,6 +68,7 @@ curl -sS https://meihaoshuiye.com | grep -ioE '<link rel="canonical"[^>]*>'
 3. **备案**：若 meihaoshuiye.com 尚未 ICP 备案，尽快补办——百度对未备案域名降权/不收。
 
 ## 风险与待办
-- **旧站 URL 404**：用户本次选择「仅上线域名」。旧 2023 站（103.66.92.229）原有页面切 DNS 后失效，若百度已收录这些旧 URL，会逐步 404 丢权重。建议后续做一次「旧 URL → 新站对应页 301」映射（需先抓取旧站 URL 清单，可上线前从 103.66.92.229 现网爬取）。
+- **旧站 URL 404（已明确放弃）**：旧 2023 站（103.66.92.229）即将到期，用户决定不再保留，旧 URL 不继承。域名本身（meihaoshuiye.com）百度历史信任会随新站内容保留，仅旧内页权重自然流失——可接受。
+  - *可选增强*（非必须）：若想回收旧站少量高价值内页权重，我可从 103.66.92.229 现网爬一份旧 URL 清单，挑 top 数条加进 Caddyfile 的 301 映射（如 `/about.* → /about`）。需要再说。
 - **证书签发时机**：务必先 DNS 后 reload（见步骤顺序），否则 Caddy 首次签发失败需等重试。
-- **回滚**：若异常，`cp /tmp/Caddyfile.bak-* /etc/caddy/Caddyfile && systemctl reload caddy`，并把 DNS 改回 `103.66.92.229`（如需临时恢复旧站）。
+- **回滚**：若异常，`cp /tmp/Caddyfile.bak-* /etc/caddy/Caddyfile && systemctl reload caddy` 即可（DNS 无需回滚，因旧站已放弃）。
