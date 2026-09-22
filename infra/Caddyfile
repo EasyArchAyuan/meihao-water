@@ -54,6 +54,16 @@ http://meihaoshuiye.com, http://www.meihaoshuiye.com, http://meihaowater.site, h
 	log
 
 	# 主域：验证文件直出（仅这两个 host）
+	# ① 百度验证文件：恒 200（走 respond，绝不能走 file_server —— 否则条件请求会回 304）
+	@baidu_verify {
+		host meihaoshuiye.com www.meihaoshuiye.com
+		path /baidu_verify_codeva-9aaMr4FTSs.html
+	}
+	handle @baidu_verify {
+		import verifyfile
+	}
+
+	# ② 其它厂商验证文件（Google/Bing/搜狗/360）：仍走文件
 	@verify {
 		host meihaoshuiye.com www.meihaoshuiye.com
 		path /baidu_verify_*.html /google*.html /BingSiteAuth.xml /sogou_verify_*.html /360_verify_*.html /so_verify_*.html
@@ -72,6 +82,25 @@ http://meihaoshuiye.com, http://www.meihaoshuiye.com, http://meihaowater.site, h
 	handle {
 		redir https://{host}{uri} permanent
 	}
+}
+
+# 站长平台验证文件：**恒返回 200**。HTTP / HTTPS 两处站点块共用。
+#
+# ⚠️⚠️ 为什么这里绝不能用 file_server（2026-09-22 实测踩到，代价是一次验证失败）——
+#   file_server 会给文件加 `ETag` / `Last-Modified`。客户端（浏览器发起的检测、
+#   站长平台页面里的自检请求）第二次访问会带 `If-None-Match` / `If-Modified-Since`，
+#   Caddy 命中后回 **304 Not Modified**。
+#   而 **304 属于 3xx 家族**，百度站长平台的检测把 3xx 一律判为跳转，报错文案就是
+#   「302 网页存在跳转」——哪怕服务器访问日志里明明记着百度蜘蛛拿到的是 200、内容也对
+#   （两边都没说谎，是**条件请求**造成的视角差）。
+#   → 改用 `respond` 恒定 200，并显式 `no-store`，从根上切断条件请求链路；
+#     respond 不产生 ETag / Last-Modified，检测端永远拿到 200 + 完整体。
+#
+# 维护提示：换验证码时，**这里与 `public/<同名文件>` 必须同步改**（两处内容要一致）。
+(verifyfile) {
+	header Cache-Control "no-store"
+	header Content-Type "text/html; charset=utf-8"
+	respond `c4a4c69f87e783677853e5536bf16d8e` 200
 }
 
 # 共用：安全头 + 分级缓存 + 压缩。两个站点块均 import 复用。
@@ -117,7 +146,17 @@ http://meihaoshuiye.com, http://www.meihaoshuiye.com, http://meihaowater.site, h
 meihaoshuiye.com, www.meihaoshuiye.com {
 	import headers_cache
 	root * /var/www/mhsy/out
-	file_server
+
+	# 站长平台验证文件：必须放在 file_server 之前，保证恒 200（原因见 (verifyfile) 上方注释）。
+	# 爬虫正常抓站仍走下面的 file_server。
+	@baidu_verify path /baidu_verify_codeva-9aaMr4FTSs.html
+	handle @baidu_verify {
+		import verifyfile
+	}
+
+	handle {
+		file_server
+	}
 }
 
 # 旧域名 → 主域名 301 永久跳转（集中百度权重，规避镜像/站群判罚）
