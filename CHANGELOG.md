@@ -1,3 +1,9 @@
+## [1.6.4](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.3...v1.6.4) (2026-09-22)
+
+### 基础设施
+
+* **seo:** meihaoshuiye.com 上线 Caddyfile 修复（裸 tls + 图片 CDN 防盗链） ([ebab4a7](https://github.com/EasyArchAyuan/meihao-water/commit/ebab4a7685b8cc1842b39c828b4cf9f88519b2ea))
+
 ## [1.6.3](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.2...v1.6.3) (2026-09-22)
 
 ### 基础设施
