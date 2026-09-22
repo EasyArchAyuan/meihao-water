@@ -1,3 +1,9 @@
+## [1.6.7](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.6...v1.6.7) (2026-09-22)
+
+### 修复
+
+* **infra:** HTTP 站点块显式列 hostname（裸 http:// 覆盖不了自动跳转） ([aff22b8](https://github.com/EasyArchAyuan/meihao-water/commit/aff22b8a9dfb5c3480648df10c7e494771fb5981))
+
 ## [1.6.6](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.5...v1.6.6) (2026-09-22)
 
 ### 修复
