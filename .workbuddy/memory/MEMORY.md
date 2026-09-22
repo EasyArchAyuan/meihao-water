@@ -29,6 +29,7 @@
 - 🔴 **`git fetch origin main` 只写 `FETCH_HEAD`，不更新 `refs/remotes/origin/main`** → `ahead/behind` 与 `git log origin/main` 不可信。**提交前用 `git rev-parse FETCH_HEAD` 读真实远程 HEAD，用 `git merge --ff-only FETCH_HEAD` 对齐。**
 - 中文 commit message 走 `git commit -F <项目内 UTF-8 无 BOM 文件>`（用 `.git/mhsy-commit-msg.txt`；Bash 沙箱读不到 `%TEMP%`）。
 - 绝不在坏 PATH 下跑 `git stash`/`rebase`（曾丢 `.git`）。**本地 `.git` 是唯一历史载体，动手前先备份。**
+- 🔴 **本机环境会延迟清除 `.git/refs/` 下的松引用文件**（2026-09-22 实测：写入的探针文件 3 秒内可见、稍后自行消失；`git update-ref refs/remotes/origin/main` 也建不住）。后果：松引用消失后 HEAD 回退到 `packed-refs` 的旧值 + 对象被清 → 表现为「提交失踪 / reflog invalid / reset 报 unable to read」。**缓解**：① 每次提交+推送后跑 `git pack-refs --all` 刷新 `packed-refs`（松引用没了也能解析到正确 sha）；② 远端是唯一权威，提交前先 `git fetch` 并用 `git rev-parse FETCH_HEAD` 核对；③ 不依赖 reflog / origin| 跟踪引用；④ 事故一律按 `git-repo-recovery` 技能流程 A 从远端重建。**`--autostash` 一律不用。**
 
 ## 4. GEO（AI 搜索可见度）
 - 权威待办：资料库「官网GEO待办」`NGYX6c3OWKnuT4OBMkdNa7`。
