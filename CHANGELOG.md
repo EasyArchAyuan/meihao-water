@@ -1,3 +1,9 @@
+## [1.6.5](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.4...v1.6.5) (2026-09-22)
+
+### 修复
+
+* **seo:** sitemap 补尾斜杠消除百度 308 多跳，并补换站迁移素材 ([17f80f8](https://github.com/EasyArchAyuan/meihao-water/commit/17f80f83b0bf495c6be7eca708e6d543865444c2))
+
 ## [1.6.4](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.3...v1.6.4) (2026-09-22)
 
 ### 基础设施
