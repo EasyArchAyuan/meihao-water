@@ -1,3 +1,9 @@
+## [1.6.1](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.0...v1.6.1) (2026-09-22)
+
+### 基础设施
+
+* **media:** 大图迁移至腾讯云 COS，新增自建图片 CDN ([5bc906c](https://github.com/EasyArchAyuan/meihao-water/commit/5bc906cc68567b933eda5da6b7cb86274d128aab))
+
 ## [1.6.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.5.0...v1.6.0) (2026-09-21)
 
 ### 新功能
