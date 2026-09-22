@@ -31,13 +31,19 @@ function check(name, ok, detail = "") {
   if (!ok) failed += 1;
 }
 
+/**
+ * 搜索引擎站点验证文件：由站长平台下发、放在站点根目录的纯文本校验文件，
+ * 不是站点页面，不参与 JSON-LD / 结构化数据审计（否则会被误判为缺 Organization）。
+ */
+const VERIFY_FILE_RE = /^(baidu_verify_|google|sogou_verify_|360_verify_|so_verify_|BingSiteAuth)/i;
+
 function walk(dir) {
   const out = [];
   if (!existsSync(dir)) return out;
   for (const entry of readdirSync(dir)) {
     const p = join(dir, entry);
     if (statSync(p).isDirectory()) out.push(...walk(p));
-    else if (p.endsWith(".html")) out.push(p);
+    else if (p.endsWith(".html") && !VERIFY_FILE_RE.test(entry)) out.push(p);
   }
   return out;
 }

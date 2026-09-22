@@ -167,7 +167,11 @@ meihaoshuiye.com, www.meihaoshuiye.com {
     redir @legacy https://meihaoshuiye.com{legacy} permanent
 
     # ② 其余旧 URL → 410 Gone（明确「永久消失」，加速百度删除）
-    @gone path *.html *.asp *.php /templates/* /images/* /upload/* /userFile/* /web/* /adapters/*
+    #    ⚠️ 必须排除各搜索引擎的站点验证文件，否则验证随时失效、收录中断
+    @gone {
+        path *.html *.asp *.php /templates/* /images/* /upload/* /userFile/* /web/* /adapters/*
+        not path /baidu_verify_* /google*.html /BingSiteAuth.xml /sogou_verify_* /360_verify_* /so_verify_*
+    }
     respond @gone "410 Gone" 410
 
     file_server
