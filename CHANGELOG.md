@@ -1,3 +1,10 @@
+## [1.6.9](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.8...v1.6.9) (2026-09-22)
+
+### 修复
+
+* **infra:** 片段 (verifyfile) 前移到使用点之前，修复 import 前向引用报错 ([20e6075](https://github.com/EasyArchAyuan/meihao-water/commit/20e6075906a033d7ca7ae711c863653acb594e6c))
+* **infra:** 百度验证文件改用 respond 恒 200，根治条件请求导致的 304 ([088a869](https://github.com/EasyArchAyuan/meihao-water/commit/088a86913591bb82de77fa8c642791280957611b))
+
 ## [1.6.8](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.7...v1.6.8) (2026-09-22)
 
 ### 修复
