@@ -8,6 +8,10 @@ export const dynamic = "force-static";
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
 
+  // 站点 trailingSlash: true —— 实际页面 URL 一律以 / 结尾。
+  // sitemap 必须与之一致，否则百度每抓一条都要多走一次 308 跳转，白白浪费抓取配额。
+  const abs = (path: string) => `${site.url}${path}/`;
+
   // 注意：/service 为 noindex 占位页，不进 sitemap
   const routes = [
     { path: "", priority: 1 },
@@ -20,7 +24,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { path: "/news", priority: 0.7 },
     { path: "/brands", priority: 0.6 },
   ].map((r) => ({
-    url: `${site.url}${r.path}`,
+    url: abs(r.path),
     lastModified,
     changeFrequency: "monthly" as const,
     priority: r.priority,
@@ -28,7 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // 区县落地页矩阵
   const districtRoutes = districts.map((d) => ({
-    url: `${site.url}/langfang/${d.slug}`,
+    url: abs(`/langfang/${d.slug}`),
     lastModified,
     changeFrequency: "monthly" as const,
     priority: 0.8,
@@ -36,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // 资讯文章（来自接口 / 快照，lastModified 用文章日期）
   const articleRoutes = (await listArticles()).map((a) => ({
-    url: `${site.url}/news/${a.slug}`,
+    url: abs(`/news/${a.slug}`),
     lastModified: new Date(a.date),
     changeFrequency: "monthly" as const,
     priority: 0.6,
