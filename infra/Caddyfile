@@ -46,13 +46,13 @@
 }
 
 # 主站（canonical）：meihaoshuiye.com
-# 证书由 Caddy 自动通过 ACME(tls-alpn-01) 签发并续期；
+# 证书由 Caddy 自动通过 ACME(tls-alpn-01) 签发并续期 —— Caddy 默认即自动 HTTPS。
+# ⚠️ 本块无需 tls 指令；切勿写裸 `tls`（Caddyfile 语法要求 tls 必须带参数，否则 validate 失败）。
 # 前提：DNS A 已指向本机 49.233.87.42 且 443 可达（ACME 校验走 443）。
 meihaoshuiye.com, www.meihaoshuiye.com {
 	import headers_cache
 	root * /var/www/mhsy/out
 	file_server
-	tls
 }
 
 # 旧域名 → 主域名 301 永久跳转（集中百度权重，规避镜像/站群判罚）
@@ -84,6 +84,12 @@ linju.meihaowater.site {
 img.meihaowater.site {
 	encode zstd gzip
 	tls /etc/ssl/shared/fullchain.pem /etc/ssl/shared/privkey.pem
+
+	# COS 桶防盗链白名单以 meihaowater.site 为准；官网主域已翻转为 meihaoshuiye.com。
+	# 对来自自有域名（主域/www/水邻居子域/IDN 旧域）的请求，把 Referer 规范为白名单值，
+	# 避免自家页面取图被 COS 返回 403；第三方站点直链仍按自身 Referer 校验，防盗链不受影响。
+	@selfref header_regexp Referer ^https?://([^./]+\.)*(meihaoshuiye\.com|meihaowater\.site|xn--vhqu7tjwbb1iwpthm1a\.online)(:[0-9]+)?(/|$)
+	request_header @selfref Referer "https://meihaowater.site/"
 
 	header {
 		-Server
