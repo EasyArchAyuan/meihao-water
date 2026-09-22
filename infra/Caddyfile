@@ -34,11 +34,17 @@
 #     在站长平台上就表现为「无法连接到您网站的服务器」。
 #   - 国内 SEO 实务：只认 301 / 302，不要用 307 / 308。
 #
-# 例外：站长平台验证文件在 80 端口「直出」，不做跳转。
-#   目的：让文件验证不依赖 443 的 TLS 握手，绕开证书信任库差异（Baidu 信任库滞后）
-#   造成的验证失败；同时这本身也是诊断手段——若直出后验证通过，即可确认瓶颈在 TLS。
+# ⚠️ 必须**显式列出 hostname**。实测（2026-09-22）：只写不带 host 的 `http://` **不会**
+#    覆盖自动跳转 —— Caddy 会另建一个 `remaining_auto_https_redirects` 服务器，按 host
+#    匹配且优先命中，结果仍是 308。只有把 hostname 写进 HTTP 站点地址，Caddy 才会
+#    把该 host 的 HTTP 交给这里处理、不再生成自动跳转。
+#
+# 例外：站长平台验证文件在 80 端口「直出」、不做跳转。
+#   目的：让文件验证不依赖 443 的 TLS 握手，绕开证书信任库差异造成的验证失败；
+#   这同时是诊断手段 —— 若直出后验证通过，即可确认瓶颈在 TLS。
 #   验证文件是公开校验串，明文传输无风险。
-http:// {
+http://meihaoshuiye.com, http://www.meihaoshuiye.com, http://meihaowater.site, http://www.meihaowater.site, http://xn--vhqu7tjwbb1iwpthm1a.online, http://www.xn--vhqu7tjwbb1iwpthm1a.online, http://linju.meihaowater.site {
+	# 主域：验证文件直出（仅这两个 host）
 	@verify {
 		host meihaoshuiye.com www.meihaoshuiye.com
 		path /baidu_verify_*.html /google*.html /BingSiteAuth.xml /sogou_verify_*.html /360_verify_*.html /so_verify_*.html
@@ -46,6 +52,12 @@ http:// {
 	handle @verify {
 		root * /var/www/mhsy/out
 		file_server
+	}
+
+	# 旧域：HTTP 直接跳 canonical 主域，省掉「→https 旧域→301 主域」两跳
+	@legacy host meihaowater.site www.meihaowater.site xn--vhqu7tjwbb1iwpthm1a.online www.xn--vhqu7tjwbb1iwpthm1a.online
+	handle @legacy {
+		redir https://meihaoshuiye.com{uri} permanent
 	}
 
 	handle {
