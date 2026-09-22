@@ -1,3 +1,9 @@
+## [1.7.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.9...v1.7.0) (2026-09-22)
+
+### 新功能
+
+* **seo:** 验证方式切换为百度「HTML 标签验证」，弃用文件验证 ([c5b3f54](https://github.com/EasyArchAyuan/meihao-water/commit/c5b3f543afdff421882a85fce677d7be52d7b891))
+
 ## [1.6.9](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.8...v1.6.9) (2026-09-22)
 
 ### 修复
