@@ -32,6 +32,28 @@
 	}
 }
 
+# 站长平台验证文件：**恒返回 200**。HTTP / HTTPS 两处站点块共用。
+#
+# ⚠️ 片段必须定义在**使用点之前** —— Caddy 的 `import` 不支持前向引用，
+#    定义在后会报 `File to import not found: verifyfile`（2026-09-22 实测）。
+#
+# ⚠️⚠️ 为什么这里绝不能用 file_server（同日实测踩到，代价是一次验证失败）——
+#   file_server 会给文件加 `ETag` / `Last-Modified`。客户端（浏览器发起的检测、
+#   站长平台页面里的自检请求）第二次访问会带 `If-None-Match` / `If-Modified-Since`，
+#   Caddy 命中后回 **304 Not Modified**。
+#   而 **304 属于 3xx 家族**，百度站长平台的检测把 3xx 一律判为跳转，报错文案就是
+#   「302 网页存在跳转」——哪怕服务器访问日志里明明记着百度蜘蛛拿到的是 200、内容也对
+#   （两边都没说谎，是**条件请求**造成的视角差）。
+#   → 改用 `respond` 恒定 200，并显式 `no-store`，从根上切断条件请求链路；
+#     respond 不产生 ETag / Last-Modified，检测端永远拿到 200 + 完整体。
+#
+# 维护提示：换验证码时，**这里与 `public/<同名文件>` 必须同步改**（两处内容要一致）。
+(verifyfile) {
+	header Cache-Control "no-store"
+	header Content-Type "text/html; charset=utf-8"
+	respond `c4a4c69f87e783677853e5536bf16d8e` 200
+}
+
 # HTTP(80) → HTTPS：显式改成 301，替代 Caddy 默认的 308。
 #
 # 为什么必须改（百度专项）：
@@ -82,25 +104,6 @@ http://meihaoshuiye.com, http://www.meihaoshuiye.com, http://meihaowater.site, h
 	handle {
 		redir https://{host}{uri} permanent
 	}
-}
-
-# 站长平台验证文件：**恒返回 200**。HTTP / HTTPS 两处站点块共用。
-#
-# ⚠️⚠️ 为什么这里绝不能用 file_server（2026-09-22 实测踩到，代价是一次验证失败）——
-#   file_server 会给文件加 `ETag` / `Last-Modified`。客户端（浏览器发起的检测、
-#   站长平台页面里的自检请求）第二次访问会带 `If-None-Match` / `If-Modified-Since`，
-#   Caddy 命中后回 **304 Not Modified**。
-#   而 **304 属于 3xx 家族**，百度站长平台的检测把 3xx 一律判为跳转，报错文案就是
-#   「302 网页存在跳转」——哪怕服务器访问日志里明明记着百度蜘蛛拿到的是 200、内容也对
-#   （两边都没说谎，是**条件请求**造成的视角差）。
-#   → 改用 `respond` 恒定 200，并显式 `no-store`，从根上切断条件请求链路；
-#     respond 不产生 ETag / Last-Modified，检测端永远拿到 200 + 完整体。
-#
-# 维护提示：换验证码时，**这里与 `public/<同名文件>` 必须同步改**（两处内容要一致）。
-(verifyfile) {
-	header Cache-Control "no-store"
-	header Content-Type "text/html; charset=utf-8"
-	respond `c4a4c69f87e783677853e5536bf16d8e` 200
 }
 
 # 共用：安全头 + 分级缓存 + 压缩。两个站点块均 import 复用。
