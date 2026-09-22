@@ -1,3 +1,9 @@
+## [1.6.2](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.1...v1.6.2) (2026-09-22)
+
+### 修复
+
+* **ci:** caddy job 加 DEPLOY_MODE 守卫，修复流水线报红 ([cca84eb](https://github.com/EasyArchAyuan/meihao-water/commit/cca84eb8f5cf6f3a69f80159ea27a5b6b8865e91))
+
 ## [1.6.1](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.0...v1.6.1) (2026-09-22)
 
 ### 基础设施
