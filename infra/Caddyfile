@@ -1,6 +1,7 @@
 # 美好水业官网 - Caddyfile（Next.js 16 静态导出）
-# 站点：廊坊美好水业.online(xn--vhqu7tjwbb1iwpthm1a.online) / www 同 /
-#       meihaowater.site / www.meihaowater.site
+# 站点（canonical 主域）：meihaoshuiye.com / www.meihaoshuiye.com
+# 旧域名（301 跳转过来）：廊坊美好水业.online(xn--vhqu7tjwbb1iwpthm1a.online) / www 同 /
+#                       meihaowater.site / www.meihaowater.site
 #
 # 水邻居官网（另一仓库 shuineighbor-water）：
 #       linju.meihaowater.site
@@ -44,10 +45,19 @@
 	encode zstd gzip
 }
 
-xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online, meihaowater.site, www.meihaowater.site {
+# 主站（canonical）：meihaoshuiye.com
+# 证书由 Caddy 自动通过 ACME(tls-alpn-01) 签发并续期；
+# 前提：DNS A 已指向本机 49.233.87.42 且 443 可达（ACME 校验走 443）。
+meihaoshuiye.com, www.meihaoshuiye.com {
 	import headers_cache
 	root * /var/www/mhsy/out
 	file_server
+	tls
+}
+
+# 旧域名 → 主域名 301 永久跳转（集中百度权重，规避镜像/站群判罚）
+xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online, meihaowater.site, www.meihaowater.site {
+	redir https://meihaoshuiye.com{uri} permanent
 	tls /etc/ssl/shared/fullchain.pem /etc/ssl/shared/privkey.pem
 }
 
