@@ -278,3 +278,82 @@ meihaoshuiye.com, www.meihaoshuiye.com {
   百度对国内 CA 的信任库兼容性最好，这也是「百度 SEO 技术清单」里
   `SSL certificate: Domestic CA recommended` 的原始出处。
   代价：失去 Caddy 自动续期，改为一年一次手动换证。
+
+---
+
+## 十、站长平台「验证失败：302 网页存在跳转」排查记录（根因：304）
+
+**现象**（2026-09-22，紧接第九节）：改完 301 与日志后重试，报错**换了文案** ——
+「原因：302 网页存在跳转。问题分析&解决办法：验证文件、网页必须为 200 状态码，
+请检查网站协议头是否选择正确，或存在其他跳转。」
+
+**先看地面真相（这一步全靠第九节补上的访问日志）**：日志里百度蜘蛛对验证文件的请求是
+
+```
+remote_ip 101.x / Baiduspider UA / uri=/baidu_verify_codeva-9aaMr4FTSs.html
+status: 200   size: 32      ← 服务端回的是 200，内容也对
+```
+
+**所以两边都没说谎**：服务端确实给了 200，站长平台却报 3xx。差异出在**条件请求**上。
+
+**根因**：验证文件当时由 `file_server` 提供，响应带 `ETag` / `Last-Modified`。
+站长平台页面里的自检请求（浏览器发起）第二次访问时会带 `If-None-Match` /
+`If-Modified-Since`，Caddy 校验命中后回 **`304 Not Modified`**。
+
+而 **304 属于 3xx 家族** —— 站长平台的检测把 3xx 一律判为跳转，于是报出
+「302 网页存在跳转」。**报错文案里的 302 是它的通用话术，不代表真的返回了 302。**
+
+现场证据：开发者工具里该请求 `状态代码：304 Not Modified`，
+`Etag: "dllus8f1fchsw"`，`Cache-Control: no-cache`（`no-cache` 允许存储、只是要求每次重验证
+—— 这正是条件请求的温床）。
+
+**修法**：验证文件**改为恒返回 200**，从根上切断条件请求链路。
+
+```caddyfile
+# ⚠️ 片段必须定义在**使用点之前**：Caddy 的 `import` 不支持前向引用，
+#    定义在后会报 `File to import not found: verifyfile`。
+(verifyfile) {
+	header Cache-Control "no-store"
+	header Content-Type "text/html; charset=utf-8"
+	respond `c4a4c69f87e783677853e5536bf16d8e` 200   # 内容与 public/ 下同名文件一致
+}
+
+meihaoshuiye.com, www.meihaoshuiye.com {
+	import headers_cache
+	root * /var/www/mhsy/out
+
+	@baidu_verify path /baidu_verify_codeva-9aaMr4FTSs.html
+	handle @baidu_verify { import verifyfile }   # 必须排在 file_server 之前
+
+	handle { file_server }
+}
+```
+
+要点：
+- 用 `respond` 而不是 `file_server` —— **`respond` 不产生 `ETag` / `Last-Modified`**，
+  客户端没有 validator 可用，也就永远发不出有效的条件请求；
+- `Cache-Control: no-store` 防止再次被存储；
+- 两个站点块（HTTPS 主站块、HTTP 80 直出块）**都要改**，否则 80 端口那条「绕开 TLS
+  的保险」会重新长出 304；
+- 用互斥 `handle` 分组（`@baidu_verify` 在前、`file_server` 在后的 catch-all `handle`），
+  保证只有一个分支执行；
+- 爬虫正常抓站仍走 `file_server`，不受影响。
+
+**实测验证**（改动后）：
+
+| 用例 | 期望 | 实测 |
+|---|---|---|
+| 普通 GET | 200 + 正确内容 | ✅ `ETag`/`Last-Modified` 均为空，`Cache-Control: no-store` |
+| 带 `If-None-Match: "dllus8f1fchsw"`（截图里那个 ETag） | **200**（不是 304） | ✅ 200 + 内容正确 |
+| 带 `If-Modified-Since: <未来时间>` | 200 | ✅ |
+| 80 端口同一文件 | 200 直出 | ✅ |
+
+**可复用的判读经验**：
+> 任何「平台说 3xx / 跳转，我自测 200」的矛盾，第一个怀疑对象是 **304** ——
+> 它属于 3xx，会被大量检测工具归到「跳转」类报错里，而肉眼在服务端日志里看到的却是 200。
+> 断开方法就是**不让静态文件产生 `ETag`/`Last-Modified`**（等价于「让验证类接口恒 200」）。
+> 通常无需改服务器：清一次浏览器缓存后重测即可确认（缓存一清，条件请求就不带 validator 了）。
+
+**维护提示**：换验证码时，`infra/Caddyfile` 的 `(verifyfile)` 片段与
+`public/<同名文件>` **必须同步更新**，两者内容要一致。
+

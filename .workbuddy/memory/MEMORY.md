@@ -13,6 +13,7 @@
   1. **80 端口必须 301**（百度只认 301，不认 Caddy 默认的 308）→ 显式 HTTP 站点块 `redir … permanent`，且**必须显式列 hostname**（只写不带 host 的 `http://` 覆盖不了 `remaining_auto_https_redirects`）。
   2. **访问日志**：全局 `log` 只改默认 logger 输出、**不开启访问日志**，每个站点块必须另写**裸 `log`**。
   3. **`systemctl reload caddy` 失败时 `is-active` 仍显示 active**（跑的还是旧配置）→ 必须查 `journalctl -u caddy` 的 `load complete`。已知诱因：以 root 跑 `caddy validate` 会把日志文件建成 `root:root 600` → 服务进程 permission denied，需 `chown caddy:caddy`。
+- 🔴 **站长平台验证文件必须恒返回 200**（2026-09-22 实测踩到，代价是一次验证失败）：**绝不能用 `file_server` 托管** —— 它会加 `ETag`/`Last-Modified`，检测端二次请求带 `If-None-Match`/`If-Modified-Since` 时回 **304**；而 **304 属于 3xx**，站长平台把 3xx 一律报成「**302 网页存在跳转**」（即使服务端日志里爬虫拿到的是 200！）。修法：Caddyfile 片段 `(verifyfile)` 用 `respond` + `Cache-Control: no-store`（不产生 validator），HTTP/HTTPS 两块都要用，并排在 `file_server` 之前（互斥 `handle`）。**维护：换验证码时片段与 `public/<同名文件>` 必须同步改。** ⚠️ Caddyfile 的 `import` **不支持前向引用** —— 片段 `(x) { … }` 必须定义在使用点**之前**，否则 `File to import not found`。
 - ⚠️ **COS 防盗链白名单待补新域**：桶 `meihao-1256962045` 白名单只放行 `meihaowater.site`；主域翻转后页面（新域 Referer）取图被 **403**，现由 Caddy `img` 块对自有域名请求规范 Referer 兜底（第三方直链仍被拦）。**正解**：去 COS 控制台把 `meihaoshuiye.com`（及 www）加入白名单。
 - 证书/缓存：双站共用 DNS-01 通配符证（**通配符不覆盖裸域，裸域须显式入 SAN**；HTTP-01 会被 DNSPod webblock 拦）。HTML `no-cache`，`/_next/static/*` 一年 immutable。Caddy 无 matcher 的 `header {}` 会覆盖带 matcher 的同名 header。
 
