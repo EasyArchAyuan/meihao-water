@@ -11,12 +11,14 @@
 ## 2. Caddy 四铁律（全部实测踩过，配方见 `water-site-factory/pitfalls.md`）
 1. **80 端口必须 301**（百度不认 308）：显式 HTTP 站点块 `redir … permanent` + 显式列 hostname。
 2. **访问日志**：全局 `log` 不开启访问日志，每站点块须另写裸 `log`。
-3. **reload 失败时 `is-active` 仍 active**（跑旧配置）→ 必须查 `journalctl -u caddy` 的 `load complete`。诱因之一：root 跑 `caddy validate` 会建 `root:root 600` 日志文件 → 服务 permission denied。
+3. **reload 失败时 `is-active` 仍 active**（跑旧配置）→ 必须确认 `load complete`。⚠️ 全局 `log` 已把默认 logger 重定向到 `/var/log/caddy/access.log`，Caddy **自身**日志（含 `"msg":"load complete"`）在**该文件里、不在 journalctl**（journalctl 只有 systemd 的 Reloaded）→ `grep 'load complete' /var/log/caddy/access.log | tail`。诱因之一：root 跑 `caddy validate` 会建 `root:root 600` 日志文件 → 服务 permission denied。
 4. **宣告 `Alt-Svc: h3` 就必须放通 UDP 443**：Caddy 默认 TCP+UDP 443 双听并宣告 h3，云防火墙默认只有 TCP 80/443 → **QUIC 入向被静默丢包**，客户端无声卡到超时，表现正是「**无法连接到您网站的服务器**」。⚠️ **curl 不走 QUIC、忽略 Alt-Svc，自测永远正常**。修法：① 放通 UDP 443（✅ 2026-09-22 已做）；② `servers { protocols h1 h2 }` 关 h3（对已缓存 Alt-Svc 的 Chrome 无效）。
 
-## 3. 站长平台验证文件必须恒 200
-- **绝不能用 `file_server` 托管**：会带 `ETag`/`Last-Modified` → 检测端二次请求带 `If-None-Match` 回 **304**，而 **304 属 3xx**，平台一律报「302 网页存在跳转」。修法：片段 `(verifyfile)` 用 `respond` + `Cache-Control: no-store`，HTTP/HTTPS 两块都用并排在 `file_server` 之前；换验证码时片段与 `public/<同名文件>` 同步改。⚠️ Caddyfile `import` **不支持前向引用**。
-- 验证文件 `public/baidu_verify_codeva-9aaMr4FTSs.html`（32 字节）。凡「按扩展名批量 410」必须 `not path /baidu_verify_*`；`verify-ssg.mjs` 的 `walk()` 已排除验证文件族。
+## 3. 百度站长平台验证：现用「HTML 标签验证」（2026-09-22 定案）
+- 校验串**单一数据源** `src/data/site.ts` 的 `baiduVerification`（`codeva-9aaMr4FTSs`），由 `src/app/layout.tsx` 的 `metadata.verification.other` 渲染 `<meta name="baidu-site-verification" content=…>` 进全站 `<head>`；`scripts/verify-ssg.mjs` 新增断言「首页静态 HTML 必须含该 meta」（从 site.ts 派生），丢了即 exit 1。
+- **文件验证已弃用**：`public/baidu_verify_*.html` 已移出（备份 `C:\Users\shang\WorkBuddy\.mhsy-removed-2026-09-22\`）；Caddyfile 的 `(verifyfile)` 片段与两处 `@baidu_verify` 匹配/handle 已删除；`@verify`（Google/Bing/搜狗/360）保留、**不含 baidu**。
+- ⚠️ 历史教训（将来若再用文件验证）：**绝不能用 `file_server` 托管** —— 会带 `ETag`/`Last-Modified`，检测端二次请求带 `If-None-Match` 回 **304**，而 **304 属 3xx**，平台一律报「302 网页存在跳转」；正解 `respond` + `Cache-Control: no-store`，且片段必须定义在使用点**之前**（`import` 不支持前向引用）。
+- ⚠️ `public/cc74d923d820ff83efe0cdc4c5c24913.txt` 是**微信**站长认证文件，**勿删**。
 - 🔴 **ICP 备案（`company.icp`）仍 TODO**：旧站托管中国香港（无需备案），搬北京腾讯云必须办**接入备案**，是百度收录前提。用户已决定去办。
 
 ## 4. CI/CD 与发版
@@ -29,12 +31,13 @@
 - 🔴 **`next build` 必卡**：先 `Move-Item` 把 `.next`/`out` 挪出项目再 build（约 27 秒）。别在 `out/` 里起预览服务。`npm` 被解析到 wsl 并被拦截 → 直接调托管 Node `…/node/versions/22.22.2-3/node.exe`。
 - 🔴 `git fetch origin main` 只写 `FETCH_HEAD`，不更新 `refs/remotes/origin/main` → 用 `git rev-parse FETCH_HEAD` 读真实远程 HEAD、`git merge --ff-only FETCH_HEAD` 对齐；提交+推送后跑 `git pack-refs --all`（本机延迟清 `.git/refs/` 松引用，症状「提交失踪」）。不用 reflog / `--autostash` / 坏 PATH 下的 `stash`、`rebase`。
 - `git push` 必须用 Bash 工具（PowerShell 报 `cannot spawn sh`）：`git -c credential.helper= -c credential.helper=wincred push origin main`；中文 commit message 走 `git commit -F .git/mhsy-commit-msg.txt`；`gh` 未装，查 CI 走 GitHub API。
+- ⚠️ **`git fetch`/`push` 直连常失败**（`RPC failed; curl 56 schannel: server closed abruptly` / `expected flush after ref listing`）→ 加代理即通：`export https_proxy=http://127.0.0.1:7897 http_proxy=http://127.0.0.1:7897`（2026-09-22 实测）。
 
 ## 6. GEO（AI 搜索可见度）
 - 权威待办：资料库「官网GEO待办」`NGYX6c3OWKnuT4OBMkdNa7`。已落地：`/faq`、`/langfang` + 11 区县页（必须差异化，否则判 doorway）、`/shuineighbor` Product Schema、sitemap；审计 `verify:ssg`（`ssg-audit.txt`，18 项全 PASS）。
 - ⚠️ `next/script` + `afterInteractive` 的 JSON-LD **不进静态 HTML** → 一律用原生 `<script dangerouslySetInnerHTML>`。
 - ⚠️ **天津主体口径**：「美好水业（天津）有限公司」是我方天津地区业务关联公司（同属品牌体系，**不用「分公司」**），只改 `company.disambiguation` + `relatedOrganizations`。
-- 换站：旧 2023 站为**同域换站**（非换域名），无需百度「网站改版」工具。旧 URL 清单 `docs/baidu-old-urls.txt`（~110 条）+ 方案 `docs/baidu-reindex-plan.md`（十一节，含三轮验证排查实录）；**策略 A 全量 410 vs 策略 B 栏目级 301 继承 — 待用户定档**，Caddy 规则未应用。
+- 换站：旧 2023 站为**同域换站**（非换域名），无需百度「网站改版」工具。旧 URL 清单 `docs/baidu-old-urls.txt`（~110 条）+ 方案 `docs/baidu-reindex-plan.md`（现十二节，含三轮验证排查实录与「改用 HTML 标签验证」）；**策略 A 全量 410 vs 策略 B 栏目级 301 继承 — 待用户定档**，Caddy 规则未应用。
 - 待办：百度主动推送 token → `scripts/baidu-push.mjs`；提交 sitemap；死链提交；COS 白名单补 `meihaoshuiye.com`+www（现由 Caddy `img` 块 `@selfref` 兜底）；www→apex 301 待验证通过后再定。
 
 ## 7. 内容自动化

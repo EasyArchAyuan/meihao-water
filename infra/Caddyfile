@@ -24,6 +24,14 @@
 	#    裸 `log` 会写入「默认 logger」，也就是本文件的 output —— 所有站点共用同一个
 	#    writer，滚动状态统一，不会出现多个 writer 抢同一文件导致轮转错乱。
 	#    代价：运行日志也在这个文件里（`grep '"logger":"http.log.access"'` 可只取访问记录）。
+	#
+	# ⚠️ 连带效果（2026-09-22 实测）：本块把**默认 logger 重定向到了这个文件**，所以
+	#    Caddy **自身**的日志（含 reload 的 `"msg":"load complete"`）也落在这里，
+	#    **journalctl 里只有 systemd 的 "Reloading/Reloaded caddy.service"**。
+	#    因此确认 reload 真的生效，要 grep 本文件：
+	#      grep 'load complete' /var/log/caddy/access.log | tail
+	#    只看 `systemctl is-active caddy`（哪怕显示 active）或 systemd 的 Reloaded
+	#    都不足以说明新配置已生效 —— 服务会带着**旧配置**继续 active。
 	log {
 		output file /var/log/caddy/access.log {
 			roll_size 20MiB
