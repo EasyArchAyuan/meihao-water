@@ -1,3 +1,9 @@
+## [1.6.6](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.5...v1.6.6) (2026-09-22)
+
+### 修复
+
+* **seo:** 修正产物审计误报并落地百度站长平台验证文件 ([bc2ece5](https://github.com/EasyArchAyuan/meihao-water/commit/bc2ece57f214c702266a243ceb692dc11f94cf19))
+
 ## [1.6.5](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.4...v1.6.5) (2026-09-22)
 
 ### 修复
