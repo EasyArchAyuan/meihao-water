@@ -26,8 +26,9 @@
 push main ─► GitHub Actions
    ├ build   : npm ci → lint → build → upload artifact(out/)
    ├ release : semantic-release（自动版本号 → tag → GitHub Release → 回写 package.json / CHANGELOG.md）
-   ├ deploy  : rsync out/ → 服务器（staging + 原子切换，旧版本保留为 out.prev）
-   └ caddy   : 仅当 infra/Caddyfile 变更 → validate → install → reload
+   ├ deploy  : 服务器主动拉 dist 分支产物（staging + 原子切换，旧版本保留为 out.prev）
+   └ caddy   : 仅当 infra/Caddyfile 变更 **且** DEPLOY_MODE=ssh → validate → install → reload
+                （默认模式下 skip：Runner 到 22 端口不可达，改为手工同步，见后文）
 ```
 
 | Workflow | 触发 | 说明 |
@@ -165,19 +166,29 @@ git push origin main
 - 缓存策略（v1.0.10 修正）：HTML/RSC `no-cache`（带 ETag 重验证）；`/_next/static/*` 哈希资源 `immutable`；`/sitemap.xml`、`/robots.txt` 1h；`/brand/*` 30d。
   ⚠️ **Caddy 陷阱**：无 matcher 的 `header { … }` 块会**覆盖**带 matcher 的 `header @x …` 同名 header —— 所以 `Cache-Control` 一律用带 matcher 的形式表达。
 
-### 手工改 Caddyfile（CI 不通时的兜底）
+### 改 Caddyfile（当前流程）
+
+> ⚠️ **`caddy` job 已停用（2026-09-22 修正）**：它依赖 Runner SSH 到 22 端口，
+> 而该端口对托管 Runner 不可达（见上文「已知网络限制」）。此前无守卫条件，
+> 每次改动 `infra/Caddyfile` 都会让流水线报红。
+> 现已加守卫 `vars.DEPLOY_MODE == 'ssh'`，默认模式下会 skip 而非失败。
+
+**入库仍是唯一权威**：改 `infra/Caddyfile` → commit + push（保证仓库与线上一致），
+然后**手工同步到服务器**：
 
 ```bash
 # 1) 本地把 infra/Caddyfile 内容 base64（单段 ≤ ~1.7KB）
 # 2) 经 execute_command 落盘（printf 替代 echo，因 echo 也被拦）：
 printf '<BASE64>\n' | base64 -d | dd of=/etc/caddy/Caddyfile
-# 3) 校验 + 重载
+# 3) 校验 + 重载（务必先 validate，失败不要 install）
 caddy validate --config /etc/caddy/Caddyfile && systemctl reload caddy
-# 4) 验证（wget 仅 stdout 可用，-O 写文件被拦）
-wget -qO- https://xn--vhqu7tjwbb1iwpthm1a.online/
+# 4) 验证
+wget -qO- https://meihaowater.site/
 ```
 
-正常路径：改 `infra/Caddyfile` → push → `ci-cd.yml` 的 `caddy` job 自动 validate + install + reload（写前备份 `.bak.<ts>`）。
+> 建议先 `cp /etc/caddy/Caddyfile /tmp/Caddyfile.bak-$(date +%s)` 留底再改。
+> 若服务器上存在**仓库里没有的站点块**（如 `piao.meihaowater.site` 由另一仓库管理），
+> **不要整文件覆盖** —— 只追加/编辑目标块，否则会误删其他站点。
 
 ### 当前已绑定主机名（一张 SAN 证书覆盖）
 

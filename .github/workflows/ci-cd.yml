@@ -250,11 +250,19 @@ jobs:
 
   # ───────────────────────────────────────────────────────────────
   # 4) Caddyfile 同步（仅当 infra/Caddyfile 变更；需要 ubuntu 免密 sudo）
+  #
+  # ⚠️ 与 deploy 同样受 DEPLOY_MODE 守卫：托管 Runner 连不上服务器 22 端口
+  #    （TCP 探针 UNREACHABLE，见 docs/deploy-lighthouse.md）。默认的
+  #    「服务器主动拉」模式下本 job 必然失败，故仅在显式 DEPLOY_MODE=ssh 时执行。
+  #
+  #    该模式下的 Caddyfile 变更流程（当前采用）：
+  #      改 infra/Caddyfile → push 入库 → 手动 scp 到服务器并 reload
+  #    （或用 infra/ 下的脚本辅助）。入库的 Caddyfile 仍是唯一权威版本。
   # ───────────────────────────────────────────────────────────────
   caddy:
     name: Sync Caddyfile (guarded)
     needs: build
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.DEPLOY_MODE == 'ssh'
     runs-on: ubuntu-latest
     permissions:
       contents: read
