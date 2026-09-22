@@ -1,3 +1,9 @@
+## [1.6.8](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.7...v1.6.8) (2026-09-22)
+
+### 修复
+
+* **infra:** 访问日志真正启用（全局 log 不开启访问日志，站点块必须写裸 log） ([7fc5e34](https://github.com/EasyArchAyuan/meihao-water/commit/7fc5e34eeaba8e783e30e21f30be5a49c510f194))
+
 ## [1.6.7](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.6...v1.6.7) (2026-09-22)
 
 ### 修复
