@@ -8,15 +8,21 @@
 #
 # 图片 CDN（腾讯云 COS 反代）：
 #       img.meihaowater.site → 桶 meihao-1256962045（ap-beijing，公共读）
-
 {
 	email dev@meihaoshuiye.cn
 
-	# 访问日志（全站统一，按大小滚动）。
+	# 访问 + 运行日志（全站统一，按大小滚动）。
 	# 为什么必须有：本站此前完全没有访问日志，一旦出现「百度说连不上、我们自测 200」
 	# 这类问题，就只能盲猜。有了它可以直接 grep Baiduspider 确认抓取是否真的落到服务器：
 	#   查百度抓取： grep -i baiduspider /var/log/caddy/access.log | tail
 	#   查验证文件： grep baidu_verify /var/log/caddy/access.log | tail
+	#
+	# ⚠️⚠️ 关键：全局 `log` 选项**只配置默认 logger 的输出地址，并不会开启访问日志**！
+	#    实测（2026-09-22）只加这一段，access.log 里只有运行日志、**0 条访问记录**。
+	#    必须在**每个站点块**里另写一条**裸 `log`**（见下方各块），访问日志才会落到这里。
+	#    裸 `log` 会写入「默认 logger」，也就是本文件的 output —— 所有站点共用同一个
+	#    writer，滚动状态统一，不会出现多个 writer 抢同一文件导致轮转错乱。
+	#    代价：运行日志也在这个文件里（`grep '"logger":"http.log.access"'` 可只取访问记录）。
 	log {
 		output file /var/log/caddy/access.log {
 			roll_size 20MiB
@@ -44,6 +50,9 @@
 #   这同时是诊断手段 —— 若直出后验证通过，即可确认瓶颈在 TLS。
 #   验证文件是公开校验串，明文传输无风险。
 http://meihaoshuiye.com, http://www.meihaoshuiye.com, http://meihaowater.site, http://www.meihaowater.site, http://xn--vhqu7tjwbb1iwpthm1a.online, http://www.xn--vhqu7tjwbb1iwpthm1a.online, http://linju.meihaowater.site {
+	# 开启 80 端口访问日志 —— 百度验证/抓取很可能先走 HTTP，这里能看到它到底有没有来
+	log
+
 	# 主域：验证文件直出（仅这两个 host）
 	@verify {
 		host meihaoshuiye.com www.meihaoshuiye.com
@@ -67,6 +76,10 @@ http://meihaoshuiye.com, http://www.meihaoshuiye.com, http://meihaowater.site, h
 
 # 共用：安全头 + 分级缓存 + 压缩。两个站点块均 import 复用。
 (headers_cache) {
+	# 裸 `log` = 开启本站点块的访问日志，写入全局默认 logger（/var/log/caddy/access.log）。
+	# 少了这一行就**没有访问日志**（全局 `log` 选项不负责开启），详见全局块注释。
+	log
+
 	header {
 		-Server
 		X-Content-Type-Options "nosniff"
@@ -109,6 +122,7 @@ meihaoshuiye.com, www.meihaoshuiye.com {
 
 # 旧域名 → 主域名 301 永久跳转（集中百度权重，规避镜像/站群判罚）
 xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online, meihaowater.site, www.meihaowater.site {
+	log
 	redir https://meihaoshuiye.com{uri} permanent
 	tls /etc/ssl/shared/fullchain.pem /etc/ssl/shared/privkey.pem
 }
@@ -134,6 +148,7 @@ linju.meihaowater.site {
 # 注意：Caddy 会自动透传上游的 Content-Type / ETag / Last-Modified，
 # 不要手工覆盖 Content-Type（COS 返回的 MIME 是准确的）。
 img.meihaowater.site {
+	log
 	encode zstd gzip
 	tls /etc/ssl/shared/fullchain.pem /etc/ssl/shared/privkey.pem
 
