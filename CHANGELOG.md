@@ -1,3 +1,9 @@
+## [1.6.3](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.2...v1.6.3) (2026-09-22)
+
+### 基础设施
+
+* **seo:** meihaoshuiye.com 设为 canonical 主域，旧域名 301 跳转 ([31d6b99](https://github.com/EasyArchAyuan/meihao-water/commit/31d6b997f893c13ca8b06f314d74c43d3ab09232))
+
 ## [1.6.2](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.1...v1.6.2) (2026-09-22)
 
 ### 修复
