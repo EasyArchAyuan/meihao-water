@@ -11,6 +11,46 @@
 
 {
 	email dev@meihaoshuiye.cn
+
+	# 访问日志（全站统一，按大小滚动）。
+	# 为什么必须有：本站此前完全没有访问日志，一旦出现「百度说连不上、我们自测 200」
+	# 这类问题，就只能盲猜。有了它可以直接 grep Baiduspider 确认抓取是否真的落到服务器：
+	#   查百度抓取： grep -i baiduspider /var/log/caddy/access.log | tail
+	#   查验证文件： grep baidu_verify /var/log/caddy/access.log | tail
+	log {
+		output file /var/log/caddy/access.log {
+			roll_size 20MiB
+			roll_keep 5
+		}
+		format json
+	}
+}
+
+# HTTP(80) → HTTPS：显式改成 301，替代 Caddy 默认的 308。
+#
+# 为什么必须改（百度专项）：
+#   - 百度官方只认 301 表示「永久重定向」；308 是 RFC 7538 的较新状态码，
+#     Baiduspider 与百度站长平台的部分组件对 308 兼容性差，可能直接放弃跟随，
+#     在站长平台上就表现为「无法连接到您网站的服务器」。
+#   - 国内 SEO 实务：只认 301 / 302，不要用 307 / 308。
+#
+# 例外：站长平台验证文件在 80 端口「直出」，不做跳转。
+#   目的：让文件验证不依赖 443 的 TLS 握手，绕开证书信任库差异（Baidu 信任库滞后）
+#   造成的验证失败；同时这本身也是诊断手段——若直出后验证通过，即可确认瓶颈在 TLS。
+#   验证文件是公开校验串，明文传输无风险。
+http:// {
+	@verify {
+		host meihaoshuiye.com www.meihaoshuiye.com
+		path /baidu_verify_*.html /google*.html /BingSiteAuth.xml /sogou_verify_*.html /360_verify_*.html /so_verify_*.html
+	}
+	handle @verify {
+		root * /var/www/mhsy/out
+		file_server
+	}
+
+	handle {
+		redir https://{host}{uri} permanent
+	}
 }
 
 # 共用：安全头 + 分级缓存 + 压缩。两个站点块均 import 复用。

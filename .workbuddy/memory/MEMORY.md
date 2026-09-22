@@ -16,6 +16,7 @@
 - Workflows：`ci-cd.yml`、`rollback.yml`、`backfill.yml`、`content-publish.yml`、`content-rebuild.yml`（每日 UTC 3:17）。
 - **semantic-release**：`feat`→minor；`fix`/`perf`/`refactor`/`infra`→patch；`docs`/`chore`/`ci`/`test`/`style`→**不发版但照常构建推 dist**（内容上线用 `docs(content):`）。
 - ⚠️ 禁止手改 `package.json` version；commit 不带 `(vX.Y.Z)`；`CHANGELOG.md` 由插件维护。
+- 🔴 **semantic-release 会在 CI 里自动生成 `chore(release): X.Y.Z [skip ci]` 并推回 main** → 每次 push 后远端立刻领先一个提交。**`git commit` 之前必须先 `git fetch origin main`**，否则 push 被拒（`! [rejected] … (fetch first)`）还要回头处理分叉。**提交后就立刻推，不要攒。**
 - Secrets：`SSH_PRIVATE_KEY`、`AMAP_WEB_KEY`。Variables：`SSH_HOST/USER/PORT/DEPLOY_MODE`；`ARTICLES_API_URL` 待配。
 - `eslint.config.mjs` 已忽略 `cloudfunctions/**`。release 曾因 `conventional-changelog-conventionalcommits@10` 与 writer@8 不兼容失败 → 锁 `^8`。
 
@@ -29,6 +30,7 @@
 - 🔴 **`git fetch origin main` 只写 `FETCH_HEAD`，不更新 `refs/remotes/origin/main`** → `ahead/behind` 与 `git log origin/main` 不可信。**提交前用 `git rev-parse FETCH_HEAD` 读真实远程 HEAD，用 `git merge --ff-only FETCH_HEAD` 对齐。**
 - 中文 commit message 走 `git commit -F <项目内 UTF-8 无 BOM 文件>`（用 `.git/mhsy-commit-msg.txt`；Bash 沙箱读不到 `%TEMP%`）。
 - 绝不在坏 PATH 下跑 `git stash`/`rebase`（曾丢 `.git`）。**本地 `.git` 是唯一历史载体，动手前先备份。**
+- **已分叉时的安全对齐法（不用 rebase）**：`git tag bk <本地sha>`（安全网）→ `git reset --soft FETCH_HEAD` → ⚠️ **必须再执行 `git checkout HEAD -- CHANGELOG.md package.json package-lock.json`** —— 因为 `--soft` 不碰 index，会让 release 的版本号在 index 里变成"待提交的回退"，直接 commit 就把 `package.json` **改回旧版本号**了 → 最后 `git commit -F …` → push → 删备份 tag。**自检**：`git diff --stat <旧sha> HEAD` 应只显示 release 的 3 个文件。
 - 🔴 **本机环境会延迟清除 `.git/refs/` 下的松引用文件**（2026-09-22 实测：写入的探针文件 3 秒内可见、稍后自行消失；`git update-ref refs/remotes/origin/main` 也建不住）。后果：松引用消失后 HEAD 回退到 `packed-refs` 的旧值 + 对象被清 → 表现为「提交失踪 / reflog invalid / reset 报 unable to read」。**缓解**：① 每次提交+推送后跑 `git pack-refs --all` 刷新 `packed-refs`（松引用没了也能解析到正确 sha）；② 远端是唯一权威，提交前先 `git fetch` 并用 `git rev-parse FETCH_HEAD` 核对；③ 不依赖 reflog / origin| 跟踪引用；④ 事故一律按 `git-repo-recovery` 技能流程 A 从远端重建。**`--autostash` 一律不用。**
 
 ## 4. GEO（AI 搜索可见度）
@@ -38,7 +40,8 @@
 - ⚠️ **`next/script` + `afterInteractive` 的 JSON-LD 不进静态 HTML**。新增 JSON-LD 一律用原生 `<script dangerouslySetInnerHTML>`。
 - 已落地：`/faq`、`/langfang` + 11 个区县页、`/shuineighbor` Product Schema、sitemap。⚠️ 区县页必须差异化，否则判 doorway page。
 - 审计 `verify:ssg`（报告 `ssg-audit.txt`，18 项全 PASS 为准）。
-- 待确认（改 `company.delivery` 全站生效）：覆盖区域、送达时效。已做：meihaowater.site/IDN 旧域 301→meihaoshuiye.com。未做：**旧 2023 站 URL 继承**（切 DNS 后旧页 404，可能丢百度旧排名，待抓旧 URL 清单后映射）。
+- 待确认（改 `company.delivery` 全站生效）：覆盖区域、送达时效。已做：meihaowater.site/IDN 旧域 301→meihaoshuiye.com；旧站 URL 清单已挖出（Wayback CDX → `docs/baidu-old-urls.txt`，约 110 条页面类）+ 换站加速方案 `docs/baidu-reindex-plan.md`（策略 A 全量 410 / **策略 B 栏目级 301 继承**）——**Caddy 规则待用户定档后应用**。旧 2023 站为**同域换站**（非换域名），无需百度「网站改版」工具。
+- 百度站长平台**文件验证已落地**：`public/baidu_verify_codeva-9aaMr4FTSs.html`（32 字节纯内容）。⚠️ 凡「按扩展名批量 410」必须 `not path /baidu_verify_*`，否则验证静默失效；`verify-ssg.mjs` 的 `walk()` 已排除验证文件族（否则误判缺 Organization）。**ICP 备案（`company.icp`）仍 TODO —— 同域换服务器须办「接入备案」，是百度收录前提。**
 
 ## 5. 内容自动化
 - **铁律：静态导出只能「构建期取数」**，正文必须落在静态 HTML。
