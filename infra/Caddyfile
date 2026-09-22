@@ -4,6 +4,9 @@
 #
 # 水邻居官网（另一仓库 shuineighbor-water）：
 #       linju.meihaowater.site
+#
+# 图片 CDN（腾讯云 COS 反代）：
+#       img.meihaowater.site → 桶 meihao-1256962045（ap-beijing，公共读）
 
 {
 	email dev@meihaoshuiye.cn
@@ -53,4 +56,43 @@ linju.meihaowater.site {
 	root * /var/www/shuineighbor/out
 	file_server
 	tls /etc/ssl/shared/fullchain.pem /etc/ssl/shared/privkey.pem
+}
+
+# 图片 CDN：反代到腾讯云 COS（img.meihaowater.site）
+#
+# 为什么用反代而不是直连 COS 默认域名：
+#   - 域名短、可控，换桶 / 换区域不影响已发布页面（只改 media.ts 的 CDN 常量）。
+#   - 复用现有 *.meihaowater.site 通配证书，零证书配置。
+#   - 服务器与 COS 同为 ap-beijing（腾讯云内网），回源流量免费。
+#
+# 缓存策略（分级）：
+#   - certificates / brand：内容相对稳定 → 7 天。
+#   - 其余实拍图：文件名即内容标识，改动时换文件名 → 1 天，兼顾更新与省流量。
+#
+# 注意：Caddy 会自动透传上游的 Content-Type / ETag / Last-Modified，
+# 不要手工覆盖 Content-Type（COS 返回的 MIME 是准确的）。
+img.meihaowater.site {
+	encode zstd gzip
+	tls /etc/ssl/shared/fullchain.pem /etc/ssl/shared/privkey.pem
+
+	header {
+		-Server
+		X-Content-Type-Options "nosniff"
+		Access-Control-Allow-Origin "https://meihaowater.site"
+	}
+
+	# 授权证书类：长期缓存
+	@cert path /company/certificates/*
+	header @cert Cache-Control "public, max-age=604800"
+
+	# 其余图片：1 天
+	@img not path /company/certificates/*
+	header @img Cache-Control "public, max-age=86400"
+
+	reverse_proxy https://meihao-1256962045.cos.ap-beijing.myqcloud.com {
+		header_up Host meihao-1256962045.cos.ap-beijing.myqcloud.com
+		transport http {
+			tls
+		}
+	}
 }

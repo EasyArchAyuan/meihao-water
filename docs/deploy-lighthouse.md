@@ -187,9 +187,111 @@ wget -qO- https://xn--vhqu7tjwbb1iwpthm1a.online/
 | `www.廊坊美好水业.online` | IDN，Punycode `www.xn--vhqu7tjwbb1iwpthm1a.online` |
 | `meihaowater.site` | ASCII |
 | `www.meihaowater.site` | ASCII |
+| `linju.meihaowater.site` | 水邻居官网（另一仓库） |
+| `img.meihaowater.site` | 图片 CDN（Caddy 反代 COS） |
+| `piao.meihaowater.site` | 水票系统（反代 127.0.0.1:3000） |
 
 追加新域名：在 `infra/Caddyfile` 站点地址逗号列表里加名（IDN 用 Punycode）→ push，CI 自动同步。
 新域名的 DNS A 记录需先指向 `49.233.87.42`，Caddy 会自动签发证书。
+
+## 图片 CDN（腾讯云 COS + Caddy 反代）
+
+**背景**：`public/` 下的实拍图体积大（5.5 MB / 32 张），放仓库和服务器上都不经济。
+2026-09-22 起，大图统一托管到腾讯云 COS，由 Caddy 反代成自有域名对外提供。
+
+### 架构
+
+```
+浏览器 → https://img.meihaowater.site/company/founder.jpg
+           ↓  DNS A → 49.233.87.42
+        Caddy（本机 443，复用 *.meihaowater.site 通配证书）
+           ↓  reverse_proxy
+        meihao-1256962045.cos.ap-beijing.myqcloud.com
+```
+
+**为什么用反代而非直连 COS 默认域名**：
+
+1. 域名短、可控；换桶 / 换区域只改 `media.ts` 里的 `CDN` 常量，已发布页面无需改动。
+2. 复用现有 `*.meihaowater.site` 通配证书，**零证书配置**。
+3. 服务器与 COS 同为 ap-beijing（腾讯云内网），**回源流量免费**。
+
+### 对象存储约定
+
+| 项 | 值 |
+|---|---|
+| 桶 | `meihao-1256962045` |
+| 区域 | `ap-beijing` |
+| 权限 | 私有写 + 公共读 |
+| 对外域名 | `https://img.meihaowater.site` |
+| 目录结构 | `company/**`、`hero/**`、`home/**`（与 `public/` 下原路径一一对应） |
+
+### 代码侧约定
+
+唯一改动点是 `src/data/media.ts`：
+
+```ts
+export const CDN = "https://img.meihaowater.site";
+// 大图：src: `${CDN}/company/founder.jpg`
+```
+
+- `company/`、`hero/`、`home/` → 走 CDN。
+- `brand/`（logo）、`map/`（高德静态地图）、`images/`、百度站长验证 txt → 保留在 `public/` 本地。
+- **切换域名 / 回退到本地只需改 `CDN` 这一个常量。**
+
+水邻居官网（另一仓库）的 `hero/`、`home/` 素材与本站**为同一批文件**，
+复用同组 COS 对象（不重复存储），其 `media.ts` 采用同样的 `CDN` 常量写法。
+
+### 上传图片（新增素材时）
+
+需要本地装有 `coscli`，配置见 `~/.coscli` 或直接用 SDK。示例：
+
+```bash
+# 单张
+coscli cp public/company/new-photo.jpg cos://meihao-1256962045/company/new-photo.jpg
+
+# 整目录（保持结构）
+coscli cp -r public/company cos://meihao-1256962045/company
+```
+
+上传后**把本地文件从 `public/` 删除**（并 `git rm`），仅在 `media.ts` 增加 CDN 引用。
+
+> ⚠️ 用 `git rm -r <目录>` 时务必先 `git ls-files <目录>` 核对范围 ——
+> 若该目录下有未被 git 跟踪的子文件，整目录删除会连带丢失。（2026-09-22 踩过）
+
+### 防盗链（Referer 白名单）
+
+已开启，白名单（**不带协议前缀**，COS 是前缀匹配 + 支持通配符）：
+
+```
+meihaowater.site
+*.meihaowater.site          # 覆盖 www / linju / img / piao
+xn--vhqu7tjwbb1iwpthm1a.online
+*.xn--vhqu7tjwbb1iwpthm1a.online
+localhost:3000
+127.0.0.1:3000
+```
+
+- **空 Referer：Allow** —— 浏览器直接打开图片 URL 可访问，兼容性好。
+  代价：攻击者构造无 Referer 请求仍可绕过白名单（只防普通盗链，不防定向盗刷）。
+  若要更严，改为 `Deny`（此时直链打开会 403，但 SEO / 部分客户端可能受影响）。
+- 带签名的 URL 不参与防盗链校验。
+- **修改方式**：COS 控制台 → 存储桶 → 安全管理 → 防盗链设置。
+  （`coscli` 无防盗链子命令；脚本方式见下）
+
+> 验证命令：
+> ```bash
+> curl -I -H "Referer: https://evil.com/" \
+>   https://img.meihaowater.site/company/founder.jpg   # 期望 403
+> ```
+
+### 缓存策略
+
+| 路径 | Cache-Control |
+|---|---|
+| `/company/certificates/*` | `public, max-age=604800`（7 天） |
+| 其余图片 | `public, max-age=86400`（1 天） |
+
+图片内容变更时**换文件名**，不要依赖覆盖上传（CDN / 浏览器缓存不会立即失效）。
 
 ## 监控 / 备份（待办）
 
