@@ -23,6 +23,14 @@ export const site = {
     "水邻居",
   ] as string[],
   themeColor: "#0A2540",
+  /**
+   * 百度站长平台「HTML 标签验证」校验串（原文件验证已弃用）。
+   * 由 src/app/layout.tsx 渲染为
+   *   <meta name="baidu-site-verification" content="codeva-…" />
+   * 输出到全站 <head>；scripts/verify-ssg.mjs 也从这里派生断言，防止静默丢失。
+   * ⚠️ 换验证码只改这一处。
+   */
+  baiduVerification: "codeva-9aaMr4FTSs",
 } as const;
 
 export type Site = typeof site;

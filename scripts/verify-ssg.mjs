@@ -239,6 +239,22 @@ check(`无旧主体名 / 旧电话（命中 ${staleHits.length}）`, staleHits.l
 const legalHit = [...byRoute.values()].filter((v) => v.html.includes(LEGAL)).length;
 check(`legalName 出现在 SSG 产物（${legalHit} 页）`, legalHit > 0);
 
+// 7：百度站长平台「HTML 标签验证」meta 必须真的落在首页静态 HTML 里。
+//     校验串从 src/data/site.ts 派生（单一数据源），改口径只改一处。
+//     为什么要有这条断言：验证用的 meta 一旦被重构掉（例如有人把 Metadata API
+//     换成 next/script 或运行时注入），静态产物里就没了，站长平台会静默掉验证 ——
+//     构建期发现比等平台报错便宜得多。
+const siteSrc = existsSync("src/data/site.ts") ? readFileSync("src/data/site.ts", "utf8") : "";
+const baiduCode = siteSrc.match(/baiduVerification\s*:\s*"([^"]+)"/)?.[1] ?? "";
+const home = byRoute.get("/");
+const homeHasVerifyMeta =
+  !!home && home.html.includes("baidu-site-verification") && home.html.includes(baiduCode);
+check(
+  "首页静态 HTML 含百度 HTML 标签验证 meta",
+  baiduCode !== "" && homeHasVerifyMeta,
+  baiduCode === "" ? "src/data/site.ts 未定义 baiduVerification" : `code=${baiduCode}`,
+);
+
 // 报告同时落盘为 UTF-8 文件（Windows 控制台编码不稳，避免中文表头乱码）
 const lines = results.map(
   (r) => `${r.ok ? "PASS" : "FAIL"}  ${r.name}${r.detail ? `  ->  ${r.detail}` : ""}`,

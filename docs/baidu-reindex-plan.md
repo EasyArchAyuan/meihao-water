@@ -62,8 +62,13 @@
 ### 第 1 步：百度站长平台（决定新页面收录速度）
 
 1. 打开 `ziyuan.baidu.com` → 添加站点 `meihaoshuiye.com`
-2. **验证归属**：推荐用「HTML 标签验证」或「文件验证」
-   - 文件验证：把百度给的文件放到 `public/` 下（如 `public/baidu_verify_code-xxxx.html`），构建部署后即可验证通过
+2. **验证归属**：**已改用「HTML 标签验证」**（2026-09-22 定案；文件验证已弃用，见第十二节）
+   - HTML 标签验证：`<meta name="baidu-site-verification" content="codeva-…" />` 的校验串放在
+     `src/data/site.ts` 的 `baiduVerification`（**单一数据源**），由 `src/app/layout.tsx` 的
+     Metadata API 渲染进全站 `<head>`；构建后 `node scripts/verify-ssg.mjs` 会断言**首页静态
+     HTML 里确有该 meta**，丢了即构建失败
+   - ⚠️ 不要再走文件验证：`file_server` 给验证文件加 validator → 检测端条件请求回 **304** →
+     平台判「302 网页存在跳转」（实证见第十节）
 3. **提交 sitemap**：`https://meihaoshuiye.com/sitemap.xml`
 4. **普通收录 → 主动推送**：拿到 `token`，用 `scripts/baidu-push.mjs` 推送（见下）
 5. 顺手做一次「抓取诊断」，手动触发百度来抓首页
@@ -443,4 +448,61 @@ UDP 443 入向被**静默丢弃**（不是拒绝，是无任何回应）。客�
 > 同时要意识到**自测工具的协议盲区**：`curl` 不做 HTTP/3、忽略 `Alt-Svc`、不跑 JS、
 > 不遵守 `HSTS`/QUIC 策略。凡是依赖这些行为的失败，命令行永远复现不了。
 > 最快的定位法是**换一个真会走那条协议的客户端**，或用服务端日志的 `proto` 字段作判据。
+
+---
+
+## 十二、改用「HTML 标签验证」（2026-09-22 定案）
+
+> **结论：放弃文件验证，改用百度站长平台的「HTML 标签验证」。**
+> 不是文件验证本身有错，而是它把「能不能验证通过」这件事，绑定在了一堆与站点内容
+> 无关的东西上（独立文件的响应头、条件请求语义、80/443 直出、TLS/QUIC 可达性）。
+> HTML 标签验证读的是**首页 HTML 本身**，链路最短、变量最少。
+
+### 12.1 为什么换
+
+| 文件验证的失败面 | 说明 |
+|---|---|
+| **条件请求语义** | `file_server` 加 `ETag`/`Last-Modified` → 检测端带 `If-None-Match` 回 **304** → 平台判「302 网页存在跳转」（第十节） |
+| **协议可达性** | 检测端可能走 HTTP/3；`Alt-Svc: h3` 已宣告但 UDP 443 曾被防火墙静默丢弃 → 报「无法连接到您网站的服务器」（第十一节） |
+| **独立 URL** | 平台要单独请求一个根目录文件；多一次往返、多一个可被 CDN/缓存/规则干预的点 |
+| **多一份维护** | 文件内容与 Caddy 片段（`respond`）**必须同步**，容易漂移 |
+
+HTML 标签验证只要求：**首页静态 HTML 的 `<head>` 里有那段 `<meta>`**。
+它复用首页这条已被百度反复抓取成功（16 次 200）的链路，不再有任何附加条件。
+
+### 12.2 落地（文件级）
+
+| 文件 | 变更 |
+|---|---|
+| `src/data/site.ts` | **新增** `baiduVerification: "codeva-9aaMr4FTSs"` —— 校验串的**单一数据源** |
+| `src/app/layout.tsx` | `metadata.verification.other` 输出 `<meta name="baidu-site-verification" content="…" />` 到全站 `<head>` |
+| `scripts/verify-ssg.mjs` | **新增断言**：首页静态 HTML 必须含该 meta，校验串从 `site.ts` 正则派生（丢了即 exit 1） |
+| `infra/Caddyfile` | **删除** `(verifyfile)` 片段、HTTP 与 HTTPS 两块里的 `@baidu_verify` 匹配与 `handle`；`@verify`（其它厂商）列表去掉 `/baidu_verify_*.html`；保留「为何不能用 `file_server` 托管验证文件」的历史教训注释 |
+| `public/baidu_verify_codeva-9aaMr4FTSs.html` | **已移出项目**，备份在 `C:\Users\shang\WorkBuddy\.mhsy-removed-2026-09-22\`（需要回退时可直接取回） |
+
+⚠️ **不要顺手清理 `public/cc74d923d820ff83efe0cdc4c5c24913.txt`** —— 那是**微信**站长认证校验文件
+（内容 `7b268ebfd39b144363ac45b60aaf262e0f9997f6`），与百度无关，删了微信会再次拦截。
+
+### 12.3 本地验证口径
+
+```
+git push origin main            # 触发 Actions 构建 → 推 dist → 服务器 10 分钟内自动切换
+node scripts/verify-ssg.mjs     # 断言「首页静态 HTML 含百度 HTML 标签验证 meta」必须 PASS
+grep -c 'baidu-site-verification' out/index.html   # 期望 ≥ 1
+```
+
+### 12.4 站长平台侧（用户操作）
+
+1. 在验证方式里选 **「HTML 标签验证」**（平台会显示 `<meta name="baidu-site-verification" content="codeva-9aaMr4FTSs" />`）。
+2. 因为等价 meta **已部署**，直接点「**验证**」即可，无需手工改代码。
+   - 建议先 `Ctrl+F5` 刷新一下平台页面，避免它复用上一轮的失败缓存。
+3. 站点用 `www.meihaoshuiye.com` 或裸域提交都行 —— 两个 host 返回同一份 HTML，
+   meta 都在，故两种写法都能过（这也是我们**暂时保留 www 与裸域并存**的原因之一：
+   不为验证再引入变量；www→apex 301 等验证通过后再定）。
+
+### 12.5 保留的两条教训（将来仍会遇到）
+
+- **304 陷阱**：任何「根目录校验文件」都别用 `file_server` 托管 → 用 `respond` + `no-store`。
+- **协议可达性**：凡宣告了 `Alt-Svc: h3`，就必须放通 UDP 443（本轮已放通）。
+  「自测全对、客户端连不上」时，第一个要查的就是「我们宣告了什么协议、那条路是否真通」。
 

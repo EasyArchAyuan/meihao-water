@@ -42,6 +42,19 @@ export const metadata: Metadata = {
     apple: [{ url: "/brand/logo.jpg" }],
   },
   robots: { index: true, follow: true },
+  /*
+   * 站长平台验证：百度走「HTML 标签验证」，输出
+   *   <meta name="baidu-site-verification" content="codeva-…" />
+   * 到全站 <head>（静态导出后直接落在 out/**\/index.html 里，无需运行时注入）。
+   * 校验串单一数据源在 src/data/site.ts，勿在此硬编码。
+   * 注意：它由 Metadata API 输出，与下方用原生 <script> 内联的 JSON-LD 是两条路 ——
+   * 前者必须走 metadata（Next 会自动放进 <head>），后者必须手写（next/script 不进静态 HTML）。
+   */
+  verification: {
+    other: {
+      "baidu-site-verification": site.baiduVerification,
+    },
+  },
 };
 
 export const viewport: Viewport = {
