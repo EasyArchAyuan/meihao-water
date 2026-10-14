@@ -17,7 +17,7 @@
 #   /etc/ssl/meihaoshuiye.com/{fullchain,privkey}.pem   ← 主域（已就绪）
 #   /etc/ssl/meihaowater.site/{fullchain,privkey}.pem   ← 旧域 301（已就绪）
 #   /etc/ssl/img.meihaowater.site/{fullchain,privkey}.pem ← 图片 CDN（已就绪）
-#   /etc/ssl/xn--vhqu7tjwbb1iwpthm1a.online/…           ← IDN 旧域 301（待证书 bYvn8fYn）
+#   /etc/ssl/xn--vhqu7tjwbb1iwpthm1a.online/…           ← IDN 旧域 301（已就绪）
 #   /etc/ssl/linju.meihaowater.site/…                   ← 水邻居（待申请证书）
 #
 # ⚠️ **一个 tls 指令要覆盖所在块内的全部 hostname** —— 不同 SAN 的域名绝不能合块，
@@ -183,23 +183,26 @@ meihaowater.site, www.meihaowater.site {
 	redir https://meihaoshuiye.com{uri} permanent
 }
 
-# IDN 旧域 .online → 主域 301
-# ⚠️ 2026-10-14 换机后暂不可用：IDN 证书（腾讯云证书 ID bYvn8fYn）尚未部署。
-#    之所以必须与上面的块拆开：Caddy 要求一个 tls 指令覆盖块内**全部** hostname，
-#    若与 meihaowater.site 合块，IDN 域会因证书不匹配而握手失败。
-# xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online {
-# 	log
-# 	tls /etc/ssl/xn--vhqu7tjwbb1iwpthm1a.online/fullchain.pem /etc/ssl/xn--vhqu7tjwbb1iwpthm1a.online/privkey.pem
-# 	redir https://meihaoshuiye.com{uri} permanent
-# }
+# IDN 旧域 廊坊美好水业.online → 主域 301
+# 证书：TrustAsia C1 DV Free 单域名证，SAN 为 punycode 形式
+#      xn--vhqu7tjwbb1iwpthm1a.online + www.xn--vhqu7tjwbb1iwpthm1a.online
+#      装在 /etc/ssl/xn--vhqu7tjwbb1iwpthm1a.online/，有效期至 2027-01-12。
+# ⚠️ 与 meihaowater.site 拆成两块的原因：Caddy 要求一个 tls 指令覆盖块内全部 hostname，
+#    不同 SAN 的域名合块会因证书不匹配而握手失败。
+xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online {
+	log
+	tls /etc/ssl/xn--vhqu7tjwbb1iwpthm1a.online/fullchain.pem /etc/ssl/xn--vhqu7tjwbb1iwpthm1a.online/privkey.pem
+	redir https://meihaoshuiye.com{uri} permanent
+}
 
 # 水邻居官网（linju.meihaowater.site）
 # ⚠️ 2026-10-14 换机后暂不可用：尚未申请 linju 子域证书，整块注释。
+#    恢复方式：申请 linju.meihaowater.site 证书 → 装到 /etc/ssl/linju.meihaowater.site/
+#    → 取消下面注释。注释状态可避免 Caddy 反复尝试 ACME 签发刷失败日志。
 # linju.meihaowater.site {
 # 	import headers_cache
 # 	root * /var/www/shuineighbor/out
 # 	file_server
-# 	tls /etc/ssl/linju.meihaowater.site/fullchain.pem /etc/ssl/linju.meihaowater.site/privkey.pem
 # }
 
 # 图片 CDN：反代到腾讯云 COS（img.meihaowater.site）
