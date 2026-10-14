@@ -1,3 +1,9 @@
+## [1.7.2](https://github.com/EasyArchAyuan/meihao-water/compare/v1.7.1...v1.7.2) (2026-10-14)
+
+### 修复
+
+* **infra:** 启用 IDN 旧域 .online 301 ([c3771d6](https://github.com/EasyArchAyuan/meihao-water/commit/c3771d63b1ee21571614fabfa3a2c46e1680529e))
+
 ## [1.7.1](https://github.com/EasyArchAyuan/meihao-water/compare/v1.7.0...v1.7.1) (2026-10-14)
 
 ### 修复
