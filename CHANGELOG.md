@@ -1,3 +1,9 @@
+## [1.7.1](https://github.com/EasyArchAyuan/meihao-water/compare/v1.7.0...v1.7.1) (2026-10-14)
+
+### 修复
+
+* **infra:** 证书改按域名分目录，部署 meihaowater.site 旧域 301 ([d16b6d9](https://github.com/EasyArchAyuan/meihao-water/commit/d16b6d9bbb3e40eeefdab551212df5fc83173eb0))
+
 ## [1.7.0](https://github.com/EasyArchAyuan/meihao-water/compare/v1.6.9...v1.7.0) (2026-09-22)
 
 ### 新功能
