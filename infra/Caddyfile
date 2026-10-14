@@ -1,4 +1,6 @@
 # 美好水业官网 - Caddyfile（Next.js 16 静态导出）
+# 服务器：lhins-hfvcakqo / 49.233.13.191（ap-beijing-3，Ubuntu 24.04，Caddy v2.11.4）
+#
 # 站点（canonical 主域）：meihaoshuiye.com / www.meihaoshuiye.com
 # 旧域名（301 跳转过来）：廊坊美好水业.online(xn--vhqu7tjwbb1iwpthm1a.online) / www 同 /
 #                       meihaowater.site / www.meihaowater.site
@@ -8,6 +10,23 @@
 #
 # 图片 CDN（腾讯云 COS 反代）：
 #       img.meihaowater.site → 桶 meihao-1256962045（ap-beijing，公共读）
+#
+# ── 证书管理约定 ──────────────────────────────────────────────
+# 2026-10-14 老机（49.233.87.42）过期失联后，原 DNS-01 通配 SAN 证已不可用。
+# 改为**按域名分发单域名证书**，每站一个目录，互不干扰（避免一张证书覆盖打掉全部站点）：
+#   /etc/ssl/meihaoshuiye.com/{fullchain,privkey}.pem   ← 主域（已就绪）
+#   /etc/ssl/meihaowater.site/{fullchain,privkey}.pem   ← 旧域 301（已就绪）
+#   /etc/ssl/img.meihaowater.site/{fullchain,privkey}.pem ← 图片 CDN（已就绪）
+#   /etc/ssl/xn--vhqu7tjwbb1iwpthm1a.online/…           ← IDN 旧域 301（待证书 bYvn8fYn）
+#   /etc/ssl/linju.meihaowater.site/…                   ← 水邻居（待申请证书）
+#
+# ⚠️ **一个 tls 指令要覆盖所在块内的全部 hostname** —— 不同 SAN 的域名绝不能合块，
+#    否则未部署证书的那部分会握手失败。
+# ⚠️ 目录 755、私钥 root:caddy 640、证书 644 —— 改完必须 reload 并 grep
+#    '"msg":"load complete"' /var/log/caddy/access.log 确认生效（is-active 不算数）。
+# ⚠️ 证书链必须是完整 3 张（leaf + DV TLS RSA CA 2024 + TLS RSA Root CA）。
+# ⚠️ 所有证书 2027-01-12 到期，届时需重签。
+# ───────────────────────────────────────────────────────────
 {
 	email dev@meihaoshuiye.cn
 
@@ -135,10 +154,18 @@ http://meihaoshuiye.com, http://www.meihaoshuiye.com, http://meihaowater.site, h
 }
 
 # 主站（canonical）：meihaoshuiye.com
-# 证书由 Caddy 自动通过 ACME(tls-alpn-01) 签发并续期 —— Caddy 默认即自动 HTTPS。
-# ⚠️ 本块无需 tls 指令；切勿写裸 `tls`（Caddyfile 语法要求 tls 必须带参数，否则 validate 失败）。
-# 前提：DNS A 已指向本机 49.233.87.42 且 443 可达（ACME 校验走 443）。
+#
+# 证书：TrustAsia C1 DV Free 单域名证，SAN = meihaoshuiye.com + www.meihaoshuiye.com，
+#      装在 /etc/ssl/meihaoshuiye.com/（2026-10-14 换机后重签，有效期至 2027-01-12）。
+#
+# ⚠️ 为什么显式写 `tls` 而不用 Caddy 内置 ACME：国内 Let's Encrypt 校验节点对本机
+#    返回 `reader size limit exceeded`（中国区节点问题），签不下来，故手动装证书。
+# ⚠️ 切勿写裸 `tls`（Caddyfile 语法要求 tls 必须带参数，否则 validate 失败）。
+# ⚠️ 私钥权限必须是 root:caddy 640，Caddy 以 caddy 用户运行，root:root 600 会导致
+#    reload 报 permission denied（而 systemctl is-active 仍显示 active，跑着旧配置）。
+# ⚠️ 换证书时改这里 + 服务器上装对应文件，两处必须同步。
 meihaoshuiye.com, www.meihaoshuiye.com {
+	tls /etc/ssl/meihaoshuiye.com/fullchain.pem /etc/ssl/meihaoshuiye.com/privkey.pem
 	import headers_cache
 	root * /var/www/mhsy/out
 
@@ -147,26 +174,43 @@ meihaoshuiye.com, www.meihaoshuiye.com {
 	}
 }
 
-# 旧域名 → 主域名 301 永久跳转（集中百度权重，规避镜像/站群判罚）
-xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online, meihaowater.site, www.meihaowater.site {
+# 旧域 meihaowater.site → 主域 301（集中百度权重，规避镜像/站群判罚）
+# 证书：TrustAsia C1 DV Free 单域名证，SAN = meihaowater.site + www.meihaowater.site，
+#      装在 /etc/ssl/meihaowater.site/，有效期至 2027-01-12。
+meihaowater.site, www.meihaowater.site {
 	log
+	tls /etc/ssl/meihaowater.site/fullchain.pem /etc/ssl/meihaowater.site/privkey.pem
 	redir https://meihaoshuiye.com{uri} permanent
-	tls /etc/ssl/shared/fullchain.pem /etc/ssl/shared/privkey.pem
 }
 
-linju.meihaowater.site {
-	import headers_cache
-	root * /var/www/shuineighbor/out
-	file_server
-	tls /etc/ssl/shared/fullchain.pem /etc/ssl/shared/privkey.pem
-}
+# IDN 旧域 .online → 主域 301
+# ⚠️ 2026-10-14 换机后暂不可用：IDN 证书（腾讯云证书 ID bYvn8fYn）尚未部署。
+#    之所以必须与上面的块拆开：Caddy 要求一个 tls 指令覆盖块内**全部** hostname，
+#    若与 meihaowater.site 合块，IDN 域会因证书不匹配而握手失败。
+# xn--vhqu7tjwbb1iwpthm1a.online, www.xn--vhqu7tjwbb1iwpthm1a.online {
+# 	log
+# 	tls /etc/ssl/xn--vhqu7tjwbb1iwpthm1a.online/fullchain.pem /etc/ssl/xn--vhqu7tjwbb1iwpthm1a.online/privkey.pem
+# 	redir https://meihaoshuiye.com{uri} permanent
+# }
+
+# 水邻居官网（linju.meihaowater.site）
+# ⚠️ 2026-10-14 换机后暂不可用：尚未申请 linju 子域证书，整块注释。
+# linju.meihaowater.site {
+# 	import headers_cache
+# 	root * /var/www/shuineighbor/out
+# 	file_server
+# 	tls /etc/ssl/linju.meihaowater.site/fullchain.pem /etc/ssl/linju.meihaowater.site/privkey.pem
+# }
 
 # 图片 CDN：反代到腾讯云 COS（img.meihaowater.site）
 #
 # 为什么用反代而不是直连 COS 默认域名：
 #   - 域名短、可控，换桶 / 换区域不影响已发布页面（只改 media.ts 的 CDN 常量）。
-#   - 复用现有 *.meihaowater.site 通配证书，零证书配置。
+#   - 复用现有证书，零额外证书配置。
 #   - 服务器与 COS 同为 ap-beijing（腾讯云内网），回源流量免费。
+#
+# 证书：TrustAsia C1 DV Free 单域名证（SAN = img.meihaowater.site），
+#      装在 /etc/ssl/img.meihaowater.site/，有效期至 2027-01-12。
 #
 # 缓存策略（分级）：
 #   - certificates / brand：内容相对稳定 → 7 天。
@@ -176,8 +220,8 @@ linju.meihaowater.site {
 # 不要手工覆盖 Content-Type（COS 返回的 MIME 是准确的）。
 img.meihaowater.site {
 	log
+	tls /etc/ssl/img.meihaowater.site/fullchain.pem /etc/ssl/img.meihaowater.site/privkey.pem
 	encode zstd gzip
-	tls /etc/ssl/shared/fullchain.pem /etc/ssl/shared/privkey.pem
 
 	# COS 桶防盗链白名单以 meihaowater.site 为准；官网主域已翻转为 meihaoshuiye.com。
 	# 对来自自有域名（主域/www/水邻居子域/IDN 旧域）的请求，把 Referer 规范为白名单值，
