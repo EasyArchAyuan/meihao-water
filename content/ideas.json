@@ -78,6 +78,24 @@
       "keywords": ["廊坊桶装水", "送水商选择", "水票"],
       "used": true,
       "publishedSlug": "three-suppliers-one-standard-langfang"
+    },
+    {
+      "id": "idea-09",
+      "pillar": "P1",
+      "title": "桶装水的水源地，你真的看过吗",
+      "angle": "科普产品类别与水源地的区别，纠正「纯净＝更干净」的误区，讲锶与偏硅酸",
+      "keywords": ["廊坊桶装水", "送水上门", "饮用水水源地", "桶装水怎么选"],
+      "used": true,
+      "publishedSlug": "bottled-water-source-label-langfang"
+    },
+    {
+      "id": "idea-10",
+      "pillar": "P4",
+      "title": "周末在家断水了，廊坊人该怎么叫水",
+      "angle": "本地服务向：覆盖范围、下单流程、公众号与电话，解决临时断水的拨打场景",
+      "keywords": ["廊坊送水电话", "廊坊桶装水配送", "断水叫水"],
+      "used": false,
+      "publishedSlug": null
     }
   ]
 }
