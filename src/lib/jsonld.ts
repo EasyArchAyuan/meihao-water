@@ -47,15 +47,15 @@ export function organizationJsonLd(): string {
     foundingDate: String(company.establishedYear),
     telephone: company.phones.map((p) => e164(p.tel)),
     address: postalAddress(),
-    areaServed: {
+    areaServed: ["广阳区", "安次区", "廊坊经济技术开发区"].map((name) => ({
       "@type": "AdministrativeArea",
-      name: "廊坊市",
-    },
+      name,
+    })),
     contactPoint: company.phones.map((p) => ({
       "@type": "ContactPoint",
       telephone: e164(p.tel),
       contactType: p.primary ? "customer service" : "sales",
-      areaServed: "廊坊市",
+      areaServed: ["广阳区", "安次区", "廊坊经济技术开发区"],
       availableLanguage: ["zh-CN"],
     })),
   };

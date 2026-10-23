@@ -14,7 +14,7 @@ import { localBusinessJsonLd, organizationJsonLd } from "@/lib/jsonld";
 export const metadata: Metadata = {
   metadataBase: new URL(site.url),
   title: {
-    default: `${site.name}｜廊坊本地饮水服务品牌`,
+    default: `${site.name}｜廊坊桶装水配送·送水上门`,
     template: `%s｜${site.name}`,
   },
   description: site.description,
@@ -28,13 +28,13 @@ export const metadata: Metadata = {
     type: "website",
     locale: site.ogLocale,
     siteName: site.name,
-    title: `${site.name}｜廊坊本地饮水服务品牌`,
+    title: `${site.name}｜廊坊桶装水配送·送水上门`,
     description: site.description,
     url: site.url,
   },
   twitter: {
     card: "summary_large_image",
-    title: `${site.name}｜廊坊本地饮水服务品牌`,
+    title: `${site.name}｜廊坊桶装水配送·送水上门`,
     description: site.description,
   },
   icons: {

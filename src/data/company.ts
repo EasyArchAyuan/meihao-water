@@ -68,10 +68,10 @@ export const company = {
    * 确认后只改这里，FAQ / 落地页 / JSON-LD 全站生效。
    */
   delivery: {
-    /** 覆盖区域口径 */
-    areas: "TODO: REAL_DELIVERY_AREAS",
+    /** 覆盖区域口径（2026-10-23 确认：三区全域配送） */
+    areas: "广阳区、安次区、廊坊经济技术开发区",
     /** 送达时效口径 */
-    leadTime: "TODO: REAL_LEAD_TIME",
+    leadTime: "市区接单后约 2 小时送达",
     /** 已确认的服务场景 */
     scenes: ["家庭", "公司", "社区", "门店", "会议"],
     /** 已确认的经营品类 */

@@ -27,7 +27,7 @@ import { ClosingCTA } from "@/components/home/ClosingCTA";
  *   与 YearsSection 原关键词线一字不差；本地下沉入口移交 DeliveryFlow 的 /langfang 内链。
  */
 export const metadata: Metadata = buildMetadata({
-  title: "美好水业｜廊坊本地饮水服务品牌",
+  title: "美好水业｜廊坊桶装水配送·送水上门",
   description:
     "美好水业，廊坊本地饮水服务品牌。自 1997 年起在廊坊经营桶装水、一次性桶装水、瓶装水与饮水配送，代理十余个品牌，库房 5000 余平米，家庭、公司、门店均可安排。",
   path: "/",
