@@ -1,3 +1,9 @@
+## [1.7.3](https://github.com/EasyArchAyuan/meihao-water/compare/v1.7.2...v1.7.3) (2026-10-23)
+
+### 修复
+
+* **seo:** 补齐实体字段、修正 title、新增 llms.txt ([7923b46](https://github.com/EasyArchAyuan/meihao-water/commit/7923b46ee2731399661c3ad5954add6ed2d13e1c))
+
 ## [1.7.2](https://github.com/EasyArchAyuan/meihao-water/compare/v1.7.1...v1.7.2) (2026-10-14)
 
 ### 修复
