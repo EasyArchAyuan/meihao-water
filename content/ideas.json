@@ -96,6 +96,24 @@
       "keywords": ["廊坊送水电话", "廊坊桶装水配送", "断水叫水"],
       "used": true,
       "publishedSlug": "weekend-water-outage-bottled-water-delivery-langfang"
+    },
+    {
+      "id": "idea-11",
+      "pillar": "P2",
+      "title": "一张二十年前的水票，还能不能换",
+      "angle": "水票是预付凭证：为什么有的商家换招牌就不认账，我们拿什么把票兑出来（库房、分店、仓配一体）",
+      "keywords": ["廊坊桶装水", "廊坊送水", "水票"],
+      "used": true,
+      "publishedSlug": "old-water-ticket-still-honored-langfang"
+    },
+    {
+      "id": "idea-12",
+      "pillar": "P1",
+      "title": "饮水机多久洗一次才合适",
+      "angle": "清洗频次与操作步骤：廊坊水质条件下家庭与办公室的不同安排，附自查清单",
+      "keywords": ["饮水机清洗", "桶装水二次污染", "廊坊桶装水"],
+      "used": false,
+      "publishedSlug": ""
     }
   ]
 }
