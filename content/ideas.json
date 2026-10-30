@@ -114,6 +114,24 @@
       "keywords": ["饮水机清洗", "桶装水二次污染", "廊坊桶装水"],
       "used": true,
       "publishedSlug": "water-dispenser-cleaning-frequency-langfang"
+    },
+    {
+      "id": "idea-13",
+      "pillar": "P3",
+      "title": "供暖季家里备水，先想清楚谁去搬那桶",
+      "angle": "家庭场景：订水按「换桶的人」定规格而不是按喝的人数，附供暖季桶与饮水机的摆放注意",
+      "keywords": ["廊坊桶装水", "廊坊送水上门", "家庭订水", "桶装水摆放"],
+      "used": true,
+      "publishedSlug": "family-bottled-water-plan-langfang"
+    },
+    {
+      "id": "idea-14",
+      "pillar": "P4",
+      "title": "廊坊老小区没电梯，桶装水怎么送上楼",
+      "angle": "本地服务向：楼层、停车与入户的实际情况，下单时要说清什么，避免到了楼下才发现搬不上去",
+      "keywords": ["廊坊送水上门", "廊坊桶装水配送", "无电梯送水"],
+      "used": false,
+      "publishedSlug": null
     }
   ]
 }
