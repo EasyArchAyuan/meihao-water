@@ -150,6 +150,24 @@
       "keywords": ["廊坊桶装水", "廊坊送水", "水票"],
       "used": true,
       "publishedSlug": "delivery-staff-change-service-consistency-langfang"
+    },
+    {
+      "id": "idea-17",
+      "pillar": "P1",
+      "title": "一支检测笔，量不出廊坊桶装水的水源地",
+      "angle": "科普检测笔测的是溶解性固体总量、不是卫生指标；天然水含锶与偏硅酸读数本就高，选水凭据在桶身类别与水源地，以及配送后的存放清洗",
+      "keywords": ["廊坊桶装水", "廊坊送水", "桶装水怎么选", "水质检测笔"],
+      "used": true,
+      "publishedSlug": "tds-pen-bottled-water-source-langfang"
+    },
+    {
+      "id": "idea-18",
+      "pillar": "P4",
+      "title": "打电话叫廊坊桶装水，先备好这三样信息",
+      "angle": "本地服务向：下单时报清地址门牌、桶型与数量、期望配送时间，减少来回沟通；覆盖片区与公众号下单流程",
+      "keywords": ["廊坊送水电话", "廊坊桶装水配送", "订水流程"],
+      "used": false,
+      "publishedSlug": ""
     }
   ]
 }
