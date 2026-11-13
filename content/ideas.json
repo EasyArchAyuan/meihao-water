@@ -168,6 +168,15 @@
       "keywords": ["廊坊送水电话", "廊坊桶装水配送", "订水流程"],
       "used": false,
       "publishedSlug": ""
+    },
+    {
+      "id": "idea-19",
+      "pillar": "P1",
+      "title": "饮水机反复加热的水，还能不能喝",
+      "angle": "科普「千滚水 / 亚硝酸盐」误区；明确观点：反复加热不是主要风险点，该盯饮水机内胆清洗频次与开封天数，附自查清单与订水节奏建议",
+      "keywords": ["廊坊桶装水", "廊坊送水", "千滚水", "饮水机清洗"],
+      "used": true,
+      "publishedSlug": "reboiled-water-dispenser-langfang"
     }
   ]
 }
